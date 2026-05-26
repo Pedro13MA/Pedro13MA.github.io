@@ -1,1 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Spotter Intelligence Hub — real-time price intelligence for tech, gaming and electronics. Detect real deals, filter fake discounts, get Telegram alerts.">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Spotter Intelligence Hub — Price Intelligence for Tech & Gaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav container">
+      <a href="#" class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        Spotter
+      </a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#stack">Stack</a>
+        <a href="#cta" class="nav-cta">Get Alerts</a>
+      </div>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
 
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="badge fade-in">Early access · Production stable</div>
+        <h1 class="fade-in delay-1">Spotter Intelligence Hub</h1>
+        <p class="hero-sub fade-in delay-2">Real-time price intelligence for tech, gaming and electronics</p>
+        <p class="hero-desc fade-in delay-3">
+          A lean monitoring platform that tracks online stores, validates real promotions,
+          and filters out fake discounts — so you only see deals worth your attention.
+        </p>
+        <div class="hero-actions fade-in delay-4">
+          <a href="#cta" class="btn btn-primary">Join Telegram Alerts</a>
+          <a href="#features" class="btn btn-secondary">See how it works</a>
+        </div>
+        <div class="hero-stats fade-in delay-5">
+          <div class="stat">
+            <span class="stat-value">Multi-store</span>
+            <span class="stat-label">Monitoring</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat">
+            <span class="stat-value">Anti-fake</span>
+            <span class="stat-label">Deal engine</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat">
+            <span class="stat-value">Telegram</span>
+            <span class="stat-label">Instant alerts</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section about">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">About</span>
+          <h2>Price intelligence that cuts through the noise</h2>
+          <p class="section-lead">
+            Spotter is a production-grade monitoring platform built for people who care
+            about real savings — not inflated “was/now” prices or marketplace bait.
+          </p>
+        </div>
+        <div class="about-grid">
+          <article class="about-card">
+            <div class="about-icon" aria-hidden="true">◈</div>
+            <h3>Store monitoring</h3>
+            <p>Continuous scraping and analysis of major online retailers across hardware, gaming and digital goods.</p>
+          </article>
+          <article class="about-card">
+            <div class="about-icon" aria-hidden="true">◈</div>
+            <h3>Real deal detection</h3>
+            <p>Multi-layer validation rejects suspicious discounts, marketplace noise, and price parsing errors before they reach you.</p>
+          </article>
+          <article class="about-card">
+            <div class="about-icon" aria-hidden="true">◈</div>
+            <h3>Telegram alerts</h3>
+            <p>Curated deal notifications delivered to your Telegram — categorized by topic, with optional personal keyword alerts.</p>
+          </article>
+          <article class="about-card">
+            <div class="about-icon" aria-hidden="true">◈</div>
+            <h3>Tech-first focus</h3>
+            <p>Built for GPUs, CPUs, consoles, peripherals and digital products — where fake promotions are most common.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="section features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Features</span>
+          <h2>Built for accuracy, not volume</h2>
+          <p class="section-lead">Every component is designed to prefer missing a deal over publishing garbage.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card">
+            <span class="feature-num">01</span>
+            <h3>Multi-store price monitoring</h3>
+            <p>Parallel async scraping across retailers with adaptive polling, HTTP caching and anti-ban resilience.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-num">02</span>
+            <h3>Real deal detection</h3>
+            <p>Conservative gates filter fake discounts, inflated original prices, and implausible price drops.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-num">03</span>
+            <h3>Amazon product enrichment</h3>
+            <p>Search pages discover ASINs; product pages (<code>/dp/&#123;ASIN&#125;</code>) enrich seller, FBA and condition metadata.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-num">04</span>
+            <h3>Smart scoring &amp; filtering</h3>
+            <p>Confidence tiers, priority engine and cross-store deduplication keep signal high and noise low.</p>
+          </article>
+          <article class="feature-card">
+            <span class="feature-num">05</span>
+            <h3>Telegram alert system</h3>
+            <p>Topic-based group publishing plus private <code>/alertar</code> subscriptions for products you care about.</p>
+          </article>
+          <article class="feature-card feature-card-accent">
+            <span class="feature-num">+</span>
+            <h3>Production lean</h3>
+            <p>Single Python process · SQLite WAL · runs on a €4/month VPS with zero Redis, Docker or Postgres overhead.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Focus -->
+    <section class="section focus">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Focus</span>
+          <h2>Categories we watch closely</h2>
+        </div>
+        <div class="focus-grid">
+          <div class="focus-card focus-tech">
+            <h3>Tech</h3>
+            <p>GPUs, CPUs, SSDs, RAM, motherboards and core PC components.</p>
+            <ul>
+              <li>RTX / Radeon</li>
+              <li>Ryzen / Core</li>
+              <li>NVMe storage</li>
+            </ul>
+          </div>
+          <div class="focus-card focus-gaming">
+            <h3>Gaming</h3>
+            <p>Consoles, game keys and gaming hardware with strict deal validation.</p>
+            <ul>
+              <li>PlayStation / Xbox</li>
+              <li>Steam &amp; digital</li>
+              <li>Controllers &amp; headsets</li>
+            </ul>
+          </div>
+          <div class="focus-card focus-electronics">
+            <h3>Electronics</h3>
+            <p>Smartphones, peripherals and consumer tech with price sanity checks.</p>
+            <ul>
+              <li>Smartphones</li>
+              <li>Keyboards &amp; mice</li>
+              <li>Monitors &amp; audio</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stack -->
+    <section id="stack" class="section stack">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Technology</span>
+          <h2>Lean stack, production-grade</h2>
+          <p class="section-lead">Engineered for weeks of unattended operation on minimal infrastructure.</p>
+        </div>
+        <div class="stack-grid">
+          <div class="stack-item">
+            <span class="stack-label">Runtime</span>
+            <strong>Python asyncio</strong>
+            <span class="stack-detail">Single-process orchestrator</span>
+          </div>
+          <div class="stack-item">
+            <span class="stack-label">Scraping</span>
+            <strong>aiohttp engine</strong>
+            <span class="stack-detail">ETag · retry · anti-ban</span>
+          </div>
+          <div class="stack-item">
+            <span class="stack-label">Database</span>
+            <strong>SQLite WAL</strong>
+            <span class="stack-detail">Price history &amp; cache</span>
+          </div>
+          <div class="stack-item">
+            <span class="stack-label">Rendering</span>
+            <strong>Playwright</strong>
+            <span class="stack-detail">Optional · lazy-loaded</span>
+          </div>
+          <div class="stack-item">
+            <span class="stack-label">Delivery</span>
+            <strong>Telegram Bot API</strong>
+            <span class="stack-detail">Topics &amp; private alerts</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta" class="section cta">
+      <div class="container">
+        <div class="cta-box">
+          <h2>Never miss a real deal again</h2>
+          <p>Join the Telegram channel for curated alerts on tech, gaming and electronics — filtered by a conservative deal engine.</p>
+          <a href="https://t.me/spotter_dealss" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+            Join Telegram Alerts
+          </a>
+          <p class="cta-note">Free alerts · No spam · Real deals only</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span>Spotter Intelligence Hub</span>
+      </div>
+      <p class="footer-copy">© 2026 Pedro Martins · Europe/Lisbon · V9 Production Stable</p>
+      <p class="footer-disclaimer">
+        Spotter is an independent price monitoring tool. We are not affiliated with any retailer.
+        Prices and availability are subject to change.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
