@@ -6,7 +6,7 @@ const stats = [
   { value: 10, prefix: "<", suffix: "s", label: "Tempo por ciclo de análise", isNumeric: true },
   { value: 6, suffix: "", label: "Camadas de validação", isNumeric: true },
   { value: 24, suffix: "/7", label: "Monitorização contínua", isNumeric: false },
-  { value: 4, prefix: "€", suffix: "/mês", label: "Custo de infraestrutura", isNumeric: true },
+  { value: 100, suffix: "%", label: "Feeds oficiais de afiliados", isNumeric: true },
 ];
 
 export function Stats() {

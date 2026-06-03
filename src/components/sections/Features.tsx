@@ -19,7 +19,7 @@ const features = [
   },
   {
     title: "Autonomia total",
-    text: "Corre semanas numa VPS de €4/mês. Sem equipa, sem horários, sem falhas humanas.",
+    text: "Corre semanas sem intervenção. Sem equipa, sem horários, sem falhas humanas.",
   },
   {
     title: "Decisões explicáveis",
