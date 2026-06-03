@@ -1,0 +1,35 @@
+SPOTTER - COMO ARRANCAR O SITE (Windows)
+=========================================
+
+OPCAO 1 - Mais facil (duplo-clique)
+-----------------------------------
+Abre no Explorador de Ficheiros:
+  START-HERE.cmd
+(dois cliques)
+
+OPCAO 2 - PowerShell (copiar TUDO de uma vez)
+---------------------------------------------
+cd "C:\Users\Utilizador\Desktop\Spotter Site\Pedro13MA.github.io"
+$env:Path = "C:\Program Files\nodejs;" + $env:Path
+npm install
+npm run dev
+
+Abre no browser: http://localhost:3000
+
+OPCAO 3 - PowerShell com ficheiro .cmd
+--------------------------------------
+cd "C:\Users\Utilizador\Desktop\Spotter Site\Pedro13MA.github.io"
+.\START-HERE.cmd
+
+(NOTA: em PowerShell tens de usar .\ antes do nome:
+  .\install.cmd   e nao   install.cmd)
+
+PORQUE "npm" falha sozinho?
+---------------------------
+O Node esta instalado mas o terminal antigo nao tem o PATH.
+Fechar TODO o Cursor e abrir de novo (ou reiniciar o PC) corrige isso.
+
+O comando que ja te funcionou para instalar:
+  & "C:\Program Files\nodejs\npm.cmd" install
+
+Para o dev, ANTES tens de pôr o Node no PATH (linha 2 da Opcao 2).
