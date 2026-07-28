@@ -55,9 +55,12 @@ export function SearchBar({ className, autoFocus, defaultQuery = "" }: Props) {
     goSearch(query);
   }
 
+  const trimmed = query.trim();
+  const showDropdown = open && (loading || results.length > 0 || trimmed.length >= 2);
+
   return (
     <form onSubmit={onSubmit} className={cn("relative w-full", className)}>
-      <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+      <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-slate-400" />
       <Input
         value={query}
         onChange={(e) => {
@@ -70,22 +73,26 @@ export function SearchBar({ className, autoFocus, defaultQuery = "" }: Props) {
         autoFocus={autoFocus}
         className="h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base shadow-lg"
         aria-label="Procurar produto"
+        aria-expanded={showDropdown}
+        aria-autocomplete="list"
       />
-      {open && (loading || results.length > 0 || query.trim().length >= 2) ? (
-        <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg">
-          {loading ? (
-            <li className="px-4 py-3 text-sm text-slate-500">
-              A procurar na API Limiar…
-            </li>
-          ) : results.length === 0 ? (
-            <li className="px-4 py-3 text-sm text-slate-500">
-              Sem sugestões. Carrega Enter para ver todos os resultados de “
-              {query.trim()}”.
-            </li>
-          ) : (
-            <>
-              {results.map((p) => (
-                <li key={p.ean}>
+      {showDropdown ? (
+        <div
+          className="absolute top-full left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+          role="listbox"
+        >
+          <ul className="max-h-80 overflow-y-auto overscroll-contain">
+            {loading ? (
+              <li className="px-4 py-3 text-sm text-slate-500">
+                A procurar na API Limiar…
+              </li>
+            ) : results.length === 0 ? (
+              <li className="px-4 py-3 text-sm text-slate-500">
+                Sem sugestões. Carrega Enter para ver todos os resultados.
+              </li>
+            ) : (
+              results.map((p) => (
+                <li key={p.ean} role="option" aria-selected={false}>
                   <button
                     type="button"
                     onMouseDown={() => goProduct(p.slug)}
@@ -99,19 +106,21 @@ export function SearchBar({ className, autoFocus, defaultQuery = "" }: Props) {
                     </span>
                   </button>
                 </li>
-              ))}
-              <li className="border-t border-slate-100">
-                <button
-                  type="button"
-                  onMouseDown={() => goSearch(query)}
-                  className="w-full px-4 py-3 text-left text-sm font-medium text-sky-700 hover:bg-sky-50"
-                >
-                  Ver todos os resultados para “{query.trim()}”
-                </button>
-              </li>
-            </>
-          )}
-        </ul>
+              ))
+            )}
+          </ul>
+          {trimmed.length >= 2 ? (
+            <div className="border-t border-slate-200 bg-slate-50">
+              <button
+                type="button"
+                onMouseDown={() => goSearch(query)}
+                className="w-full px-4 py-3 text-left text-sm font-medium text-sky-700 hover:bg-sky-50"
+              >
+                Ver todos os resultados para &apos;{trimmed}&apos; (Pressiona Enter) →
+              </button>
+            </div>
+          ) : null}
+        </div>
       ) : null}
     </form>
   );
