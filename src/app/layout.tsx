@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Space_Grotesk, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -64,6 +65,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-slate-50 font-sans text-slate-500 antialiased">
         {children}
+        <GoogleAnalytics gaId="G-DDXSVE4ED7" />
       </body>
     </html>
   );

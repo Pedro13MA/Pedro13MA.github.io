@@ -92,6 +92,13 @@ export function SearchPageClient() {
     setMaxDraft(filters.maxPrice);
   }, [filters.minPrice, filters.maxPrice]);
 
+  useEffect(() => {
+    if (!q) return;
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "search", { search_term: q });
+    }
+  }, [q]);
+
   const pushFilters = useCallback(
     (patch: Partial<Filters> & { q?: string }) => {
       const next: Filters = { ...filters, ...patch, page: patch.page ?? 1 };
