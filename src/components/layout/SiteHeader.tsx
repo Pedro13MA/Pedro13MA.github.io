@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { TELEGRAM_CHANNEL } from "@/lib/constants";
+import { TELEGRAM_CHANNEL, BRAND_TAGLINE } from "@/lib/constants";
+import { LimiarLogo } from "@/components/ui/LimiarLogo";
 
 export function SiteHeader() {
   return (
@@ -7,10 +8,15 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
-          className="font-display text-lg font-semibold tracking-tight text-slate-900"
+          className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-slate-900"
         >
-          Limiar
-          <span className="ml-2 text-xs font-normal text-sky-700">Price Intelligence</span>
+          <LimiarLogo size={28} />
+          <span>
+            Limiar
+            <span className="ml-2 hidden text-xs font-normal text-sky-700 sm:inline">
+              Price Intelligence
+            </span>
+          </span>
         </Link>
         <nav className="flex items-center gap-4 text-sm text-slate-500">
           <Link href="/#comprar-agora" className="hidden hover:text-slate-900 sm:inline">
@@ -39,12 +45,15 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="mt-20 border-t border-slate-200/80 bg-white py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>
-          <span className="font-display font-semibold text-slate-900">Limiar</span> — a plataforma
-          que diz quando vale realmente a pena comprar.
-        </p>
-        <p>Mocks alinhados ao motor Python/SQLite · V10.4</p>
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex items-start gap-3">
+          <LimiarLogo size={28} />
+          <div>
+            <p className="font-display font-semibold text-slate-900">Limiar</p>
+            <p className="mt-0.5 max-w-md">{BRAND_TAGLINE}</p>
+          </div>
+        </div>
+        <p>API FastAPI · SQLite WAL · V10.5</p>
       </div>
     </footer>
   );

@@ -1,91 +1,45 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
-import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
-import { DecisionCard } from "@/components/product/DecisionCard";
-import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
-import { PriceAlertForm } from "@/components/product/PriceAlertForm";
-import { ProductHeader } from "@/components/product/ProductHeader";
-import { SeasonalityCard } from "@/components/product/SeasonalityCard";
-import { StoreCompareTable } from "@/components/product/StoreCompareTable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProductBySlug, MOCK_PRODUCTS } from "@/lib/mocks";
-import { SEMAPHORE_LABEL } from "@/lib/utils";
+import { ProductPageClient } from "@/components/product/ProductPageClient";
+import { getDealsNow, getDealsWait } from "@/lib/api";
+import { MOCK_PRODUCTS } from "@/lib/mocks";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return MOCK_PRODUCTS.flatMap((p) => [{ slug: p.slug }, { slug: p.ean }]);
+export async function generateStaticParams() {
+  const slugs = new Set<string>();
+  for (const p of MOCK_PRODUCTS) {
+    slugs.add(p.slug);
+    slugs.add(p.ean);
+  }
+  try {
+    const [now, wait] = await Promise.all([getDealsNow(30), getDealsWait(30)]);
+    for (const r of [...now.results, ...wait.results]) {
+      slugs.add(r.slug);
+      slugs.add(r.ean);
+    }
+  } catch {
+    // Build sem API — mantém mocks
+  }
+  return Array.from(slugs).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  if (!product) return { title: "Produto" };
-  const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   return {
-    title: product.name,
-    description: `${product.name} — ${sem.label} · Índice Limiar ${product.decision.limiarIndex.value}/100`,
+    title: slug,
+    description: "Detalhe de produto Limiar — Índice Limiar e histórico de preço.",
   };
 }
 
-export default async function ProductPage({ params }: PageProps) {
+export default async function ProductSlugPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  if (!product) notFound();
-
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
-        <ProductHeader product={product} />
-
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <LimiarIndexCard index={product.decision.limiarIndex} />
-          <DecisionCard decision={product.decision} />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle>Histórico de preço</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PriceHistoryChart
-                history={product.history}
-                historicalMin={product.historicalMin}
-                historicalMax={product.historicalMax}
-              />
-              <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-600" /> Mínimo
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-rose-600" /> Máximo
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-6">
-            <SeasonalityCard seasonality={product.seasonality} />
-            <PriceAlertForm
-              productName={product.name}
-              currentPrice={product.currentPrice}
-              suggestedThreshold={Math.round(product.historicalMin * 100) / 100}
-            />
-          </div>
-        </div>
-
-        <section className="space-y-4">
-          <h2 className="font-display text-xl font-bold text-slate-900">
-            Comparação multi-loja
-          </h2>
-          <StoreCompareTable offers={product.offers} />
-        </section>
-      </main>
+      <ProductPageClient slug={slug} />
       <SiteFooter />
     </>
   );

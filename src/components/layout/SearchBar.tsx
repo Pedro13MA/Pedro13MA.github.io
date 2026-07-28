@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { MOCK_PRODUCTS } from "@/lib/mocks";
-import { cn } from "@/lib/utils";
+import { searchProducts, type ApiProductSummary } from "@/lib/api";
+import { cn, formatEUR } from "@/lib/utils";
 
 type Props = {
   className?: string;
@@ -16,23 +16,31 @@ export function SearchBar({ className, autoFocus }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [results, setResults] = useState<ApiProductSummary[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (q.length < 2) return [];
-    return MOCK_PRODUCTS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.ean.includes(q) ||
-        p.brand?.toLowerCase().includes(q) ||
-        p.slug.includes(q),
-    ).slice(0, 6);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const handle = window.setTimeout(() => {
+      searchProducts(q, { limit: 8 })
+        .then((res) => setResults(res.results))
+        .catch(() => setResults([]))
+        .finally(() => setLoading(false));
+    }, 320);
+    return () => window.clearTimeout(handle);
   }, [query]);
 
   function go(slug: string) {
     setOpen(false);
     setQuery("");
-    router.push(`/p/${slug}/`);
+    // Query route works for any slug under static export (GH Pages).
+    router.push(`/p/?id=${encodeURIComponent(slug)}`);
   }
 
   function onSubmit(e: React.FormEvent) {
@@ -56,22 +64,28 @@ export function SearchBar({ className, autoFocus }: Props) {
         className="h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base shadow-lg"
         aria-label="Procurar produto"
       />
-      {open && results.length > 0 ? (
+      {open && (loading || results.length > 0 || query.trim().length >= 2) ? (
         <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg">
-          {results.map((p) => (
-            <li key={p.slug}>
-              <button
-                type="button"
-                onMouseDown={() => go(p.slug)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-slate-50"
-              >
-                <span className="truncate font-medium text-slate-900">{p.name}</span>
-                <span className="shrink-0 font-semibold text-slate-900">
-                  {p.currentPrice.toFixed(2)}€
-                </span>
-              </button>
-            </li>
-          ))}
+          {loading ? (
+            <li className="px-4 py-3 text-sm text-slate-500">A procurar na API Limiar…</li>
+          ) : results.length === 0 ? (
+            <li className="px-4 py-3 text-sm text-slate-500">Sem resultados para “{query.trim()}”.</li>
+          ) : (
+            results.map((p) => (
+              <li key={p.ean}>
+                <button
+                  type="button"
+                  onMouseDown={() => go(p.slug)}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-slate-50"
+                >
+                  <span className="truncate font-medium text-slate-900">{p.name}</span>
+                  <span className="shrink-0 font-semibold text-slate-900">
+                    {formatEUR(p.currentPrice)}
+                  </span>
+                </button>
+              </li>
+            ))
+          )}
         </ul>
       ) : null}
     </form>

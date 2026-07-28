@@ -16,7 +16,10 @@ export function OpportunityCard({ product, showDropToday }: Props) {
   const tone = limiarIndexTone(product.decision.limiarIndex.value);
 
   return (
-    <Link href={`/p/${product.slug}/`} className="group block h-full">
+    <Link
+      href={`/p/?id=${encodeURIComponent(product.slug)}`}
+      className="group block h-full"
+    >
       <Card className="h-full overflow-hidden">
         <div className="relative aspect-[4/3] bg-slate-100">
           {product.imageUrl ? (
