@@ -1,78 +1,52 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Instrument_Sans } from "next/font/google";
+import { Space_Grotesk, Source_Sans_3, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const display = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-display-face",
   display: "swap",
 });
 
-const instrument = Instrument_Sans({
+const sans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  variable: "--font-body",
   display: "swap",
 });
 
-const jetbrains = JetBrains_Mono({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-mono-jb",
+  variable: "--font-mono-face",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pedro13ma.github.io"),
   title: {
-    default: "Spotter Intelligence Hub — Price Intelligence para Tech & Gaming",
-    template: "%s | Spotter Intelligence Hub",
+    default: "Limiar — Devo comprar agora ou esperar?",
+    template: "%s | Limiar",
   },
   description:
-    "Motor autónomo de price intelligence para Portugal. Monitoriza feeds oficiais, valida descontos reais e publica deals curados no Telegram @spotter_deals.",
+    "Plataforma de Price Intelligence & Decisão de Compra para Portugal. Histórico de preços, multi-loja, cupões e semáforo de decisão.",
   keywords: [
-    "deals portugal telegram",
-    "alertas preço tech gaming",
-    "descontos validados portugal",
+    "limiar",
     "price intelligence portugal",
-    "ofertas pc componentes telegram",
+    "devo comprar agora",
+    "histórico de preços",
+    "comparador lojas portugal",
   ],
   authors: [{ name: "Pedro Martins" }],
-  creator: "Pedro Martins",
   openGraph: {
     type: "website",
     locale: "pt_PT",
     url: "https://pedro13ma.github.io",
-    siteName: "Spotter Intelligence Hub",
-    title: "Spotter Intelligence Hub — Descontos reais, validados",
+    siteName: "Limiar",
+    title: "Limiar — Devo comprar agora ou esperar?",
     description:
-      "Price intelligence autónoma para tech, gaming e eletro. Só deals S/A no canal. Telegram @spotter_deals.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Spotter Intelligence Hub",
-    description: "Descontos reais validados — antes de tu os veres.",
+      "Price intelligence com histórico, multi-loja e semáforo de decisão.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://pedro13ma.github.io" },
-};
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      name: "Spotter Intelligence Hub",
-      url: "https://pedro13ma.github.io",
-      description: "Motor de price intelligence para o mercado português",
-      founder: { "@type": "Person", name: "Pedro Martins" },
-      areaServed: "PT",
-    },
-    {
-      "@type": "WebSite",
-      name: "Spotter Intelligence Hub",
-      url: "https://pedro13ma.github.io",
-      inLanguage: "pt-PT",
-    },
-  ],
 };
 
 export default function RootLayout({
@@ -81,15 +55,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-PT" className={`${inter.variable} ${instrument.variable} ${jetbrains.variable}`}>
+    <html
+      lang="pt-PT"
+      className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}
+    >
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
       </head>
-      <body className="antialiased pb-20 md:pb-0">
+      <body className="min-h-screen bg-bg-primary font-sans text-zinc-300 antialiased">
         {children}
       </body>
     </html>

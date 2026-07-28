@@ -1,26 +1,23 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
-import { Button } from "@/components/ui/Button";
+import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 gradient-mesh">
-      <Logo />
-      <h1 className="font-display mt-12 text-4xl font-semibold text-white">404</h1>
-      <p className="mt-4 text-zinc-400 text-center max-w-md">
-        Esta página não passou pelo pipeline de decisão — ou simplesmente não existe.
-      </p>
-      <Button href="/" variant="secondary" className="mt-8">
-        Voltar ao início
-      </Button>
-      <Link
-        href="https://t.me/spotter_deals"
-        className="mt-4 text-sm text-indigo-400 hover:text-indigo-300"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Ir para o Telegram →
-      </Link>
-    </div>
+    <>
+      <SiteHeader />
+      <main className="mx-auto max-w-lg px-4 py-24 text-center">
+        <h1 className="font-display text-3xl font-semibold text-zinc-50">Produto não encontrado</h1>
+        <p className="mt-3 text-zinc-400">
+          Esse slug/EAN ainda não está nos dados mock do Limiar.
+        </p>
+        <Link
+          href="/"
+          className="mt-8 inline-flex rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-medium text-zinc-950 hover:bg-teal-400"
+        >
+          Voltar ao início
+        </Link>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

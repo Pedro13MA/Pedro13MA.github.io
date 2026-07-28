@@ -1,31 +1,25 @@
-# Spotter Intelligence Hub — Design System
+# Limiar — Design System (web)
 
-## Cores (dark-first)
+## Direção
+
+Dark-first, scannability alta, accent teal (não indigo/roxo). Semáforo de decisão: emerald / amber / rose.
+
+## Tokens
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--bg-primary` | `#0A0A0B` | Fundo base |
-| `--bg-secondary` | `#111113` | Cards, secções |
-| `--bg-elevated` | `#1A1A1F` | Hover, modals |
-| `--accent-primary` | `#6366F1` | CTA, links, glow |
-| `--tier-s` | `#F59E0B` | S-Tier |
-| `--tier-a` | `#10B981` | A-Tier |
+| `--bg-primary` | `#09090B` | Fundo |
+| `--accent-primary` | `#2DD4BF` | CTA, links, gráfico |
+| buy | emerald | Comprar agora |
+| fair | amber | Preço razoável |
+| wait | rose | Espera |
 
 ## Tipografia
 
-- **Display:** Instrument Sans (`--font-instrument`)
-- **Body:** Inter (`--font-inter`)
-- **Mono:** JetBrains Mono (`--font-mono-jb`)
+- **Display:** Space Grotesk
+- **Body:** Source Sans 3
+- **Mono:** JetBrains Mono
 
 ## Componentes
 
-Ver implementação em `src/components/ui/`:
-
-- `Button` — variantes `primary`, `secondary`, `ghost`
-- `SectionLabel` — labels de secção em indigo uppercase
-- Cards — `bg-zinc-900/50 border border-white/[0.06] rounded-xl`
-
-## Animações
-
-- Framer Motion com `prefers-reduced-motion` via `useReducedMotion`
-- Proibido: bounce, shake, flash, loops > 1s decorativos
+`src/components/ui/` — button, badge, card, input, table (padrão shadcn).
