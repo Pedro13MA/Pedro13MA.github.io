@@ -3,24 +3,27 @@ import { TELEGRAM_CHANNEL } from "@/lib/constants";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="font-display text-lg font-semibold tracking-tight text-zinc-50">
+        <Link
+          href="/"
+          className="font-display text-lg font-semibold tracking-tight text-slate-900"
+        >
           Limiar
-          <span className="ml-2 text-xs font-normal text-teal-400/90">Price Intelligence</span>
+          <span className="ml-2 text-xs font-normal text-sky-700">Price Intelligence</span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm text-zinc-400">
-          <a href="#oportunidades" className="hidden hover:text-zinc-100 sm:inline">
+        <nav className="flex items-center gap-4 text-sm text-slate-500">
+          <a href="#oportunidades" className="hidden hover:text-slate-900 sm:inline">
             Oportunidades
           </a>
-          <a href="#cupoes" className="hidden hover:text-zinc-100 sm:inline">
+          <a href="#cupoes" className="hidden hover:text-slate-900 sm:inline">
             Cupões
           </a>
           <a
             href={TELEGRAM_CHANNEL}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg border border-white/10 px-3 py-1.5 text-zinc-200 hover:border-teal-500/40 hover:text-teal-300"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md"
           >
             Telegram
           </a>
@@ -32,11 +35,11 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-white/[0.06] py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <footer className="mt-20 border-t border-slate-200/80 bg-white py-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>
-          <span className="font-display text-zinc-300">Limiar</span> — decisão de compra com
-          dados reais.
+          <span className="font-display font-semibold text-slate-900">Limiar</span> — decisão de
+          compra com dados reais.
         </p>
         <p>Mocks alinhados ao motor Python/SQLite · V10.4</p>
       </div>

@@ -42,7 +42,7 @@ export function SearchBar({ className, autoFocus }: Props) {
 
   return (
     <form onSubmit={onSubmit} className={cn("relative w-full", className)}>
-      <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+      <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
       <Input
         value={query}
         onChange={(e) => {
@@ -53,20 +53,20 @@ export function SearchBar({ className, autoFocus }: Props) {
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder="Procurar produto..."
         autoFocus={autoFocus}
-        className="h-14 rounded-2xl border-white/10 bg-zinc-950/80 pl-12 text-base shadow-[0_0_0_1px_rgba(45,212,191,0.08)]"
+        className="h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base shadow-lg"
         aria-label="Procurar produto"
       />
       {open && results.length > 0 ? (
-        <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-white/10 bg-zinc-950 shadow-2xl">
+        <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg">
           {results.map((p) => (
             <li key={p.slug}>
               <button
                 type="button"
                 onMouseDown={() => go(p.slug)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-white/[0.04]"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-slate-50"
               >
-                <span className="truncate text-zinc-100">{p.name}</span>
-                <span className="shrink-0 text-teal-300">
+                <span className="truncate font-medium text-slate-900">{p.name}</span>
+                <span className="shrink-0 font-semibold text-slate-900">
                   {p.currentPrice.toFixed(2)}€
                 </span>
               </button>

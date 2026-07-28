@@ -16,25 +16,25 @@ export function PromotionCard({ promotion }: Props) {
     <Card className="h-full">
       <CardContent className="flex h-full flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium text-zinc-200">{promotion.storeName}</p>
+          <p className="text-sm font-semibold text-slate-900">{promotion.storeName}</p>
           {discount ? <Badge variant="teal">{discount}</Badge> : null}
         </div>
-        <p className="line-clamp-2 text-sm text-zinc-400">
+        <p className="line-clamp-2 text-sm text-slate-500">
           {promotion.title ?? promotion.description}
         </p>
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           {promotion.code ? (
-            <code className="rounded bg-white/[0.06] px-2 py-1 font-mono text-xs text-amber-200">
+            <code className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 font-mono text-xs text-amber-800">
               {promotion.code}
             </code>
           ) : (
-            <span className="text-xs text-zinc-600">Sem código</span>
+            <span className="text-xs text-slate-400">Sem código</span>
           )}
           <a
             href={promotion.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-medium text-teal-300 hover:underline"
+            className="text-xs font-medium text-sky-700 hover:underline"
           >
             Abrir
           </a>

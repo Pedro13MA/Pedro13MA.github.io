@@ -12,7 +12,7 @@ export function ProductHeader({ product }: Props) {
 
   return (
     <header className="grid gap-8 md:grid-cols-[220px_1fr]">
-      <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-zinc-900">
+      <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
@@ -23,7 +23,7 @@ export function ProductHeader({ product }: Props) {
             unoptimized
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-zinc-600">Sem imagem</div>
+          <div className="flex h-full items-center justify-center text-slate-400">Sem imagem</div>
         )}
       </div>
 
@@ -31,10 +31,7 @@ export function ProductHeader({ product }: Props) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="default">{product.brand ?? product.category}</Badge>
           <Badge variant="tier">Tier {product.decision.tier}</Badge>
-          <Badge
-            variant={product.decision.semaphore}
-            className="gap-1.5 text-sm"
-          >
+          <Badge variant={product.decision.semaphore} className="gap-1.5 text-sm">
             <span aria-hidden>
               {product.decision.semaphore === "buy"
                 ? "🟢"
@@ -46,29 +43,31 @@ export function ProductHeader({ product }: Props) {
           </Badge>
         </div>
 
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-zinc-50 md:text-4xl">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
           {product.name}
         </h1>
 
         <div className="flex flex-wrap items-end gap-6">
           <div>
-            <p className="text-xs uppercase tracking-wider text-zinc-500">Preço atual</p>
-            <p className="font-display text-4xl font-semibold text-teal-300">
+            <p className="text-xs uppercase tracking-wider text-slate-500">Preço atual</p>
+            <p className="font-display text-4xl font-bold text-slate-900">
               {formatEUR(product.currentPrice)}
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-zinc-500">Média 30 dias</p>
-            <p className="text-xl text-zinc-300">{formatEUR(product.avg30d)}</p>
-            <p className="text-sm text-emerald-400">{formatPct(dropVsAvg)} vs média</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500">Média 30 dias</p>
+            <p className="text-xl font-semibold text-slate-900">{formatEUR(product.avg30d)}</p>
+            <p className="text-sm text-emerald-700">{formatPct(dropVsAvg)} vs média</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-zinc-500">Mín. histórico</p>
-            <p className="text-xl text-zinc-300">{formatEUR(product.historicalMin)}</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500">Mín. histórico</p>
+            <p className="text-xl font-semibold text-slate-900">
+              {formatEUR(product.historicalMin)}
+            </p>
           </div>
         </div>
 
-        <p className="text-sm text-zinc-500">EAN {product.ean}</p>
+        <p className="text-sm text-slate-500">EAN {product.ean}</p>
       </div>
     </header>
   );

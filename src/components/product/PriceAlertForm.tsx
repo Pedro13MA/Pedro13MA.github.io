@@ -19,7 +19,7 @@ export function PriceAlertForm({
   suggestedThreshold,
 }: Props) {
   const defaultTarget =
-    suggestedThreshold ?? Math.round((currentPrice * 0.92) * 100) / 100;
+    suggestedThreshold ?? Math.round(currentPrice * 0.92 * 100) / 100;
   const [target, setTarget] = useState(String(defaultTarget));
   const [channel, setChannel] = useState<"telegram" | "email">("telegram");
   const [contact, setContact] = useState("");
@@ -27,7 +27,6 @@ export function PriceAlertForm({
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Placeholder — ready for Telegram / Email backend integration.
     setStatus("saved");
   }
 
@@ -35,7 +34,7 @@ export function PriceAlertForm({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Bell className="h-4 w-4 text-teal-300" />
+          <Bell className="h-4 w-4 text-sky-700" />
           Avisar-me quando baixar
         </CardTitle>
         <CardDescription>
@@ -45,7 +44,7 @@ export function PriceAlertForm({
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-3">
           <label className="block space-y-1.5">
-            <span className="text-xs uppercase tracking-wider text-zinc-500">
+            <span className="text-xs uppercase tracking-wider text-slate-500">
               Preço-alvo (€)
             </span>
             <Input
@@ -78,7 +77,7 @@ export function PriceAlertForm({
           </div>
 
           <label className="block space-y-1.5">
-            <span className="text-xs uppercase tracking-wider text-zinc-500">
+            <span className="text-xs uppercase tracking-wider text-slate-500">
               {channel === "telegram" ? "@username ou chat id" : "Email"}
             </span>
             <Input
@@ -95,7 +94,7 @@ export function PriceAlertForm({
           </Button>
 
           {status === "saved" ? (
-            <p className="text-center text-sm text-emerald-400">
+            <p className="text-center text-sm text-emerald-700">
               Alerta preparado (mock). Integração Telegram/Email a ligar ao backend Limiar.
             </p>
           ) : null}

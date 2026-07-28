@@ -9,7 +9,7 @@ export function DecisionCard({ decision }: Props) {
   const sem = SEMAPHORE_LABEL[decision.semaphore];
 
   return (
-    <Card className="border-teal-500/15 bg-gradient-to-br from-zinc-900/80 to-zinc-950/80">
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle>Vale a pena comprar?</CardTitle>
@@ -22,8 +22,8 @@ export function DecisionCard({ decision }: Props) {
       <CardContent>
         <ul className="space-y-3">
           {decision.bullets.map((bullet) => (
-            <li key={bullet} className="flex gap-3 text-sm leading-relaxed text-zinc-300">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-400" aria-hidden />
+            <li key={bullet} className="flex gap-3 text-sm leading-relaxed text-slate-600">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-600" aria-hidden />
               {bullet}
             </li>
           ))}

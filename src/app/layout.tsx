@@ -57,12 +57,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-PT"
-      className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}
+      className={`light ${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body className="min-h-screen bg-bg-primary font-sans text-zinc-300 antialiased">
+      <body className="min-h-screen bg-slate-50 font-sans text-slate-500 antialiased">
         {children}
       </body>
     </html>

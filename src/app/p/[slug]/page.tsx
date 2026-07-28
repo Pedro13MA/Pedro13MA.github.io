@@ -49,12 +49,12 @@ export default async function ProductPage({ params }: PageProps) {
                 historicalMin={product.historicalMin}
                 historicalMax={product.historicalMax}
               />
-              <div className="mt-3 flex flex-wrap gap-4 text-xs text-zinc-500">
+              <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" /> Mínimo
+                  <span className="h-2 w-2 rounded-full bg-emerald-600" /> Mínimo
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-rose-400" /> Máximo
+                  <span className="h-2 w-2 rounded-full bg-rose-600" /> Máximo
                 </span>
               </div>
             </CardContent>
@@ -70,14 +70,12 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Comparação multi-loja</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <StoreCompareTable offers={product.offers} />
-          </CardContent>
-        </Card>
+        <section className="space-y-4">
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Comparação multi-loja
+          </h2>
+          <StoreCompareTable offers={product.offers} />
+        </section>
       </main>
       <SiteFooter />
     </>

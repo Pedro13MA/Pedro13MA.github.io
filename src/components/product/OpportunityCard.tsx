@@ -13,8 +13,8 @@ export function OpportunityCard({ product }: Props) {
 
   return (
     <Link href={`/p/${product.slug}/`} className="group block h-full">
-      <Card className="h-full overflow-hidden transition-colors group-hover:border-teal-500/30 group-hover:bg-zinc-900/70">
-        <div className="relative aspect-[4/3] bg-zinc-950">
+      <Card className="h-full overflow-hidden">
+        <div className="relative aspect-[4/3] bg-slate-100">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
@@ -33,14 +33,14 @@ export function OpportunityCard({ product }: Props) {
           </div>
         </div>
         <CardContent className="space-y-2 p-4">
-          <p className="line-clamp-2 font-medium text-zinc-100">{product.name}</p>
+          <p className="line-clamp-2 font-semibold text-slate-900">{product.name}</p>
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-display text-2xl font-semibold text-teal-300">
+            <span className="font-display text-2xl font-bold text-slate-900">
               {formatEUR(product.currentPrice)}
             </span>
-            <span className="text-sm text-emerald-400">{formatPct(drop)}</span>
+            <span className="text-sm font-medium text-emerald-700">{formatPct(drop)}</span>
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-slate-500">
             Média 30d {formatEUR(product.avg30d)} · {product.offers[0]?.storeName}
           </p>
         </CardContent>

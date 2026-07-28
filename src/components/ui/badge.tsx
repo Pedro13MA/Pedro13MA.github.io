@@ -7,12 +7,12 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-white/10 bg-white/[0.04] text-zinc-200",
-        teal: "border-teal-500/30 bg-teal-500/15 text-teal-300",
-        buy: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
-        fair: "border-amber-500/30 bg-amber-500/15 text-amber-300",
-        wait: "border-rose-500/30 bg-rose-500/15 text-rose-300",
-        tier: "border-amber-400/30 bg-amber-400/10 text-amber-200",
+        default: "border-slate-200 bg-slate-50 text-slate-700",
+        teal: "border-sky-200 bg-sky-50 text-sky-700",
+        buy: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        fair: "border-amber-200 bg-amber-50 text-amber-700",
+        wait: "border-rose-200 bg-rose-50 text-rose-700",
+        tier: "border-slate-200 bg-white text-slate-600",
       },
     },
     defaultVariants: { variant: "default" },

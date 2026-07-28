@@ -31,7 +31,7 @@ export function StoreCompareTable({ offers }: Props) {
       <TableBody>
         {sorted.map((offer) => (
           <TableRow key={offer.store}>
-            <TableCell className="font-medium">
+            <TableCell className="font-semibold text-slate-900">
               {offer.storeName}
               {offer.store === best ? (
                 <Badge variant="teal" className="ml-2">
@@ -40,27 +40,27 @@ export function StoreCompareTable({ offers }: Props) {
               ) : null}
             </TableCell>
             <TableCell>
-              <span className="text-teal-300">{formatEUR(offer.price)}</span>
+              <span className="font-bold text-slate-900">{formatEUR(offer.price)}</span>
               {offer.originalPrice ? (
-                <span className="ml-2 text-xs text-zinc-500 line-through">
+                <span className="ml-2 text-xs text-slate-400 line-through">
                   {formatEUR(offer.originalPrice)}
                 </span>
               ) : null}
             </TableCell>
             <TableCell>
               {offer.couponCode ? (
-                <code className="rounded bg-white/[0.06] px-2 py-1 font-mono text-xs text-amber-200">
+                <code className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 font-mono text-xs text-amber-800">
                   {offer.couponCode}
                 </code>
               ) : (
-                <span className="text-zinc-600">—</span>
+                <span className="text-slate-400">—</span>
               )}
             </TableCell>
             <TableCell>
               {offer.inStock === false ? (
-                <span className="text-rose-300">Esgotado</span>
+                <span className="text-rose-700">Esgotado</span>
               ) : (
-                <span className="text-emerald-400">Disponível</span>
+                <span className="text-emerald-700">Disponível</span>
               )}
             </TableCell>
             <TableCell className="text-right">
@@ -68,7 +68,7 @@ export function StoreCompareTable({ offers }: Props) {
                 href={offer.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ variant: "outline", size: "sm" }), "min-h-9")}
+                className={cn(buttonVariants({ variant: "default", size: "sm" }), "min-h-9")}
               >
                 Ver oferta
               </a>

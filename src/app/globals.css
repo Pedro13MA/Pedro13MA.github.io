@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-primary: #09090b;
-  --color-bg-secondary: #111113;
-  --color-bg-elevated: #18181b;
-  --color-accent: #2dd4bf;
-  --color-accent-glow: #5eead4;
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #ffffff;
+  --color-bg-elevated: #ffffff;
+  --color-accent: #0284c7;
+  --color-accent-glow: #38bdf8;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 }
 
 :root {
-  color-scheme: dark;
-  --bg-primary: #09090b;
-  --bg-secondary: #111113;
-  --bg-elevated: #18181b;
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --accent-primary: #2dd4bf;
-  --border-subtle: rgba(255, 255, 255, 0.07);
+  color-scheme: light;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-elevated: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --accent-primary: #0284c7;
+  --border-subtle: rgba(226, 232, 240, 0.9);
 }
 
 html {
@@ -46,6 +46,6 @@ body {
 }
 
 ::selection {
-  background: rgba(45, 212, 191, 0.35);
-  color: #fafafa;
+  background: rgba(2, 132, 199, 0.18);
+  color: #0f172a;
 }
