@@ -12,14 +12,14 @@ export function ProductHeader({ product }: Props) {
 
   return (
     <header className="grid gap-8 md:grid-cols-[220px_1fr]">
-      <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+      <div className="relative flex h-52 w-full items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm md:h-64">
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover"
-            sizes="220px"
+            className="object-contain"
+            sizes="(max-width:768px) 100vw, 220px"
             unoptimized
           />
         ) : (

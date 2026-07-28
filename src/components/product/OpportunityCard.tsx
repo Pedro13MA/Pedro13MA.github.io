@@ -28,13 +28,13 @@ export function OpportunityCard({ product, showDropToday }: Props) {
       className="group block h-full"
     >
       <Card className="h-full overflow-hidden">
-        <div className="relative aspect-[4/3] bg-slate-100">
+        <div className="relative flex h-52 w-full items-center justify-center rounded-t-xl bg-white p-4">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
               sizes="(max-width:768px) 100vw, 33vw"
               unoptimized
             />
