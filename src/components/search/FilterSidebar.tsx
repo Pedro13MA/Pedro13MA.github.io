@@ -10,6 +10,7 @@ const BRAND_PREVIEW = 5;
 
 export type FilterValues = {
   category: string;
+  subcategory: string;
   brand: string;
   store: string;
   type: string;
@@ -23,6 +24,30 @@ export type FilterValues = {
   maxPrice: string;
   inStockOnly: boolean;
 };
+
+const SUBCATEGORY_FILTER_KEY: Record<string, string> = {
+  "placas gráficas": "gpu",
+  "processadores / cpus": "cpu",
+  "armazenamento": "ssd",
+  "armazenamento ssd": "ssd",
+  "ram / memória": "ram",
+  "air fryers": "air_fryer",
+  "smartphones": "smartphone",
+};
+
+function resolveActiveCategoryKey(
+  subcategory: string,
+  inferredCategory?: string | null,
+): string {
+  const raw = (subcategory || inferredCategory || "").trim();
+  if (!raw) return "";
+  const low = raw.toLowerCase();
+  if (SUBCATEGORY_FILTER_KEY[low]) return SUBCATEGORY_FILTER_KEY[low];
+  if (["gpu", "cpu", "ssd", "ram", "air_fryer", "smartphone"].includes(low)) {
+    return low;
+  }
+  return low;
+}
 
 type Props = {
   facets: SearchFacets;
@@ -43,12 +68,14 @@ function FacetList({
   active,
   onSelect,
   collapsible,
+  itemKey,
 }: {
   title: string;
   items: FacetBucket[];
   active: string;
   onSelect: (value: string) => void;
   collapsible?: boolean;
+  itemKey?: (item: FacetBucket) => string;
 }) {
   const [expanded, setExpanded] = useState(false);
   if (!items?.length) return null;
@@ -67,8 +94,9 @@ function FacetList({
       <ul className="space-y-1">
         {visible.map((item) => {
           const selected = active.toLowerCase() === item.value.toLowerCase();
+          const key = itemKey ? itemKey(item) : item.value;
           return (
-            <li key={item.value}>
+            <li key={key}>
               <button
                 type="button"
                 onClick={() => onSelect(selected ? "" : item.value)}
@@ -81,7 +109,7 @@ function FacetList({
               >
                 <span className="truncate">{item.label}</span>
                 <span className="ml-2 shrink-0 text-xs text-slate-400">
-                  {item.count}
+                  ({item.count})
                 </span>
               </button>
             </li>
@@ -101,6 +129,59 @@ function FacetList({
   );
 }
 
+function SubcategoryBlock({
+  items,
+  active,
+  onSelect,
+}: {
+  items: FacetBucket[];
+  active: string;
+  onSelect: (value: string) => void;
+}) {
+  if (!items.length) return null;
+
+  return (
+    <div className="space-y-2 rounded-xl border border-sky-100 bg-sky-50/40 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-sky-800">
+        Subcategoria
+      </p>
+      <p className="text-[11px] text-slate-500">Tipo de produto</p>
+      <ul className="space-y-1">
+        {items.map((item) => {
+          const selected = active.toLowerCase() === item.value.toLowerCase();
+          const key = `${item.value}::${item.label}`;
+          return (
+            <li key={key}>
+              <label
+                className={cn(
+                  "flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
+                  selected
+                    ? "bg-white font-medium text-sky-900 shadow-sm"
+                    : "text-slate-700 hover:bg-white/70",
+                )}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <input
+                    type="radio"
+                    name="subcategory"
+                    checked={selected}
+                    onChange={() => onSelect(selected ? "" : item.value)}
+                    className="h-3.5 w-3.5 shrink-0 border-slate-300 text-sky-600 focus:ring-sky-500"
+                  />
+                  <span className="truncate">{item.label}</span>
+                </span>
+                <span className="shrink-0 text-xs text-slate-400">
+                  ({item.count})
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function FilterSidebar({
   facets,
   filters,
@@ -113,11 +194,14 @@ export function FilterSidebar({
   onClear,
   onApplyPrice,
 }: Props) {
-  const cat = (inferredCategory || filters.category || "").toLowerCase();
+  const cat = resolveActiveCategoryKey(filters.subcategory, inferredCategory);
   const isGpu = cat === "gpu";
   const isCpu = cat === "cpu";
   const isSsd = cat === "ssd";
   const isRam = cat === "ram";
+  const isAirFryer = cat === "air_fryer";
+  const isSmartphone = cat === "smartphone";
+  const subcategories = facets.subcategories ?? [];
 
   return (
     <aside
@@ -137,6 +221,24 @@ export function FilterSidebar({
           Limpar
         </button>
       </div>
+
+      <SubcategoryBlock
+        items={subcategories}
+        active={filters.subcategory}
+        onSelect={(value) =>
+          onSelect({
+            subcategory: value,
+            brand: "",
+            model: "",
+            vram: "",
+            series: "",
+            socket: "",
+            capacity: "",
+            format: "",
+            type: "",
+          })
+        }
+      />
 
       <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
         <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
@@ -183,7 +285,7 @@ export function FilterSidebar({
         </>
       ) : null}
 
-      {isSsd || isRam ? (
+      {(isSsd || isRam) ? (
         <>
           <FacetList
             title="Capacidade"
@@ -200,7 +302,38 @@ export function FilterSidebar({
         </>
       ) : null}
 
-      {!isGpu && !isCpu && !isSsd && !isRam ? (
+      {isAirFryer ? (
+        <FacetList
+          title="Capacidade (litros)"
+          items={facets.capacities || []}
+          active={filters.capacity}
+          onSelect={(value) => onSelect({ capacity: value, type: "" })}
+        />
+      ) : null}
+
+      {isSmartphone ? (
+        <>
+          <FacetList
+            title="Armazenamento"
+            items={facets.capacities || []}
+            active={filters.capacity}
+            onSelect={(value) => onSelect({ capacity: value, type: "" })}
+          />
+          <FacetList
+            title="RAM"
+            items={facets.formats || []}
+            active={filters.format}
+            onSelect={(value) => onSelect({ format: value, type: "" })}
+          />
+        </>
+      ) : null}
+
+      {!isGpu &&
+      !isCpu &&
+      !isSsd &&
+      !isRam &&
+      !isAirFryer &&
+      !isSmartphone ? (
         <FacetList
           title="Capacidade / Tipo"
           items={facets.types || []}
@@ -215,19 +348,24 @@ export function FilterSidebar({
         active={filters.brand}
         onSelect={(value) => onSelect({ brand: value })}
         collapsible
+        itemKey={(item) => `brand-${item.label}`}
       />
       <FacetList
         title="Loja"
         items={facets.stores}
         active={filters.store}
         onSelect={(value) => onSelect({ store: value })}
+        itemKey={(item) => `store-${item.value}`}
       />
-      <FacetList
-        title="Categoria"
-        items={facets.categories}
-        active={filters.category}
-        onSelect={(value) => onSelect({ category: value })}
-      />
+      {subcategories.length === 0 ? (
+        <FacetList
+          title="Categoria"
+          items={facets.categories}
+          active={filters.category}
+          onSelect={(value) => onSelect({ category: value })}
+          itemKey={(item) => `cat-${item.label}`}
+        />
+      ) : null}
 
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">

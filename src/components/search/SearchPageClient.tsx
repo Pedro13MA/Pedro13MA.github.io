@@ -39,6 +39,7 @@ function readFilters(params: URLSearchParams): Filters {
   const sort = (params.get("sort_by") || "limiar_desc") as SearchSortBy;
   return {
     category: params.get("category") || "",
+    subcategory: params.get("subcategory") || "",
     brand: params.get("brand") || "",
     store: params.get("store") || "",
     type: params.get("type") || "",
@@ -58,6 +59,7 @@ function readFilters(params: URLSearchParams): Filters {
 
 const EMPTY_FACETS: SearchFacets = {
   categories: [],
+  subcategories: [],
   brands: [],
   stores: [],
   types: [],
@@ -97,6 +99,7 @@ export function SearchPageClient() {
       const query = (patch.q ?? q).trim();
       if (query) params.set("q", query);
       if (next.category) params.set("category", next.category);
+      if (next.subcategory) params.set("subcategory", next.subcategory);
       if (next.brand) params.set("brand", next.brand);
       if (next.store) params.set("store", next.store);
       if (next.type) params.set("type", next.type);
@@ -146,6 +149,7 @@ export function SearchPageClient() {
       maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
       sortBy: filters.sortBy,
       inStockOnly: filters.inStockOnly || undefined,
+      subcategory: filters.subcategory || undefined,
     })
       .then((res) => {
         if (cancelled) return;
@@ -239,6 +243,7 @@ export function SearchPageClient() {
           onClear={() =>
             pushFilters({
               category: "",
+              subcategory: "",
               brand: "",
               store: "",
               type: "",

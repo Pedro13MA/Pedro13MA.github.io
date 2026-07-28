@@ -69,6 +69,7 @@ export type FacetBucket = {
 
 export type SearchFacets = {
   categories: FacetBucket[];
+  subcategories?: FacetBucket[];
   brands: FacetBucket[];
   stores: FacetBucket[];
   types: FacetBucket[];
@@ -115,6 +116,7 @@ export type SearchParams = {
   maxPrice?: number;
   sortBy?: SearchSortBy;
   inStockOnly?: boolean;
+  subcategory?: string;
 };
 
 export type ApiOffer = {
@@ -391,6 +393,7 @@ export async function searchProducts(
     params.set("max_price", String(opts.maxPrice));
   }
   if (opts?.inStockOnly) params.set("in_stock", "true");
+  if (opts?.subcategory) params.set("subcategory", opts.subcategory);
   return apiGet<SearchResponse>(`/api/v1/search?${params}`);
 }
 
