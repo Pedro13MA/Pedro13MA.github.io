@@ -10,11 +10,13 @@ import { cn, formatEUR } from "@/lib/utils";
 type Props = {
   className?: string;
   autoFocus?: boolean;
+  /** Valor inicial (ex: página /search) */
+  defaultQuery?: string;
 };
 
-export function SearchBar({ className, autoFocus }: Props) {
+export function SearchBar({ className, autoFocus, defaultQuery = "" }: Props) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(defaultQuery);
   const [open, setOpen] = useState(false);
   const [results, setResults] = useState<ApiProductSummary[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,16 +38,21 @@ export function SearchBar({ className, autoFocus }: Props) {
     return () => window.clearTimeout(handle);
   }, [query]);
 
-  function go(slug: string) {
+  function goProduct(slug: string) {
     setOpen(false);
-    setQuery("");
-    // Query route works for any slug under static export (GH Pages).
     router.push(`/p/?id=${encodeURIComponent(slug)}`);
+  }
+
+  function goSearch(raw: string) {
+    const q = raw.trim();
+    if (!q) return;
+    setOpen(false);
+    router.push(`/search/?q=${encodeURIComponent(q)}`);
   }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (results[0]) go(results[0].slug);
+    goSearch(query);
   }
 
   return (
@@ -59,7 +66,7 @@ export function SearchBar({ className, autoFocus }: Props) {
         }}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
-        placeholder="Procurar produto..."
+        placeholder="Procurar produto ou categoria (SSD, RAM, GPU…)"
         autoFocus={autoFocus}
         className="h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base shadow-lg"
         aria-label="Procurar produto"
@@ -67,24 +74,42 @@ export function SearchBar({ className, autoFocus }: Props) {
       {open && (loading || results.length > 0 || query.trim().length >= 2) ? (
         <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg">
           {loading ? (
-            <li className="px-4 py-3 text-sm text-slate-500">A procurar na API Limiar…</li>
+            <li className="px-4 py-3 text-sm text-slate-500">
+              A procurar na API Limiar…
+            </li>
           ) : results.length === 0 ? (
-            <li className="px-4 py-3 text-sm text-slate-500">Sem resultados para “{query.trim()}”.</li>
+            <li className="px-4 py-3 text-sm text-slate-500">
+              Sem sugestões. Carrega Enter para ver todos os resultados de “
+              {query.trim()}”.
+            </li>
           ) : (
-            results.map((p) => (
-              <li key={p.ean}>
+            <>
+              {results.map((p) => (
+                <li key={p.ean}>
+                  <button
+                    type="button"
+                    onMouseDown={() => goProduct(p.slug)}
+                    className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-slate-50"
+                  >
+                    <span className="truncate font-medium text-slate-900">
+                      {p.name}
+                    </span>
+                    <span className="shrink-0 font-semibold text-slate-900">
+                      {formatEUR(p.currentPrice)}
+                    </span>
+                  </button>
+                </li>
+              ))}
+              <li className="border-t border-slate-100">
                 <button
                   type="button"
-                  onMouseDown={() => go(p.slug)}
-                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm hover:bg-slate-50"
+                  onMouseDown={() => goSearch(query)}
+                  className="w-full px-4 py-3 text-left text-sm font-medium text-sky-700 hover:bg-sky-50"
                 >
-                  <span className="truncate font-medium text-slate-900">{p.name}</span>
-                  <span className="shrink-0 font-semibold text-slate-900">
-                    {formatEUR(p.currentPrice)}
-                  </span>
+                  Ver todos os resultados para “{query.trim()}”
                 </button>
               </li>
-            ))
+            </>
           )}
         </ul>
       ) : null}

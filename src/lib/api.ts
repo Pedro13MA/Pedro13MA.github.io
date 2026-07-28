@@ -53,6 +53,50 @@ export type ApiProductSummary = {
   semaphore: DecisionSemaphore;
   summary: string;
   isHistoricalMin?: boolean;
+  cheapestStore?: string | null;
+  stores?: string[];
+};
+
+export type FacetBucket = {
+  value: string;
+  label: string;
+  count: number;
+};
+
+export type SearchFacets = {
+  categories: FacetBucket[];
+  brands: FacetBucket[];
+  stores: FacetBucket[];
+  types: FacetBucket[];
+};
+
+export type SearchResponse = {
+  query: string;
+  total: number;
+  limit: number;
+  offset: number;
+  sortBy: string;
+  inferredCategory?: string | null;
+  results: ApiProductSummary[];
+  facets: SearchFacets;
+};
+
+export type SearchSortBy =
+  | "limiar_desc"
+  | "price_asc"
+  | "price_desc"
+  | "discount_desc";
+
+export type SearchParams = {
+  limit?: number;
+  offset?: number;
+  category?: string;
+  brand?: string;
+  store?: string;
+  type?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: SearchSortBy;
 };
 
 export type ApiOffer = {
@@ -120,14 +164,6 @@ export type ApiPromotion = {
   isActive?: boolean;
 };
 
-export type SearchResponse = {
-  query: string;
-  total: number;
-  limit: number;
-  offset: number;
-  results: ApiProductSummary[];
-};
-
 export type DealsResponse = {
   count: number;
   results: ApiProductSummary[];
@@ -180,7 +216,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     historicalAvg: s.avg30d ?? null,
     historicalMin: s.historicalMin ?? null,
     isHistoricalMin: Boolean(s.isHistoricalMin),
-    cheapestStore: null,
+    cheapestStore: s.cheapestStore ?? null,
     feedCategory: "other",
     bullets: [s.summary],
     semaphore: s.semaphore,
@@ -306,15 +342,26 @@ export function mapPromotion(p: ApiPromotion): Promotion {
 
 export async function searchProducts(
   q: string,
-  opts?: { limit?: number; offset?: number },
+  opts?: SearchParams,
 ): Promise<SearchResponse> {
-  const limit = opts?.limit ?? 20;
+  const limit = opts?.limit ?? 24;
   const offset = opts?.offset ?? 0;
   const params = new URLSearchParams({
     q,
     limit: String(limit),
     offset: String(offset),
+    sort_by: opts?.sortBy || "limiar_desc",
   });
+  if (opts?.category) params.set("category", opts.category);
+  if (opts?.brand) params.set("brand", opts.brand);
+  if (opts?.store) params.set("store", opts.store);
+  if (opts?.type) params.set("type", opts.type);
+  if (opts?.minPrice != null && !Number.isNaN(opts.minPrice)) {
+    params.set("min_price", String(opts.minPrice));
+  }
+  if (opts?.maxPrice != null && !Number.isNaN(opts.maxPrice)) {
+    params.set("max_price", String(opts.maxPrice));
+  }
   return apiGet<SearchResponse>(`/api/v1/search?${params}`);
 }
 
