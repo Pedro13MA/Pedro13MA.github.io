@@ -1,4 +1,4 @@
-/** Types aligned with Limiar backend (Python/SQLite). */
+/** Types aligned with Limiar backend (Python/SQLite) + web decision UI. */
 
 export type DealTier = "S" | "A" | "B";
 
@@ -28,7 +28,7 @@ export interface Offer {
 }
 
 export interface PricePoint {
-  date: string; // ISO date
+  date: string;
   price: number;
 }
 
@@ -59,6 +59,49 @@ export interface ScoreBreakdown {
   feedbackAdjustment: number;
 }
 
+/** Fatores factuais do Índice Limiar (0–100). */
+export interface LimiarIndexFactors {
+  vsAvg30d: {
+    score: number;
+    label: string;
+    detail: string;
+  };
+  historicalMin: {
+    score: number;
+    label: string;
+    detail: string;
+  };
+  couponApplied: {
+    score: number;
+    label: string;
+    detail: string;
+  };
+  volatility: {
+    score: number;
+    label: string;
+    detail: string;
+  };
+}
+
+export interface LimiarIndex {
+  /** Score 0–100. */
+  value: number;
+  summary: string;
+  factors: LimiarIndexFactors;
+}
+
+export interface SeasonalMarker {
+  month: number; // 1–12
+  label: string;
+  kind: "promo" | "peak" | "neutral";
+}
+
+export interface Seasonality {
+  markers: SeasonalMarker[];
+  note: string;
+  timesBelowCurrent12m: number;
+}
+
 export interface DecisionScore {
   finalScore: number;
   publish: boolean;
@@ -74,8 +117,10 @@ export interface DecisionScore {
   isHistoricalMin: boolean;
   cheapestStore?: string | null;
   feedCategory: string;
+  /** Justificações factuais (sem previsões). */
   bullets: string[];
   semaphore: DecisionSemaphore;
+  limiarIndex: LimiarIndex;
 }
 
 export interface Product {
@@ -90,8 +135,11 @@ export interface Product {
   avg30d: number;
   historicalMin: number;
   historicalMax: number;
+  /** Queda percentual face a ontem (mock “maiores quedas”). */
+  dropTodayPct?: number;
   history: PricePoint[];
   offers: Offer[];
   decision: DecisionScore;
+  seasonality: Seasonality;
   activePromotion?: Promotion | null;
 }

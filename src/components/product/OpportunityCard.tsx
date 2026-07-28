@@ -3,13 +3,17 @@ import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatEUR, formatPct, SEMAPHORE_LABEL } from "@/lib/utils";
+import { formatEUR, formatPct, limiarIndexTone, SEMAPHORE_LABEL } from "@/lib/utils";
 
-type Props = { product: Product };
+type Props = {
+  product: Product;
+  showDropToday?: boolean;
+};
 
-export function OpportunityCard({ product }: Props) {
+export function OpportunityCard({ product, showDropToday }: Props) {
   const drop = ((product.avg30d - product.currentPrice) / product.avg30d) * 100;
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
+  const tone = limiarIndexTone(product.decision.limiarIndex.value);
 
   return (
     <Link href={`/p/${product.slug}/`} className="group block h-full">
@@ -25,10 +29,13 @@ export function OpportunityCard({ product }: Props) {
               unoptimized
             />
           ) : null}
-          <div className="absolute left-3 top-3 flex gap-2">
+          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             <Badge variant={product.decision.semaphore}>{sem.short}</Badge>
+            <Badge variant="teal" className={tone.text}>
+              {product.decision.limiarIndex.value}/100
+            </Badge>
             {product.decision.isHistoricalMin ? (
-              <Badge variant="teal">Mín. histórico</Badge>
+              <Badge variant="default">Mín. histórico</Badge>
             ) : null}
           </div>
         </div>
@@ -38,10 +45,14 @@ export function OpportunityCard({ product }: Props) {
             <span className="font-display text-2xl font-bold text-slate-900">
               {formatEUR(product.currentPrice)}
             </span>
-            <span className="text-sm font-medium text-emerald-700">{formatPct(drop)}</span>
+            <span className="text-sm font-medium text-emerald-700">
+              {showDropToday && product.dropTodayPct
+                ? formatPct(product.dropTodayPct)
+                : formatPct(drop)}
+            </span>
           </div>
-          <p className="text-xs text-slate-500">
-            Média 30d {formatEUR(product.avg30d)} · {product.offers[0]?.storeName}
+          <p className="line-clamp-2 text-xs text-slate-500">
+            {product.decision.limiarIndex.summary}
           </p>
         </CardContent>
       </Card>

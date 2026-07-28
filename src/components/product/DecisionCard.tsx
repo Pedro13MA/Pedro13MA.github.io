@@ -13,10 +13,13 @@ export function DecisionCard({ decision }: Props) {
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle>Vale a pena comprar?</CardTitle>
-          <Badge variant={decision.semaphore}>{sem.label}</Badge>
+          <Badge variant={decision.semaphore} className="gap-1.5">
+            <span aria-hidden>{sem.emoji}</span>
+            {sem.label}
+          </Badge>
         </div>
         <CardDescription>
-          Score {decision.finalScore.toFixed(2)} · {decision.dealQuality.replaceAll("_", " ")}
+          Decisão baseada em dados históricos — {decision.limiarIndex.summary}
         </CardDescription>
       </CardHeader>
       <CardContent>

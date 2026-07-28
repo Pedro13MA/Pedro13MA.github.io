@@ -3,11 +3,14 @@ import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
 import { DecisionCard } from "@/components/product/DecisionCard";
+import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
 import { PriceAlertForm } from "@/components/product/PriceAlertForm";
 import { ProductHeader } from "@/components/product/ProductHeader";
+import { SeasonalityCard } from "@/components/product/SeasonalityCard";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getProductBySlug, MOCK_PRODUCTS } from "@/lib/mock-data";
+import { getProductBySlug, MOCK_PRODUCTS } from "@/lib/mocks";
+import { SEMAPHORE_LABEL } from "@/lib/utils";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -21,9 +24,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const product = getProductBySlug(slug);
   if (!product) return { title: "Produto" };
+  const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   return {
     title: product.name,
-    description: `${product.name} — ${product.decision.semaphore === "buy" ? "Comprar agora" : product.decision.semaphore === "fair" ? "Preço razoável" : "Espera"} · média 30d e comparação multi-loja.`,
+    description: `${product.name} — ${sem.label} · Índice Limiar ${product.decision.limiarIndex.value}/100`,
   };
 }
 
@@ -37,6 +41,11 @@ export default async function ProductPage({ params }: PageProps) {
       <SiteHeader />
       <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
         <ProductHeader product={product} />
+
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <LimiarIndexCard index={product.decision.limiarIndex} />
+          <DecisionCard decision={product.decision} />
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
           <Card>
@@ -61,7 +70,7 @@ export default async function ProductPage({ params }: PageProps) {
           </Card>
 
           <div className="space-y-6">
-            <DecisionCard decision={product.decision} />
+            <SeasonalityCard seasonality={product.seasonality} />
             <PriceAlertForm
               productName={product.name}
               currentPrice={product.currentPrice}

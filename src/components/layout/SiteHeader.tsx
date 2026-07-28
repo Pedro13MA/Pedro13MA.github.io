@@ -13,12 +13,15 @@ export function SiteHeader() {
           <span className="ml-2 text-xs font-normal text-sky-700">Price Intelligence</span>
         </Link>
         <nav className="flex items-center gap-4 text-sm text-slate-500">
-          <a href="#oportunidades" className="hidden hover:text-slate-900 sm:inline">
-            Oportunidades
-          </a>
-          <a href="#cupoes" className="hidden hover:text-slate-900 sm:inline">
+          <Link href="/#comprar-agora" className="hidden hover:text-slate-900 sm:inline">
+            Comprar Agora
+          </Link>
+          <Link href="/#esperar" className="hidden hover:text-slate-900 lg:inline">
+            Esperar
+          </Link>
+          <Link href="/#cupoes" className="hidden hover:text-slate-900 sm:inline">
             Cupões
-          </a>
+          </Link>
           <a
             href={TELEGRAM_CHANNEL}
             target="_blank"
@@ -38,8 +41,8 @@ export function SiteFooter() {
     <footer className="mt-20 border-t border-slate-200/80 bg-white py-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>
-          <span className="font-display font-semibold text-slate-900">Limiar</span> — decisão de
-          compra com dados reais.
+          <span className="font-display font-semibold text-slate-900">Limiar</span> — a plataforma
+          que diz quando vale realmente a pena comprar.
         </p>
         <p>Mocks alinhados ao motor Python/SQLite · V10.4</p>
       </div>

@@ -23,11 +23,11 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://pedro13ma.github.io"),
   title: {
-    default: "Limiar — Devo comprar agora ou esperar?",
+    default: "Limiar — Quando vale realmente a pena comprar",
     template: "%s | Limiar",
   },
   description:
-    "Plataforma de Price Intelligence & Decisão de Compra para Portugal. Histórico de preços, multi-loja, cupões e semáforo de decisão.",
+    "A plataforma que diz quando vale realmente a pena comprar. Índice Limiar 0–100, histórico factual e comparação multi-loja.",
   keywords: [
     "limiar",
     "price intelligence portugal",
@@ -41,9 +41,9 @@ export const metadata: Metadata = {
     locale: "pt_PT",
     url: "https://pedro13ma.github.io",
     siteName: "Limiar",
-    title: "Limiar — Devo comprar agora ou esperar?",
+    title: "Limiar — Quando vale realmente a pena comprar",
     description:
-      "Price intelligence com histórico, multi-loja e semáforo de decisão.",
+      "Índice Limiar 0–100, histórico factual e comparação multi-loja.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://pedro13ma.github.io" },

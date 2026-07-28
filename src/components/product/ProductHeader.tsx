@@ -31,14 +31,9 @@ export function ProductHeader({ product }: Props) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="default">{product.brand ?? product.category}</Badge>
           <Badge variant="tier">Tier {product.decision.tier}</Badge>
+          <Badge variant="teal">Índice {product.decision.limiarIndex.value}/100</Badge>
           <Badge variant={product.decision.semaphore} className="gap-1.5 text-sm">
-            <span aria-hidden>
-              {product.decision.semaphore === "buy"
-                ? "🟢"
-                : product.decision.semaphore === "fair"
-                  ? "🟡"
-                  : "🔴"}
-            </span>
+            <span aria-hidden>{sem.emoji}</span>
             {sem.label}
           </Badge>
         </div>
@@ -46,6 +41,8 @@ export function ProductHeader({ product }: Props) {
         <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
           {product.name}
         </h1>
+
+        <p className="max-w-2xl text-sm text-slate-500">{product.decision.limiarIndex.summary}</p>
 
         <div className="flex flex-wrap items-end gap-6">
           <div>

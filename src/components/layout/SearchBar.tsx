@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { MOCK_PRODUCTS } from "@/lib/mock-data";
+import { MOCK_PRODUCTS } from "@/lib/mocks";
 import { cn } from "@/lib/utils";
 
 type Props = {
