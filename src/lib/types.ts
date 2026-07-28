@@ -144,6 +144,8 @@ export interface Product {
   activePromotion?: Promotion | null;
   inStock?: boolean | null;
   originalPrice?: number | null;
+  /** Promoção imediata vs PVPR (≥20%). */
+  isOnSale?: boolean;
   chipsetModel?: string | null;
   vramSpec?: string | null;
 }

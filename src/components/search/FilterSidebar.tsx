@@ -40,6 +40,7 @@ const SUBCATEGORY_FILTER_KEY: Record<string, string> = {
   "fontes de alimentação (psu)": "psu",
   "periféricos": "peripheral",
   "componentes de rede": "network",
+  "consolas": "console",
   "acessórios": "accessory",
 };
 
@@ -66,6 +67,7 @@ function resolveActiveCategoryKey(
       "psu",
       "peripheral",
       "network",
+      "console",
       "accessory",
     ].includes(low)
   ) {
@@ -177,28 +179,22 @@ function SubcategoryBlock({
           const key = `${item.value}::${item.label}`;
           return (
             <li key={key}>
-              <label
+              <button
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onSelect(selected ? "" : item.value)}
                 className={cn(
-                  "flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
+                  "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
                   selected
-                    ? "bg-white font-medium text-sky-900 shadow-sm"
+                    ? "bg-white font-medium text-sky-900 shadow-sm ring-1 ring-sky-200"
                     : "text-slate-700 hover:bg-white/70",
                 )}
               >
-                <span className="flex min-w-0 items-center gap-2">
-                  <input
-                    type="radio"
-                    name="subcategory"
-                    checked={selected}
-                    onChange={() => onSelect(selected ? "" : item.value)}
-                    className="h-3.5 w-3.5 shrink-0 border-slate-300 text-sky-600 focus:ring-sky-500"
-                  />
-                  <span className="truncate">{item.label}</span>
-                </span>
+                <span className="truncate">{item.label}</span>
                 <span className="shrink-0 text-xs text-slate-400">
                   ({item.count})
                 </span>
-              </label>
+              </button>
             </li>
           );
         })}

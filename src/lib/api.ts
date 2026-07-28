@@ -53,6 +53,8 @@ export type ApiProductSummary = {
   semaphore: DecisionSemaphore;
   summary: string;
   isHistoricalMin?: boolean;
+  isOnSale?: boolean;
+  discountPct?: number | null;
   cheapestStore?: string | null;
   stores?: string[];
   inStock?: boolean | null;
@@ -230,7 +232,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
       storeDominance: 0,
       feedbackAdjustment: 0,
     },
-    discountPct: 0,
+    discountPct: Number(s.discountPct ?? 0),
     dealQuality: "NORMAL",
     opportunityType: s.isHistoricalMin ? "NEW_LOW" : "NOISE",
     historicalAvg: s.avg30d ?? null,
@@ -260,6 +262,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     seasonality: DEFAULT_SEASONALITY,
     inStock: s.inStock,
     originalPrice: s.originalPrice,
+    isOnSale: Boolean(s.isOnSale),
     chipsetModel: s.chipsetModel,
     vramSpec: s.vramSpec,
   };
