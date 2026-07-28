@@ -49,3 +49,27 @@ body {
   background: rgba(2, 132, 199, 0.18);
   color: #0f172a;
 }
+
+/* Sidebar de filtros — scrollbar fina */
+.limiar-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.limiar-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.limiar-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.limiar-sidebar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 999px;
+}
+
+.limiar-sidebar:hover::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+}
+

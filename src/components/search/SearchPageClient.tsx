@@ -3,18 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
+import { FilterSidebar } from "@/components/search/FilterSidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   searchProducts,
   summaryToProduct,
-  type FacetBucket,
   type SearchFacets,
   type SearchSortBy,
 } from "@/lib/api";
 import type { Product } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 24;
 
@@ -24,6 +22,12 @@ const SORT_OPTIONS: { value: SearchSortBy; label: string }[] = [
   { value: "price_desc", label: "Preço mais alto" },
   { value: "discount_desc", label: "Maior Desconto" },
 ];
+
+const INFERRED_LABEL: Record<string, string> = {
+  gpu: "Placas Gráficas",
+  ssd: "Armazenamento",
+  ram: "RAM / Memória",
+};
 
 type Filters = {
   category: string;
@@ -48,51 +52,6 @@ function readFilters(params: URLSearchParams): Filters {
     sortBy: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "limiar_desc",
     page: Math.max(1, Number(params.get("page") || "1") || 1),
   };
-}
-
-function FacetList({
-  title,
-  items,
-  active,
-  onSelect,
-}: {
-  title: string;
-  items: FacetBucket[];
-  active: string;
-  onSelect: (value: string) => void;
-}) {
-  if (!items.length) return null;
-  return (
-    <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-        {title}
-      </p>
-      <ul className="space-y-1">
-        {items.map((item) => {
-          const selected = active.toLowerCase() === item.value.toLowerCase();
-          return (
-            <li key={item.value}>
-              <button
-                type="button"
-                onClick={() => onSelect(selected ? "" : item.value)}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
-                  selected
-                    ? "bg-sky-50 font-medium text-sky-900"
-                    : "text-slate-700 hover:bg-slate-50",
-                )}
-              >
-                <span className="truncate">{item.label}</span>
-                <span className="ml-2 shrink-0 text-xs text-slate-400">
-                  {item.count}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
 }
 
 export function SearchPageClient() {
@@ -196,7 +155,7 @@ export function SearchPageClient() {
           Pesquisa Limiar
         </h1>
         <p className="mt-3 text-slate-500">
-          Escreve um termo (ex: SSD, RAM, GPU) e carrega Enter.
+          Escreve um termo (ex: SSD, RAM, placa gráfica) e carrega Enter.
         </p>
       </main>
     );
@@ -215,7 +174,7 @@ export function SearchPageClient() {
               : `${total} produto${total === 1 ? "" : "s"} encontrados`}
             {inferred ? (
               <Badge variant="teal" className="ml-2">
-                Categoria {inferred.toUpperCase()}
+                {INFERRED_LABEL[inferred] || inferred}
               </Badge>
             ) : null}
           </p>
@@ -244,91 +203,33 @@ export function SearchPageClient() {
         </p>
       ) : null}
 
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <aside className="space-y-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm lg:sticky lg:top-20 lg:self-start">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-sm font-semibold text-slate-900">
-              Filtros
-            </h2>
-            <button
-              type="button"
-              className="text-xs text-sky-700 hover:underline"
-              onClick={() =>
-                pushFilters({
-                  category: "",
-                  brand: "",
-                  store: "",
-                  type: "",
-                  minPrice: "",
-                  maxPrice: "",
-                  page: 1,
-                })
-              }
-            >
-              Limpar
-            </button>
-          </div>
-
-          <FacetList
-            title="Capacidade / Tipo"
-            items={facets.types}
-            active={filters.type}
-            onSelect={(value) => pushFilters({ type: value })}
-          />
-          <FacetList
-            title="Marca"
-            items={facets.brands}
-            active={filters.brand}
-            onSelect={(value) => pushFilters({ brand: value })}
-          />
-          <FacetList
-            title="Loja"
-            items={facets.stores}
-            active={filters.store}
-            onSelect={(value) => pushFilters({ store: value })}
-          />
-          <FacetList
-            title="Categoria"
-            items={facets.categories}
-            active={filters.category}
-            onSelect={(value) => pushFilters({ category: value })}
-          />
-
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Intervalo de preço (€)
-            </p>
-            <div className="flex gap-2">
-              <Input
-                inputMode="decimal"
-                placeholder="Mín"
-                value={minDraft}
-                onChange={(e) => setMinDraft(e.target.value)}
-                className="h-9"
-              />
-              <Input
-                inputMode="decimal"
-                placeholder="Máx"
-                value={maxDraft}
-                onChange={(e) => setMaxDraft(e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() =>
-                pushFilters({
-                  minPrice: minDraft.trim(),
-                  maxPrice: maxDraft.trim(),
-                })
-              }
-            >
-              Aplicar preço
-            </Button>
-          </div>
-        </aside>
+      <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
+        <FilterSidebar
+          facets={facets}
+          filters={filters}
+          minDraft={minDraft}
+          maxDraft={maxDraft}
+          onMinDraft={setMinDraft}
+          onMaxDraft={setMaxDraft}
+          onSelect={(patch) => pushFilters(patch)}
+          onClear={() =>
+            pushFilters({
+              category: "",
+              brand: "",
+              store: "",
+              type: "",
+              minPrice: "",
+              maxPrice: "",
+              page: 1,
+            })
+          }
+          onApplyPrice={() =>
+            pushFilters({
+              minPrice: minDraft.trim(),
+              maxPrice: maxDraft.trim(),
+            })
+          }
+        />
 
         <section>
           {loading ? (
