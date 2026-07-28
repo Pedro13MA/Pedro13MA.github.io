@@ -33,6 +33,14 @@ const SUBCATEGORY_FILTER_KEY: Record<string, string> = {
   "ram / memória": "ram",
   "air fryers": "air_fryer",
   "smartphones": "smartphone",
+  "portáteis": "laptop",
+  "computadores de secretária": "desktop",
+  "motherboards / placas-mãe": "motherboard",
+  "monitores & ecrãs": "monitor",
+  "fontes de alimentação (psu)": "psu",
+  "periféricos": "peripheral",
+  "componentes de rede": "network",
+  "acessórios": "accessory",
 };
 
 function resolveActiveCategoryKey(
@@ -43,7 +51,24 @@ function resolveActiveCategoryKey(
   if (!raw) return "";
   const low = raw.toLowerCase();
   if (SUBCATEGORY_FILTER_KEY[low]) return SUBCATEGORY_FILTER_KEY[low];
-  if (["gpu", "cpu", "ssd", "ram", "air_fryer", "smartphone"].includes(low)) {
+  if (
+    [
+      "gpu",
+      "cpu",
+      "ssd",
+      "ram",
+      "air_fryer",
+      "smartphone",
+      "laptop",
+      "desktop",
+      "motherboard",
+      "monitor",
+      "psu",
+      "peripheral",
+      "network",
+      "accessory",
+    ].includes(low)
+  ) {
     return low;
   }
   return low;
