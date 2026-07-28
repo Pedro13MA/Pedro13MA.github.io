@@ -57,7 +57,9 @@ export function ProductPageClient({ slug }: Props) {
     return (
       <main className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-bold text-slate-900">Produto não encontrado</h1>
-        <p className="mt-3 text-slate-500">{error || "Sem dados na API Limiar."}</p>
+        <p className="mt-3 text-slate-500">
+          {error || "Não encontrámos este produto. Tenta outra pesquisa."}
+        </p>
       </main>
     );
   }

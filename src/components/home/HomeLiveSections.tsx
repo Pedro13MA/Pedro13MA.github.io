@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
 import { PromotionCard } from "@/components/product/PromotionCard";
-import { Badge } from "@/components/ui/badge";
 import {
   getDealsNow,
   getDealsWait,
@@ -77,8 +76,8 @@ export function HomeLiveSections() {
       {error ? (
         <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
           <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            API indisponível ({error}). Verifica <code>NEXT_PUBLIC_API_URL</code> e o proxy
-            HTTPS na VPS.
+            Não foi possível carregar as oportunidades neste momento. Tenta novamente dentro
+            de instantes.
           </p>
         </div>
       ) : null}
@@ -87,7 +86,7 @@ export function HomeLiveSections() {
         <div className="mb-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">🔥 Comprar Agora</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Mínimo histórico com Índice Limiar &gt; 85 — dados live (Worten, Globaldata, …).
+            Super Oportunidades — Produtos em Mínimo Histórico e melhores preços do dia.
           </p>
         </div>
         {loading ? (
@@ -99,7 +98,10 @@ export function HomeLiveSections() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">Sem oportunidades &gt; 85 neste momento.</p>
+          <p className="text-sm text-slate-500">
+            Sem super promoções no momento. Explora o catálogo ou cria um alerta de preço para
+            seres notificado!
+          </p>
         )}
       </section>
 
@@ -110,7 +112,7 @@ export function HomeLiveSections() {
               ⏳ Vale a Pena Esperar
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Produtos acima do preço habitual (Índice Limiar &lt; 50).
+              Vale a Pena Esperar — Produtos atualmente acima do valor normal de mercado.
             </p>
           </div>
           {loading ? (
@@ -122,7 +124,9 @@ export function HomeLiveSections() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500">Nada abaixo de 50 no momento.</p>
+            <p className="text-sm text-slate-500">
+              Neste momento não há produtos claramente acima do valor habitual.
+            </p>
           )}
         </div>
       </section>
@@ -165,9 +169,6 @@ export function HomeLiveSections() {
                 className="rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition-all hover:shadow-md"
               >
                 {store.name}
-                <Badge variant="teal" className="ml-2">
-                  /cupoes/{store.slug}
-                </Badge>
               </Link>
             ))}
           </div>
@@ -181,7 +182,8 @@ export function HomeLiveSections() {
             </div>
           ) : (
             <p className="text-sm text-slate-500">
-              Sem cupões ativos devolvidos pela API para Worten/Globaldata.
+              Sem cupões extra ativos no momento — o valor apresentado é o preço direto na
+              loja.
             </p>
           )}
         </div>

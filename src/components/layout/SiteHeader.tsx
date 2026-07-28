@@ -14,7 +14,7 @@ export function SiteHeader() {
           <span>
             Limiar
             <span className="ml-2 hidden text-xs font-normal text-sky-700 sm:inline">
-              Price Intelligence
+              Quando comprar
             </span>
           </span>
         </Link>
@@ -53,7 +53,7 @@ export function SiteFooter() {
             <p className="mt-0.5 max-w-md">{BRAND_TAGLINE}</p>
           </div>
         </div>
-        <p>API FastAPI · SQLite WAL · V10.5</p>
+        <p>Preços · Histórico · Cupões</p>
       </div>
     </footer>
   );

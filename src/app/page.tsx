@@ -21,8 +21,8 @@ export default function HomePage() {
               {BRAND_TAGLINE}
             </h1>
             <p className="mt-4 max-w-2xl text-base text-slate-500 sm:text-lg">
-              Índice Limiar 0–100 em tempo real — Worten, Globaldata e outras lojas via API
-              FastAPI.
+              Comparamos preços em Worten, Globaldata e outras lojas para te dizer quando
+              vale mesmo a pena comprar.
             </p>
             <div className="mt-10 max-w-2xl">
               <SearchBar autoFocus />

@@ -54,7 +54,7 @@ export function CouponStoreClient({ store, storeName }: Props) {
           Cupões {storeName}
         </h1>
         <p className="mt-2 max-w-2xl text-slate-500">
-          Vouchers validados em tempo real via API Limiar (AWIN Promotions).
+          Vouchers e códigos validados para {storeName}.
         </p>
 
         {error ? (
@@ -77,7 +77,8 @@ export function CouponStoreClient({ store, storeName }: Props) {
             ))
           ) : (
             <p className="text-sm text-slate-500">
-              Sem cupões ativos para esta loja neste momento.
+              Sem cupões extra ativos no momento — o valor apresentado é o preço direto na
+              loja.
             </p>
           )}
         </div>

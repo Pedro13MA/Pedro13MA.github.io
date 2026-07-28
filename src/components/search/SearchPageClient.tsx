@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const PAGE_SIZE = 24;
 
 const SORT_OPTIONS: { value: SearchSortBy; label: string }[] = [
-  { value: "limiar_desc", label: "Melhor Índice Limiar" },
+  { value: "limiar_desc", label: "Melhor momento para comprar" },
   { value: "price_asc", label: "Preço mais baixo" },
   { value: "price_desc", label: "Preço mais alto" },
   { value: "discount_desc", label: "Maior Desconto" },
@@ -212,7 +212,7 @@ export function SearchPageClient() {
           <p className="mt-2 text-sm text-slate-500">
             {loading
               ? "A carregar…"
-              : `${total} produto${total === 1 ? "" : "s"} · Worten + Globaldata`}
+              : `${total} produto${total === 1 ? "" : "s"} encontrados`}
             {inferred ? (
               <Badge variant="teal" className="ml-2">
                 Categoria {inferred.toUpperCase()}

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | Limiar",
   },
   description:
-    "A plataforma que diz quando vale realmente a pena comprar. Índice Limiar 0–100, histórico factual e comparação multi-loja.",
+    "A plataforma que diz quando vale realmente a pena comprar. Histórico de preços, melhores momentos e comparação multi-loja.",
   keywords: [
     "limiar",
     "price intelligence portugal",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "Limiar",
     title: "Limiar — Quando vale realmente a pena comprar",
     description:
-      "Índice Limiar 0–100, histórico factual e comparação multi-loja.",
+      "Histórico de preços, melhores momentos para comprar e comparação entre lojas.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://pedro13ma.github.io" },

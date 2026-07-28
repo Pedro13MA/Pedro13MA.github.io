@@ -84,7 +84,7 @@ export function SearchBar({ className, autoFocus, defaultQuery = "" }: Props) {
           <ul className="max-h-80 overflow-y-auto overscroll-contain">
             {loading ? (
               <li className="px-4 py-3 text-sm text-slate-500">
-                A procurar na API Limiar…
+                A procurar produtos…
               </li>
             ) : results.length === 0 ? (
               <li className="px-4 py-3 text-sm text-slate-500">
