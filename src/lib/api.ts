@@ -423,6 +423,68 @@ export async function getProductBySlug(slug: string): Promise<ApiProductDetail> 
   return apiGet<ApiProductDetail>(`/api/v1/product/${encodeURIComponent(slug)}`);
 }
 
+export type HistoryGranularity = "daily" | "weekly";
+
+export type PriceHistorySeriesPoint = {
+  date: string;
+  price: number;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  samples?: number;
+};
+
+export type PriceHistoryOut = {
+  ean: string;
+  days: number;
+  granularity: HistoryGranularity;
+  points: PriceHistorySeriesPoint[];
+  currentPrice?: number | null;
+  historicalMin?: number | null;
+  historicalMax?: number | null;
+};
+
+export type StorePriceSpread = {
+  store: string;
+  storeName: string;
+  price: number;
+};
+
+export type ProductMetricsOut = {
+  ean: string;
+  currentPrice?: number | null;
+  allTimeLow?: number | null;
+  allTimeHigh?: number | null;
+  avg30d?: number | null;
+  avg90d?: number | null;
+  storeSpreadEur?: number | null;
+  storeCount: number;
+  storePrices: StorePriceSpread[];
+  volatilityPct?: number | null;
+  samples30d: number;
+  samples90d: number;
+};
+
+export async function fetchPriceHistory(
+  id: string,
+  days = 30,
+  granularity: HistoryGranularity = "daily",
+): Promise<PriceHistoryOut> {
+  const params = new URLSearchParams({
+    days: String(days),
+    granularity,
+  });
+  return apiGet<PriceHistoryOut>(
+    `/api/v1/product/${encodeURIComponent(id)}/history?${params}`,
+  );
+}
+
+export async function fetchProductMetrics(ean: string): Promise<ProductMetricsOut> {
+  return apiGet<ProductMetricsOut>(
+    `/api/v1/metrics/product/${encodeURIComponent(ean)}`,
+  );
+}
+
 export async function getStorePromotions(
   store: string,
   limit = 50,

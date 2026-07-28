@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { detailToProduct, getProductBySlug } from "@/lib/api";
 import type { Product } from "@/lib/types";
-import { PriceHistoryChart } from "@/components/charts/PriceHistoryChart";
+import { PriceHistoryChart } from "@/components/PriceHistoryChart";
+import { ProductMetricsPanel } from "@/components/ProductMetricsPanel";
 import { DecisionCard } from "@/components/product/DecisionCard";
 import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
 import { PriceAlertForm } from "@/components/product/PriceAlertForm";
 import { ProductHeader } from "@/components/product/ProductHeader";
 import { SeasonalityCard } from "@/components/product/SeasonalityCard";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = { slug: string };
 
@@ -80,26 +80,15 @@ export function ProductPageClient({ slug }: Props) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Histórico de preço</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {product.history.length > 1 ? (
-              <PriceHistoryChart
-                history={product.history}
-                historicalMin={histMin}
-                historicalMax={histMax}
-              />
-            ) : (
-              <p className="py-12 text-center text-sm text-slate-500">
-                Histórico insuficiente para o gráfico.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <PriceHistoryChart
+          productId={slug}
+          fallbackHistory={product.history}
+          fallbackMin={histMin}
+          fallbackMax={histMax}
+        />
 
         <div className="space-y-6">
+          <ProductMetricsPanel ean={product.ean} currentPrice={product.currentPrice} />
           <SeasonalityCard seasonality={product.seasonality} />
           <PriceAlertForm
             productName={product.name}
