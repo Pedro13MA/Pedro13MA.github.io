@@ -142,4 +142,8 @@ export interface Product {
   decision: DecisionScore;
   seasonality: Seasonality;
   activePromotion?: Promotion | null;
+  inStock?: boolean | null;
+  originalPrice?: number | null;
+  chipsetModel?: string | null;
+  vramSpec?: string | null;
 }

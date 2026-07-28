@@ -21,6 +21,7 @@ export type FilterValues = {
   format: string;
   minPrice: string;
   maxPrice: string;
+  inStockOnly: boolean;
 };
 
 type Props = {
@@ -136,6 +137,16 @@ export function FilterSidebar({
           Limpar
         </button>
       </div>
+
+      <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
+        <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
+        <input
+          type="checkbox"
+          checked={filters.inStockOnly}
+          onChange={(e) => onSelect({ inStockOnly: e.target.checked })}
+          className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+        />
+      </label>
 
       {isGpu ? (
         <>

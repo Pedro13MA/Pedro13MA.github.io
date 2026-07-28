@@ -50,6 +50,7 @@ function readFilters(params: URLSearchParams): Filters {
     format: params.get("format") || "",
     minPrice: params.get("min_price") || "",
     maxPrice: params.get("max_price") || "",
+    inStockOnly: params.get("in_stock") === "true",
     sortBy: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "limiar_desc",
     page: Math.max(1, Number(params.get("page") || "1") || 1),
   };
@@ -66,6 +67,7 @@ const EMPTY_FACETS: SearchFacets = {
   sockets: [],
   capacities: [],
   formats: [],
+  in_stock: [],
 };
 
 export function SearchPageClient() {
@@ -106,6 +108,7 @@ export function SearchPageClient() {
       if (next.format) params.set("format", next.format);
       if (next.minPrice) params.set("min_price", next.minPrice);
       if (next.maxPrice) params.set("max_price", next.maxPrice);
+      if (next.inStockOnly) params.set("in_stock", "true");
       if (next.sortBy && next.sortBy !== "limiar_desc") {
         params.set("sort_by", next.sortBy);
       }
@@ -142,6 +145,7 @@ export function SearchPageClient() {
       minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
       maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
       sortBy: filters.sortBy,
+      inStockOnly: filters.inStockOnly || undefined,
     })
       .then((res) => {
         if (cancelled) return;
@@ -246,6 +250,7 @@ export function SearchPageClient() {
               format: "",
               minPrice: "",
               maxPrice: "",
+              inStockOnly: false,
               page: 1,
             })
           }

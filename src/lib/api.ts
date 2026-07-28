@@ -55,6 +55,10 @@ export type ApiProductSummary = {
   isHistoricalMin?: boolean;
   cheapestStore?: string | null;
   stores?: string[];
+  inStock?: boolean | null;
+  originalPrice?: number | null;
+  chipsetModel?: string | null;
+  vramSpec?: string | null;
 };
 
 export type FacetBucket = {
@@ -74,6 +78,7 @@ export type SearchFacets = {
   sockets?: FacetBucket[];
   capacities?: FacetBucket[];
   formats?: FacetBucket[];
+  in_stock?: FacetBucket[];
 };
 
 export type SearchResponse = {
@@ -109,6 +114,7 @@ export type SearchParams = {
   minPrice?: number;
   maxPrice?: number;
   sortBy?: SearchSortBy;
+  inStockOnly?: boolean;
 };
 
 export type ApiOffer = {
@@ -250,6 +256,10 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     offers: [],
     decision,
     seasonality: DEFAULT_SEASONALITY,
+    inStock: s.inStock,
+    originalPrice: s.originalPrice,
+    chipsetModel: s.chipsetModel,
+    vramSpec: s.vramSpec,
   };
 }
 
@@ -380,6 +390,7 @@ export async function searchProducts(
   if (opts?.maxPrice != null && !Number.isNaN(opts.maxPrice)) {
     params.set("max_price", String(opts.maxPrice));
   }
+  if (opts?.inStockOnly) params.set("in_stock", "true");
   return apiGet<SearchResponse>(`/api/v1/search?${params}`);
 }
 

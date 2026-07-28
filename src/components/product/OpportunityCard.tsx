@@ -14,6 +14,13 @@ export function OpportunityCard({ product, showDropToday }: Props) {
   const drop = ((product.avg30d - product.currentPrice) / product.avg30d) * 100;
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   const tone = limiarIndexTone(product.decision.limiarIndex.value);
+  const specParts = [
+    product.chipsetModel,
+    product.vramSpec,
+  ].filter(Boolean);
+  const pvpr = product.originalPrice;
+  const hasPvprDiscount =
+    pvpr != null && pvpr > product.currentPrice;
 
   return (
     <Link
@@ -44,16 +51,31 @@ export function OpportunityCard({ product, showDropToday }: Props) {
         </div>
         <CardContent className="space-y-2 p-4">
           <p className="line-clamp-2 font-semibold text-slate-900">{product.name}</p>
+          {specParts.length ? (
+            <p className="text-xs font-medium text-slate-600">{specParts.join(" · ")}</p>
+          ) : null}
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-display text-2xl font-bold text-slate-900">
-              {formatEUR(product.currentPrice)}
-            </span>
+            <div className="flex flex-col">
+              <span className="font-display text-2xl font-bold text-slate-900">
+                {formatEUR(product.currentPrice)}
+              </span>
+              {hasPvprDiscount ? (
+                <span className="text-xs text-slate-500">
+                  PVPR {formatEUR(pvpr!)}
+                </span>
+              ) : null}
+            </div>
             <span className="text-sm font-medium text-emerald-700">
               {showDropToday && product.dropTodayPct
                 ? formatPct(product.dropTodayPct)
-                : formatPct(drop)}
+                : hasPvprDiscount
+                  ? formatPct(((pvpr! - product.currentPrice) / pvpr!) * 100)
+                  : formatPct(drop)}
             </span>
           </div>
+          {product.inStock === false ? (
+            <p className="text-xs font-medium text-amber-700">Sem stock</p>
+          ) : null}
           <p className="line-clamp-2 text-xs text-slate-500">
             {product.decision.limiarIndex.summary}
           </p>
