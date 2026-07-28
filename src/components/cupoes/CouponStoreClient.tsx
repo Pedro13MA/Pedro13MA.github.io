@@ -85,7 +85,10 @@ export function CouponStoreClient({ store, storeName }: Props) {
         </div>
 
         <p className="mt-10 text-xs text-slate-400">
-          Lojas no hub:{" "}
+          <Link href="/#cupoes" className="hover:text-slate-600">
+            Voltar ao Hub de Cupões
+          </Link>
+          {" · "}
           {COUPON_HUB_STORES.map((s) => s.name).join(" · ")}
         </p>
       </main>

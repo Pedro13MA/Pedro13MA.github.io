@@ -65,18 +65,8 @@ export async function copyCouponCode(code: string): Promise<boolean> {
   }
 }
 
-export const COUPON_FILTER_STORES = [
-  { id: "all", label: "Todas as Lojas" },
-  { id: "worten", label: "Worten" },
-  { id: "globaldata", label: "Globaldata" },
-] as const;
-
-export type CouponStoreFilterId = (typeof COUPON_FILTER_STORES)[number]["id"];
-
 export const STORE_BADGE_STYLES: Record<string, { bg: string; text: string; ring: string }> = {
   worten: { bg: "bg-red-600", text: "text-white", ring: "ring-red-200" },
   globaldata: { bg: "bg-sky-700", text: "text-white", ring: "ring-sky-200" },
-  fnac: { bg: "bg-yellow-500", text: "text-slate-900", ring: "ring-yellow-200" },
-  pccomponentes: { bg: "bg-orange-500", text: "text-white", ring: "ring-orange-200" },
   default: { bg: "bg-slate-700", text: "text-white", ring: "ring-slate-200" },
 };

@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { CouponCard } from "@/components/cupoes/CouponCard";
 import { getStorePromotions, mapPromotion } from "@/lib/api";
-import {
-  COUPON_FILTER_STORES,
-  normalizeCouponStoreSlug,
-  type CouponStoreFilterId,
-} from "@/lib/coupon-utils";
-import { COUPON_HUB_STORES } from "@/lib/mocks";
+import { normalizeCouponStoreSlug } from "@/lib/coupon-utils";
 import type { Promotion } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+/** Lojas com API de promoções ativa — usado só para fetch, não para labels das tabs. */
+const INTEGRATED_PROMO_STORES = ["worten", "globaldata"] as const;
 
 function SectionSkeleton({ n = 4 }: { n?: number }) {
   return (
@@ -26,11 +23,27 @@ function SectionSkeleton({ n = 4 }: { n?: number }) {
   );
 }
 
+function CouponEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-14 text-center">
+      <span className="text-3xl" aria-hidden>
+        🏷️
+      </span>
+      <p className="mt-4 font-display text-lg font-semibold text-slate-900">
+        Sem cupões adicionais no momento
+      </p>
+      <p className="mt-2 max-w-md text-sm text-slate-500">
+        Os preços listados para esta loja já refletem o melhor valor direto no carrinho.
+      </p>
+    </div>
+  );
+}
+
 export function CouponHubSection() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [storeFilter, setStoreFilter] = useState<CouponStoreFilterId>("all");
+  const [storeFilter, setStoreFilter] = useState<string>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -38,14 +51,13 @@ export function CouponHubSection() {
       setLoading(true);
       setError(null);
       try {
-        const [worten, globaldata] = await Promise.all([
-          getStorePromotions("worten", 24).catch(() => ({ results: [] as never[] })),
-          getStorePromotions("globaldata", 24).catch(() => ({ results: [] as never[] })),
-        ]);
-        if (cancelled) return;
-        setPromotions(
-          [...worten.results, ...globaldata.results].map(mapPromotion),
+        const batches = await Promise.all(
+          INTEGRATED_PROMO_STORES.map((slug) =>
+            getStorePromotions(slug, 24).catch(() => ({ results: [] as never[] })),
+          ),
         );
+        if (cancelled) return;
+        setPromotions(batches.flatMap((b) => b.results).map(mapPromotion));
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Falha ao carregar cupões");
@@ -59,6 +71,25 @@ export function CouponHubSection() {
     };
   }, []);
 
+  const storeTabs = useMemo(() => {
+    const bySlug = new Map<string, string>();
+    for (const promo of promotions) {
+      const slug = normalizeCouponStoreSlug(promo.storeSlug);
+      if (!slug || bySlug.has(slug)) continue;
+      bySlug.set(slug, promo.storeName?.trim() || slug);
+    }
+    return Array.from(bySlug.entries())
+      .map(([id, label]) => ({ id, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt"));
+  }, [promotions]);
+
+  useEffect(() => {
+    if (storeFilter === "all") return;
+    if (!storeTabs.some((t) => t.id === storeFilter)) {
+      setStoreFilter("all");
+    }
+  }, [storeFilter, storeTabs]);
+
   const filtered = useMemo(() => {
     if (storeFilter === "all") return promotions;
     return promotions.filter(
@@ -67,7 +98,7 @@ export function CouponHubSection() {
   }, [promotions, storeFilter]);
 
   return (
-    <section id="cupoes" className="border-t border-slate-200/80 bg-slate-50 scroll-mt-16">
+    <section id="cupoes" className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="mb-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">
@@ -78,38 +109,40 @@ export function CouponHubSection() {
           </p>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          {COUPON_FILTER_STORES.map((store) => {
-            const active = storeFilter === store.id;
-            return (
-              <button
-                key={store.id}
-                type="button"
-                onClick={() => setStoreFilter(store.id)}
-                className={cn(
-                  "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
-                  active
-                    ? "border-sky-600 bg-sky-600 text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:shadow-sm",
-                )}
-              >
-                {store.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mb-8 flex flex-wrap gap-3">
-          {COUPON_HUB_STORES.map((store) => (
-            <Link
-              key={store.slug}
-              href={store.href}
-              className="rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition-all hover:shadow-md"
+        {!loading && (promotions.length > 0 || storeTabs.length > 0) ? (
+          <div className="mb-8 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setStoreFilter("all")}
+              className={cn(
+                "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
+                storeFilter === "all"
+                  ? "border-sky-600 bg-sky-600 text-white shadow-sm"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:shadow-sm",
+              )}
             >
-              Ver todos — {store.name}
-            </Link>
-          ))}
-        </div>
+              Todas as Lojas
+            </button>
+            {storeTabs.map((store) => {
+              const active = storeFilter === store.id;
+              return (
+                <button
+                  key={store.id}
+                  type="button"
+                  onClick={() => setStoreFilter(store.id)}
+                  className={cn(
+                    "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
+                    active
+                      ? "border-sky-600 bg-sky-600 text-white shadow-sm"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:shadow-sm",
+                  )}
+                >
+                  {store.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
 
         {error ? (
           <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -126,10 +159,7 @@ export function CouponHubSection() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">
-            Sem cupões extra ativos para este filtro — o valor apresentado é o preço
-            direto na loja.
-          </p>
+          <CouponEmptyState />
         )}
       </div>
     </section>

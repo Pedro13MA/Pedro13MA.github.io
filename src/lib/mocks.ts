@@ -121,11 +121,10 @@ export const MOCK_PROMOTIONS: Promotion[] = [
   },
 ];
 
+/** Lojas com promoções AWIN ativas no hub (sem Fnac/PC Componentes até haver feed). */
 export const COUPON_HUB_STORES = [
   { slug: "worten", name: "Worten", href: "/cupoes/worten/" },
   { slug: "globaldata", name: "Globaldata", href: "/cupoes/globaldata/" },
-  { slug: "fnac", name: "Fnac", href: "/cupoes/fnac/" },
-  { slug: "pccomponentes", name: "PC Componentes", href: "/cupoes/pccomponentes/" },
 ] as const;
 
 export const MOCK_PRODUCTS: Product[] = [
