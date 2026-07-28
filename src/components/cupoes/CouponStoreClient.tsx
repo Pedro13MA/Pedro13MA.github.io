@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { CouponCard } from "@/components/cupoes/CouponCard";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
-import { PromotionCard } from "@/components/product/PromotionCard";
 import { getStorePromotions, mapPromotion } from "@/lib/api";
 import { COUPON_HUB_STORES } from "@/lib/mocks";
 import type { Promotion } from "@/lib/types";
@@ -54,7 +54,8 @@ export function CouponStoreClient({ store, storeName }: Props) {
           Cupões {storeName}
         </h1>
         <p className="mt-2 max-w-2xl text-slate-500">
-          Vouchers e códigos validados para {storeName}.
+          Vouchers e códigos validados para {storeName}. Clica para copiar e abrir a loja
+          com link AWIN.
         </p>
 
         {error ? (
@@ -68,12 +69,12 @@ export function CouponStoreClient({ store, storeName }: Props) {
             Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="h-40 animate-pulse rounded-xl border border-slate-200/80 bg-slate-100"
+                className="h-52 animate-pulse rounded-2xl border border-dashed border-slate-200 bg-slate-100"
               />
             ))
           ) : promotions.length > 0 ? (
             promotions.map((promo) => (
-              <PromotionCard key={promo.externalId} promotion={promo} />
+              <CouponCard key={promo.externalId} promotion={promo} />
             ))
           ) : (
             <p className="text-sm text-slate-500">

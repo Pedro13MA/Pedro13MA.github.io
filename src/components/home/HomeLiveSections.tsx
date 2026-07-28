@@ -3,16 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
-import { PromotionCard } from "@/components/product/PromotionCard";
+import { CouponHubSection } from "@/components/cupoes/CouponHubSection";
 import {
   getDealsNow,
   getDealsWait,
-  getStorePromotions,
-  mapPromotion,
   summaryToProduct,
 } from "@/lib/api";
-import { COUPON_HUB_STORES } from "@/lib/mocks";
-import type { Product, Promotion } from "@/lib/types";
+import type { Product } from "@/lib/types";
 
 function SectionSkeleton({ n = 3 }: { n?: number }) {
   return (
@@ -30,7 +27,6 @@ function SectionSkeleton({ n = 3 }: { n?: number }) {
 export function HomeLiveSections() {
   const [buyNow, setBuyNow] = useState<Product[]>([]);
   const [wait, setWait] = useState<Product[]>([]);
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,19 +36,13 @@ export function HomeLiveSections() {
       setLoading(true);
       setError(null);
       try {
-        const [nowRes, waitRes, worten, globaldata] = await Promise.all([
+        const [nowRes, waitRes] = await Promise.all([
           getDealsNow(24),
           getDealsWait(24),
-          getStorePromotions("worten", 4).catch(() => ({ results: [] as never[] })),
-          getStorePromotions("globaldata", 4).catch(() => ({ results: [] as never[] })),
         ]);
         if (cancelled) return;
         setBuyNow(nowRes.results.map(summaryToProduct));
         setWait(waitRes.results.map(summaryToProduct));
-        const promos = [...worten.results, ...globaldata.results]
-          .map(mapPromotion)
-          .slice(0, 8);
-        setPromotions(promos);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Falha ao contactar a API Limiar");
@@ -82,7 +72,7 @@ export function HomeLiveSections() {
         </div>
       ) : null}
 
-      <section id="comprar-agora" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <section id="comprar-agora" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 scroll-mt-16">
         <div className="mb-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">🔥 Comprar Agora</h2>
           <p className="mt-1 text-sm text-slate-500">
@@ -105,7 +95,7 @@ export function HomeLiveSections() {
         )}
       </section>
 
-      <section id="esperar" className="border-t border-slate-200/80 bg-white">
+      <section id="esperar" className="border-t border-slate-200/80 bg-white scroll-mt-16">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="mb-8">
             <h2 className="font-display text-2xl font-bold text-slate-900">
@@ -131,7 +121,7 @@ export function HomeLiveSections() {
         </div>
       </section>
 
-      <section id="quedas" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <section id="quedas" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 scroll-mt-16">
         <div className="mb-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">
             📉 Maiores Quedas de Hoje
@@ -151,43 +141,7 @@ export function HomeLiveSections() {
         )}
       </section>
 
-      <section id="cupoes" className="border-t border-slate-200/80 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="mb-8">
-            <h2 className="font-display text-2xl font-bold text-slate-900">
-              🎟️ Hub de Cupões Validados
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Atalhos por loja — Worten e Globaldata em destaque.
-            </p>
-          </div>
-          <div className="mb-8 flex flex-wrap gap-3">
-            {COUPON_HUB_STORES.map((store) => (
-              <Link
-                key={store.slug}
-                href={store.href}
-                className="rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition-all hover:shadow-md"
-              >
-                {store.name}
-              </Link>
-            ))}
-          </div>
-          {loading ? (
-            <SectionSkeleton n={4} />
-          ) : promotions.length ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {promotions.map((promo) => (
-                <PromotionCard key={promo.externalId} promotion={promo} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-slate-500">
-              Sem cupões extra ativos no momento — o valor apresentado é o preço direto na
-              loja.
-            </p>
-          )}
-        </div>
-      </section>
+      <CouponHubSection />
     </>
   );
 }
