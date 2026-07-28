@@ -1,13 +1,14 @@
 import type { LimiarIndex } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn, limiarIndexTone } from "@/lib/utils";
+import { cn, formatEUR, limiarIndexTone } from "@/lib/utils";
 
 type Props = {
   index: LimiarIndex;
+  currentPrice?: number;
   className?: string;
 };
 
-export function LimiarIndexCard({ index, className }: Props) {
+export function LimiarIndexCard({ index, currentPrice, className }: Props) {
   const tone = limiarIndexTone(index.value);
   const size = 112;
   const stroke = 10;
@@ -58,10 +59,17 @@ export function LimiarIndexCard({ index, className }: Props) {
               <span className="text-xs text-slate-500">/ 100</span>
             </div>
           </div>
-          <p className="text-sm leading-relaxed text-slate-600">
-            Score factual 0–100 com base em histórico de preço, cupões e volatilidade — sem
-            previsões.
-          </p>
+          <div className="space-y-1">
+            {currentPrice != null ? (
+              <p className="font-display text-2xl font-bold tabular-nums text-slate-900">
+                {formatEUR(currentPrice)}
+              </p>
+            ) : null}
+            <p className="text-sm leading-relaxed text-slate-600">
+              Score factual 0–100 com base em histórico de preço, cupões e volatilidade — sem
+              previsões.
+            </p>
+          </div>
         </div>
 
         <ul className="space-y-3">

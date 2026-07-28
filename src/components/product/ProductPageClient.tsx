@@ -72,7 +72,10 @@ export function ProductPageClient({ slug }: Props) {
       <ProductHeader product={product} />
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <LimiarIndexCard index={product.decision.limiarIndex} />
+        <LimiarIndexCard
+          index={product.decision.limiarIndex}
+          currentPrice={product.currentPrice}
+        />
         <DecisionCard decision={product.decision} />
       </div>
 

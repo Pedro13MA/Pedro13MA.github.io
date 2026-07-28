@@ -11,24 +11,31 @@ type Props = {
 };
 
 export function OpportunityCard({ product, showDropToday }: Props) {
-  const drop = ((product.avg30d - product.currentPrice) / product.avg30d) * 100;
+  const currentPrice = product.currentPrice;
+  const dropVsAvg =
+    product.avg30d > 0
+      ? ((product.avg30d - currentPrice) / product.avg30d) * 100
+      : 0;
+  const stableVsAvg = Math.abs(dropVsAvg) < 1;
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   const tone = limiarIndexTone(product.decision.limiarIndex.value);
-  const specParts = [
-    product.chipsetModel,
-    product.vramSpec,
-  ].filter(Boolean);
+  const specParts = [product.chipsetModel, product.vramSpec].filter(Boolean);
+
   const pvpr = product.originalPrice;
-  const hasPvprDiscount =
-    pvpr != null && pvpr > product.currentPrice;
-  const discountLabel =
-    showDropToday && product.dropTodayPct
-      ? formatPct(product.dropTodayPct)
-      : hasPvprDiscount
-        ? formatPct(((pvpr! - product.currentPrice) / pvpr!) * 100)
-        : product.decision.discountPct > 1
-          ? formatPct(product.decision.discountPct)
-          : formatPct(drop);
+  const showPvpr =
+    Boolean(product.isOnSale) && pvpr != null && pvpr > currentPrice;
+
+  // Distinguir queda real vs média / drop do dia / PVPR de campanha
+  let discountLabel: string | null = null;
+  if (showDropToday && product.dropTodayPct && Math.abs(product.dropTodayPct) >= 1) {
+    discountLabel = formatPct(product.dropTodayPct);
+  } else if (!stableVsAvg && product.decision.discountPct > 1) {
+    discountLabel = formatPct(product.decision.discountPct);
+  } else if (!stableVsAvg && Math.abs(dropVsAvg) >= 1) {
+    discountLabel = formatPct(dropVsAvg);
+  } else if (showPvpr) {
+    discountLabel = formatPct(((pvpr! - currentPrice) / pvpr!) * 100);
+  }
 
   return (
     <Link
@@ -60,11 +67,11 @@ export function OpportunityCard({ product, showDropToday }: Props) {
           {specParts.length ? (
             <p className="text-xs font-medium text-slate-600">{specParts.join(" · ")}</p>
           ) : null}
-          {product.decision.isHistoricalMin ? (
+          {product.decision.isHistoricalMin && !stableVsAvg ? (
             <p className="text-[11px] font-medium uppercase tracking-wide text-sky-700">
               Mín. histórico
             </p>
-          ) : product.isOnSale ? (
+          ) : showPvpr ? (
             <p className="text-[11px] font-medium uppercase tracking-wide text-emerald-700">
               Promoção PVPR
             </p>
@@ -72,15 +79,19 @@ export function OpportunityCard({ product, showDropToday }: Props) {
           <div className="flex items-baseline justify-between gap-2">
             <div className="flex flex-col">
               <span className="font-display text-2xl font-bold text-slate-900">
-                {formatEUR(product.currentPrice)}
+                {formatEUR(currentPrice)}
               </span>
-              {hasPvprDiscount ? (
+              {showPvpr ? (
                 <span className="text-xs text-slate-400 line-through">
                   PVPR {formatEUR(pvpr!)}
                 </span>
               ) : null}
             </div>
-            <span className="text-sm font-medium text-emerald-700">{discountLabel}</span>
+            {discountLabel ? (
+              <span className="text-sm font-medium text-emerald-700">{discountLabel}</span>
+            ) : stableVsAvg ? (
+              <span className="text-sm font-medium text-slate-500">= média 30d</span>
+            ) : null}
           </div>
           {product.inStock === false ? (
             <p className="text-xs font-medium text-amber-700">Sem stock</p>

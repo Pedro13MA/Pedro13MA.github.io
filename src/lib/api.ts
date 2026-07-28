@@ -146,6 +146,8 @@ export type ApiProductDetail = {
   historicalMin?: number | null;
   historicalMax?: number | null;
   dropTodayPct?: number | null;
+  originalPrice?: number | null;
+  isOnSale?: boolean;
   history: PricePoint[];
   offers: ApiOffer[];
   decision: {
@@ -280,6 +282,13 @@ export function detailToProduct(d: ApiProductDetail): Product {
     couponCode: o.couponCode,
     couponLabel: o.couponLabel,
   }));
+  // Fonte única de verdade: melhor oferta ativa (menor preço)
+  const bestOffer =
+    offers.length > 0
+      ? [...offers].sort((a, b) => a.price - b.price)[0]
+      : null;
+  const currentPrice = bestOffer?.price ?? d.currentPrice;
+  const originalPrice = bestOffer?.originalPrice ?? d.originalPrice ?? null;
   return {
     slug: d.slug,
     ean: d.ean,
@@ -288,13 +297,15 @@ export function detailToProduct(d: ApiProductDetail): Product {
     category: d.category || "Other",
     imageUrl: d.imageUrl,
     currency: d.currency,
-    currentPrice: d.currentPrice,
-    avg30d: d.avg30d ?? d.currentPrice,
-    historicalMin: d.historicalMin ?? d.currentPrice,
-    historicalMax: d.historicalMax ?? d.currentPrice,
+    currentPrice,
+    avg30d: d.avg30d ?? currentPrice,
+    historicalMin: d.historicalMin ?? currentPrice,
+    historicalMax: d.historicalMax ?? currentPrice,
     dropTodayPct: d.dropTodayPct ?? undefined,
     history: d.history || [],
     offers,
+    originalPrice,
+    isOnSale: Boolean(d.isOnSale),
     decision: {
       finalScore: d.decision.finalScore,
       publish: d.decision.publish,

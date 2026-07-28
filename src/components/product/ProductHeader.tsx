@@ -7,8 +7,13 @@ type Props = { product: Product };
 
 export function ProductHeader({ product }: Props) {
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
+  // Fonte única: currentPrice (= melhor oferta ativa)
+  const currentPrice = product.currentPrice;
   const dropVsAvg =
-    ((product.avg30d - product.currentPrice) / product.avg30d) * 100;
+    product.avg30d > 0
+      ? ((product.avg30d - currentPrice) / product.avg30d) * 100
+      : 0;
+  const stableVsAvg = Math.abs(dropVsAvg) < 1;
 
   return (
     <header className="grid gap-8 md:grid-cols-[220px_1fr]">
@@ -48,13 +53,24 @@ export function ProductHeader({ product }: Props) {
           <div>
             <p className="text-xs uppercase tracking-wider text-slate-500">Preço atual</p>
             <p className="font-display text-4xl font-bold text-slate-900">
-              {formatEUR(product.currentPrice)}
+              {formatEUR(currentPrice)}
             </p>
+            {product.isOnSale &&
+            product.originalPrice != null &&
+            product.originalPrice > currentPrice ? (
+              <p className="text-sm text-slate-400 line-through">
+                PVPR {formatEUR(product.originalPrice)}
+              </p>
+            ) : null}
           </div>
           <div>
             <p className="text-xs uppercase tracking-wider text-slate-500">Média 30 dias</p>
             <p className="text-xl font-semibold text-slate-900">{formatEUR(product.avg30d)}</p>
-            <p className="text-sm text-emerald-700">{formatPct(dropVsAvg)} vs média</p>
+            {stableVsAvg ? (
+              <p className="text-sm text-slate-500">Igual à média (0,0%)</p>
+            ) : (
+              <p className="text-sm text-emerald-700">{formatPct(dropVsAvg)} vs média</p>
+            )}
           </div>
           <div>
             <p className="text-xs uppercase tracking-wider text-slate-500">Mín. histórico</p>
