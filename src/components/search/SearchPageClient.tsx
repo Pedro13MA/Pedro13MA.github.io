@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
-import { FilterSidebar } from "@/components/search/FilterSidebar";
+import { FilterSidebar, type FilterValues } from "@/components/search/FilterSidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,15 +27,10 @@ const INFERRED_LABEL: Record<string, string> = {
   gpu: "Placas Gráficas",
   ssd: "Armazenamento",
   ram: "RAM / Memória",
+  cpu: "Processadores / CPUs",
 };
 
-type Filters = {
-  category: string;
-  brand: string;
-  store: string;
-  type: string;
-  minPrice: string;
-  maxPrice: string;
+type Filters = FilterValues & {
   sortBy: SearchSortBy;
   page: number;
 };
@@ -47,12 +42,31 @@ function readFilters(params: URLSearchParams): Filters {
     brand: params.get("brand") || "",
     store: params.get("store") || "",
     type: params.get("type") || "",
+    model: params.get("model") || "",
+    vram: params.get("vram") || "",
+    series: params.get("series") || "",
+    socket: params.get("socket") || "",
+    capacity: params.get("capacity") || "",
+    format: params.get("format") || "",
     minPrice: params.get("min_price") || "",
     maxPrice: params.get("max_price") || "",
     sortBy: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "limiar_desc",
     page: Math.max(1, Number(params.get("page") || "1") || 1),
   };
 }
+
+const EMPTY_FACETS: SearchFacets = {
+  categories: [],
+  brands: [],
+  stores: [],
+  types: [],
+  models: [],
+  vram: [],
+  series: [],
+  sockets: [],
+  capacities: [],
+  formats: [],
+};
 
 export function SearchPageClient() {
   const router = useRouter();
@@ -62,12 +76,7 @@ export function SearchPageClient() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
-  const [facets, setFacets] = useState<SearchFacets>({
-    categories: [],
-    brands: [],
-    stores: [],
-    types: [],
-  });
+  const [facets, setFacets] = useState<SearchFacets>(EMPTY_FACETS);
   const [inferred, setInferred] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +98,12 @@ export function SearchPageClient() {
       if (next.brand) params.set("brand", next.brand);
       if (next.store) params.set("store", next.store);
       if (next.type) params.set("type", next.type);
+      if (next.model) params.set("model", next.model);
+      if (next.vram) params.set("vram", next.vram);
+      if (next.series) params.set("series", next.series);
+      if (next.socket) params.set("socket", next.socket);
+      if (next.capacity) params.set("capacity", next.capacity);
+      if (next.format) params.set("format", next.format);
       if (next.minPrice) params.set("min_price", next.minPrice);
       if (next.maxPrice) params.set("max_price", next.maxPrice);
       if (next.sortBy && next.sortBy !== "limiar_desc") {
@@ -118,6 +133,12 @@ export function SearchPageClient() {
       brand: filters.brand || undefined,
       store: filters.store || undefined,
       type: filters.type || undefined,
+      model: filters.model || undefined,
+      vram: filters.vram || undefined,
+      series: filters.series || undefined,
+      socket: filters.socket || undefined,
+      capacity: filters.capacity || undefined,
+      format: filters.format || undefined,
       minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
       maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
       sortBy: filters.sortBy,
@@ -126,9 +147,7 @@ export function SearchPageClient() {
         if (cancelled) return;
         setProducts(res.results.map(summaryToProduct));
         setTotal(res.total);
-        setFacets(
-          res.facets || { categories: [], brands: [], stores: [], types: [] },
-        );
+        setFacets(res.facets || EMPTY_FACETS);
         setInferred(res.inferredCategory || null);
       })
       .catch((err) => {
@@ -155,7 +174,7 @@ export function SearchPageClient() {
           Pesquisa Limiar
         </h1>
         <p className="mt-3 text-slate-500">
-          Escreve um termo (ex: SSD, RAM, placa gráfica) e carrega Enter.
+          Escreve um termo (ex: SSD, CPU AMD, placa gráfica) e carrega Enter.
         </p>
       </main>
     );
@@ -207,6 +226,7 @@ export function SearchPageClient() {
         <FilterSidebar
           facets={facets}
           filters={filters}
+          inferredCategory={inferred}
           minDraft={minDraft}
           maxDraft={maxDraft}
           onMinDraft={setMinDraft}
@@ -218,6 +238,12 @@ export function SearchPageClient() {
               brand: "",
               store: "",
               type: "",
+              model: "",
+              vram: "",
+              series: "",
+              socket: "",
+              capacity: "",
+              format: "",
               minPrice: "",
               maxPrice: "",
               page: 1,

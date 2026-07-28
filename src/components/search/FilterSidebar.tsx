@@ -8,11 +8,17 @@ import { cn } from "@/lib/utils";
 
 const BRAND_PREVIEW = 5;
 
-type FilterValues = {
+export type FilterValues = {
   category: string;
   brand: string;
   store: string;
   type: string;
+  model: string;
+  vram: string;
+  series: string;
+  socket: string;
+  capacity: string;
+  format: string;
   minPrice: string;
   maxPrice: string;
 };
@@ -20,6 +26,7 @@ type FilterValues = {
 type Props = {
   facets: SearchFacets;
   filters: FilterValues;
+  inferredCategory?: string | null;
   minDraft: string;
   maxDraft: string;
   onMinDraft: (v: string) => void;
@@ -43,7 +50,7 @@ function FacetList({
   collapsible?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-  if (!items.length) return null;
+  if (!items?.length) return null;
 
   const visible =
     collapsible && !expanded && items.length > BRAND_PREVIEW
@@ -96,6 +103,7 @@ function FacetList({
 export function FilterSidebar({
   facets,
   filters,
+  inferredCategory,
   minDraft,
   maxDraft,
   onMinDraft,
@@ -104,6 +112,12 @@ export function FilterSidebar({
   onClear,
   onApplyPrice,
 }: Props) {
+  const cat = (inferredCategory || filters.category || "").toLowerCase();
+  const isGpu = cat === "gpu";
+  const isCpu = cat === "cpu";
+  const isSsd = cat === "ssd";
+  const isRam = cat === "ram";
+
   return (
     <aside
       className={cn(
@@ -123,12 +137,67 @@ export function FilterSidebar({
         </button>
       </div>
 
-      <FacetList
-        title="Capacidade / Tipo"
-        items={facets.types}
-        active={filters.type}
-        onSelect={(value) => onSelect({ type: value })}
-      />
+      {isGpu ? (
+        <>
+          <FacetList
+            title="Modelo / Chipset"
+            items={facets.models || []}
+            active={filters.model}
+            onSelect={(value) => onSelect({ model: value, type: "" })}
+            collapsible
+          />
+          <FacetList
+            title="Memória VRAM"
+            items={facets.vram || []}
+            active={filters.vram}
+            onSelect={(value) => onSelect({ vram: value })}
+          />
+        </>
+      ) : null}
+
+      {isCpu ? (
+        <>
+          <FacetList
+            title="Série"
+            items={facets.series || []}
+            active={filters.series}
+            onSelect={(value) => onSelect({ series: value })}
+          />
+          <FacetList
+            title="Socket"
+            items={facets.sockets || []}
+            active={filters.socket}
+            onSelect={(value) => onSelect({ socket: value })}
+          />
+        </>
+      ) : null}
+
+      {isSsd || isRam ? (
+        <>
+          <FacetList
+            title="Capacidade"
+            items={facets.capacities || []}
+            active={filters.capacity}
+            onSelect={(value) => onSelect({ capacity: value, type: "" })}
+          />
+          <FacetList
+            title={isSsd ? "Formato" : "Tipo"}
+            items={facets.formats || []}
+            active={filters.format}
+            onSelect={(value) => onSelect({ format: value, type: "" })}
+          />
+        </>
+      ) : null}
+
+      {!isGpu && !isCpu && !isSsd && !isRam ? (
+        <FacetList
+          title="Capacidade / Tipo"
+          items={facets.types || []}
+          active={filters.type}
+          onSelect={(value) => onSelect({ type: value })}
+        />
+      ) : null}
+
       <FacetList
         title="Marca"
         items={facets.brands}

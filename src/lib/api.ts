@@ -68,6 +68,12 @@ export type SearchFacets = {
   brands: FacetBucket[];
   stores: FacetBucket[];
   types: FacetBucket[];
+  models?: FacetBucket[];
+  vram?: FacetBucket[];
+  series?: FacetBucket[];
+  sockets?: FacetBucket[];
+  capacities?: FacetBucket[];
+  formats?: FacetBucket[];
 };
 
 export type SearchResponse = {
@@ -94,6 +100,12 @@ export type SearchParams = {
   brand?: string;
   store?: string;
   type?: string;
+  model?: string;
+  vram?: string;
+  series?: string;
+  socket?: string;
+  capacity?: string;
+  format?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: SearchSortBy;
@@ -356,6 +368,12 @@ export async function searchProducts(
   if (opts?.brand) params.set("brand", opts.brand);
   if (opts?.store) params.set("store", opts.store);
   if (opts?.type) params.set("type", opts.type);
+  if (opts?.model) params.set("model", opts.model);
+  if (opts?.vram) params.set("vram", opts.vram);
+  if (opts?.series) params.set("series", opts.series);
+  if (opts?.socket) params.set("socket", opts.socket);
+  if (opts?.capacity) params.set("capacity", opts.capacity);
+  if (opts?.format) params.set("format", opts.format);
   if (opts?.minPrice != null && !Number.isNaN(opts.minPrice)) {
     params.set("min_price", String(opts.minPrice));
   }
