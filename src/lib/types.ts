@@ -15,6 +15,15 @@ export type DecisionSemaphore = "buy" | "fair" | "wait";
 
 export type DiscountKind = "percent" | "amount" | "unknown";
 
+/** Condição do produto (isolamento ATL: outlet ≠ new). */
+export type ProductCondition = "NEW" | "OUTLET" | "REFURBISHED" | "OPEN_BOX";
+
+export interface PaymentMethod {
+  id: string;
+  label: string;
+  icon?: string;
+}
+
 export interface Offer {
   store: string;
   storeName: string;
@@ -25,6 +34,9 @@ export interface Offer {
   inStock?: boolean | null;
   couponCode?: string | null;
   couponLabel?: string | null;
+  paymentMethods?: PaymentMethod[];
+  /** Resumo legível (ex: "2–5 dias"). */
+  shippingInfo?: string;
 }
 
 export interface PricePoint {
@@ -146,6 +158,8 @@ export interface Product {
   originalPrice?: number | null;
   /** Promoção imediata vs PVPR (≥20%). */
   isOnSale?: boolean;
+  /** NEW por omissão; outlet/recondicionado não contamina ATL de novos. */
+  condition?: ProductCondition;
   chipsetModel?: string | null;
   vramSpec?: string | null;
 }

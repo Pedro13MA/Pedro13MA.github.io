@@ -5,8 +5,10 @@ import type {
   DecisionSemaphore,
   LimiarIndex,
   Offer,
+  PaymentMethod,
   PricePoint,
   Product,
+  ProductCondition,
   Promotion,
   Seasonality,
 } from "@/lib/types";
@@ -59,6 +61,7 @@ export type ApiProductSummary = {
   stores?: string[];
   inStock?: boolean | null;
   originalPrice?: number | null;
+  condition?: ProductCondition | string | null;
   chipsetModel?: string | null;
   vramSpec?: string | null;
 };
@@ -121,6 +124,19 @@ export type SearchParams = {
   subcategory?: string;
 };
 
+export type ApiPaymentMethod = {
+  id: string;
+  name: string;
+  icon?: string | null;
+};
+
+export type ApiShippingInfo = {
+  estimatedDaysMin?: number;
+  estimatedDaysMax?: number;
+  shippingCost?: string;
+  supportsPickup?: boolean;
+};
+
 export type ApiOffer = {
   store: string;
   storeName: string;
@@ -131,6 +147,12 @@ export type ApiOffer = {
   inStock?: boolean | null;
   couponCode?: string | null;
   couponLabel?: string | null;
+  /** Backend snake_case (OfferOut). */
+  payment_methods?: ApiPaymentMethod[];
+  shipping_info?: ApiShippingInfo | null;
+  /** CamelCase fallback se o proxy normalizar. */
+  paymentMethods?: ApiPaymentMethod[];
+  shippingInfo?: ApiShippingInfo | string | null;
 };
 
 export type ApiProductDetail = {
@@ -148,6 +170,7 @@ export type ApiProductDetail = {
   dropTodayPct?: number | null;
   originalPrice?: number | null;
   isOnSale?: boolean;
+  condition?: ProductCondition | string | null;
   history: PricePoint[];
   offers: ApiOffer[];
   decision: {
@@ -170,6 +193,36 @@ export type ApiProductDetail = {
   };
   activePromotion?: Record<string, unknown> | null;
 };
+
+function normalizeCondition(raw: unknown): ProductCondition {
+  const v = String(raw || "NEW").trim().toUpperCase();
+  if (v === "OUTLET" || v === "REFURBISHED" || v === "OPEN_BOX") return v;
+  return "NEW";
+}
+
+function formatShippingInfo(
+  info: ApiShippingInfo | string | null | undefined,
+): string | undefined {
+  if (!info) return undefined;
+  if (typeof info === "string") return info.trim() || undefined;
+  const min = info.estimatedDaysMin ?? 2;
+  const max = info.estimatedDaysMax ?? 5;
+  const pickup = info.supportsPickup ? " · levantamento" : "";
+  return `${min}–${max} dias${pickup}`;
+}
+
+function mapPaymentMethods(
+  methods: ApiPaymentMethod[] | undefined,
+): PaymentMethod[] {
+  if (!methods?.length) return [];
+  return methods
+    .filter((m) => m && (m.id || m.name))
+    .map((m) => ({
+      id: String(m.id || ""),
+      label: String(m.name || m.id || ""),
+      icon: m.icon ? String(m.icon) : undefined,
+    }));
+}
 
 export type ApiPromotion = {
   externalId: string;
@@ -265,6 +318,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     inStock: s.inStock,
     originalPrice: s.originalPrice,
     isOnSale: Boolean(s.isOnSale),
+    condition: normalizeCondition(s.condition),
     chipsetModel: s.chipsetModel,
     vramSpec: s.vramSpec,
   };
@@ -281,6 +335,8 @@ export function detailToProduct(d: ApiProductDetail): Product {
     inStock: o.inStock,
     couponCode: o.couponCode,
     couponLabel: o.couponLabel,
+    paymentMethods: mapPaymentMethods(o.payment_methods ?? o.paymentMethods),
+    shippingInfo: formatShippingInfo(o.shipping_info ?? o.shippingInfo),
   }));
   // Fonte única de verdade: melhor oferta ativa (menor preço)
   const bestOffer =
@@ -306,6 +362,7 @@ export function detailToProduct(d: ApiProductDetail): Product {
     offers,
     originalPrice,
     isOnSale: Boolean(d.isOnSale),
+    condition: normalizeCondition(d.condition),
     decision: {
       finalScore: d.decision.finalScore,
       publish: d.decision.publish,

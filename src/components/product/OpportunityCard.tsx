@@ -63,7 +63,18 @@ export function OpportunityCard({ product, showDropToday }: Props) {
           </div>
         </div>
         <CardContent className="space-y-2 p-4">
-          <p className="line-clamp-2 font-semibold text-slate-900">{product.name}</p>
+          <p className="line-clamp-2 font-semibold text-slate-900">
+            {product.condition && product.condition !== "NEW" ? (
+              <span className="mr-1.5 inline-block rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-amber-900">
+                {product.condition === "REFURBISHED"
+                  ? "Recond."
+                  : product.condition === "OPEN_BOX"
+                    ? "Open box"
+                    : "Outlet"}
+              </span>
+            ) : null}
+            {product.name}
+          </p>
           {specParts.length ? (
             <p className="text-xs font-medium text-slate-600">{specParts.join(" · ")}</p>
           ) : null}

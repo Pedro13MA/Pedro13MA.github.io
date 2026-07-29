@@ -1,4 +1,4 @@
-import type { Offer } from "@/lib/types";
+import type { Offer, PaymentMethod } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -31,6 +31,46 @@ function sanitizeCouponCode(
   return trimmed;
 }
 
+/** Prestações / BNPL — destaque suave (pill). */
+function isInstallmentMethod(method: PaymentMethod): boolean {
+  const id = method.id.toLowerCase();
+  const label = method.label.toLowerCase();
+  return (
+    id.includes("klarna") ||
+    id.includes("affirm") ||
+    id.includes("sequra") ||
+    label.includes("klarna") ||
+    label.includes("prestações") ||
+    label.includes("3x") ||
+    label.includes("4x")
+  );
+}
+
+function PaymentMethodBadges({ methods }: { methods: PaymentMethod[] }) {
+  if (!methods.length) return null;
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1">
+      {methods.map((m) => {
+        const installment = isInstallmentMethod(m);
+        return (
+          <span
+            key={`${m.id}-${m.label}`}
+            className={cn(
+              "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide",
+              installment
+                ? "border-violet-200 bg-violet-50 text-violet-800"
+                : "border-emerald-100 bg-emerald-50/80 text-emerald-800",
+            )}
+            title={m.label}
+          >
+            {m.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export function StoreCompareTable({ offers }: Props) {
   const sorted = [...offers].sort((a, b) => a.price - b.price);
   const best = sorted[0]?.store;
@@ -59,19 +99,25 @@ export function StoreCompareTable({ offers }: Props) {
               : null;
           return (
             <TableRow key={offer.store}>
-              <TableCell className="font-semibold text-slate-900">
-                {offer.storeName}
-                {offer.store === best ? (
-                  <Badge variant="teal" className="ml-2">
-                    Melhor
-                  </Badge>
+              <TableCell className="align-top font-semibold text-slate-900">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span>{offer.storeName}</span>
+                  {offer.store === best ? (
+                    <Badge variant="teal">Melhor</Badge>
+                  ) : null}
+                </div>
+                <PaymentMethodBadges methods={offer.paymentMethods || []} />
+                {offer.shippingInfo ? (
+                  <p className="mt-1 text-[11px] font-normal text-slate-500">
+                    Entrega {offer.shippingInfo}
+                  </p>
                 ) : null}
               </TableCell>
-              <TableCell>
+              <TableCell className="align-top">
                 <span className="font-bold text-slate-900">{formatEUR(offer.price)}</span>
               </TableCell>
               {showPriorPrice ? (
-                <TableCell>
+                <TableCell className="align-top">
                   {prior != null ? (
                     <span className="text-sm text-slate-400 line-through">
                       {formatEUR(prior)}
@@ -81,7 +127,7 @@ export function StoreCompareTable({ offers }: Props) {
                   )}
                 </TableCell>
               ) : null}
-              <TableCell>
+              <TableCell className="align-top">
                 {coupon ? (
                   <code className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 font-mono text-xs text-amber-800">
                     {coupon}
@@ -90,14 +136,14 @@ export function StoreCompareTable({ offers }: Props) {
                   <span className="text-slate-400">—</span>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell className="align-top">
                 {offer.inStock === false ? (
                   <span className="text-rose-700">Esgotado</span>
                 ) : (
                   <span className="text-emerald-700">Disponível</span>
                 )}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="align-top text-right">
                 <a
                   href={offer.url}
                   target="_blank"
