@@ -19,6 +19,9 @@ export function SiteHeader() {
           </span>
         </Link>
         <nav className="flex items-center gap-4 text-sm text-slate-500">
+          <Link href="/catalog/" className="hover:text-slate-900">
+            Catálogo
+          </Link>
           <Link href="/#comprar-agora" className="hidden hover:text-slate-900 sm:inline">
             Comprar Agora
           </Link>

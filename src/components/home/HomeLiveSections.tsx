@@ -73,11 +73,21 @@ export function HomeLiveSections() {
       ) : null}
 
       <section id="comprar-agora" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 scroll-mt-16">
-        <div className="mb-8">
-          <h2 className="font-display text-2xl font-bold text-slate-900">🔥 Comprar Agora</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Super Oportunidades — Produtos em Mínimo Histórico e melhores preços do dia.
-          </p>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-slate-900">
+              🔥 Super Oportunidades
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Produtos em Mínimo Histórico e melhores preços do dia.
+            </p>
+          </div>
+          <Link
+            href="/catalog/?section=deals"
+            className="text-sm font-medium text-sky-700 transition-colors hover:text-sky-900"
+          >
+            Ver todos ➔
+          </Link>
         </div>
         {loading ? (
           <SectionSkeleton />
@@ -97,13 +107,21 @@ export function HomeLiveSections() {
 
       <section id="esperar" className="border-t border-slate-200/80 bg-white scroll-mt-16">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="mb-8">
-            <h2 className="font-display text-2xl font-bold text-slate-900">
-              ⏳ Vale a Pena Esperar
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Vale a Pena Esperar — Produtos atualmente acima do valor normal de mercado.
-            </p>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-slate-900">
+                ⏳ Vale a Pena Esperar
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Produtos atualmente acima do valor normal de mercado.
+              </p>
+            </div>
+            <Link
+              href="/catalog/?section=overpriced"
+              className="text-sm font-medium text-sky-700 transition-colors hover:text-sky-900"
+            >
+              Ver todos ➔
+            </Link>
           </div>
           {loading ? (
             <SectionSkeleton />
@@ -122,11 +140,19 @@ export function HomeLiveSections() {
       </section>
 
       <section id="quedas" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 scroll-mt-16">
-        <div className="mb-8">
-          <h2 className="font-display text-2xl font-bold text-slate-900">
-            📉 Maiores Quedas de Hoje
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">Variação face ao preço de ontem.</p>
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-slate-900">
+              📉 Maiores Quedas
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">Variação face ao preço de ontem.</p>
+          </div>
+          <Link
+            href="/catalog/?section=drops"
+            className="text-sm font-medium text-sky-700 transition-colors hover:text-sky-900"
+          >
+            Ver todos ➔
+          </Link>
         </div>
         {loading ? (
           <SectionSkeleton />
