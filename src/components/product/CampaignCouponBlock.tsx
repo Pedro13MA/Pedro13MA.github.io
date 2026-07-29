@@ -37,7 +37,42 @@ export function ActiveCampaignBanner({ product }: Props) {
         <p className="mt-2 text-xs font-medium text-amber-900">
           Código: <span className="font-mono font-bold">{campaign.couponCode}</span>
         </p>
+      ) : campaign.requiresCode === false && campaign.discountPct != null ? (
+        <p className="mt-2 text-xs font-medium text-amber-900">
+          Desconto automático de {campaign.discountPct}%
+          {campaign.minSpendEur != null
+            ? ` em compras ≥ ${campaign.minSpendEur.toFixed(0)}€`
+            : ""}
+          {campaign.brands?.length ? ` (${campaign.brands.join(", ")})` : ""}
+        </p>
       ) : null}
+    </div>
+  );
+}
+
+export function SmartBasketBanner({ product }: Props) {
+  const opp = product.smartBasketOpportunity;
+  if (!opp?.smartBasketOpportunity) return null;
+
+  const storeLabel = opp.storeName || opp.storeCode;
+
+  return (
+    <div className="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-teal-50 px-4 py-4 shadow-sm sm:px-5">
+      <p className="text-sm font-bold text-sky-950">
+        💡 Dica Limiar: Compensa comprar na {storeLabel} com carrinho
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-slate-700">
+        Adiciona mais {formatEUR(opp.amountNeededEur)} em produtos aderentes da marca/categoria
+        para ativares {opp.discountPct}% de desconto. O total do teu carrinho desce para{" "}
+        <span className="font-semibold text-emerald-800">
+          {formatEUR(opp.potentialTotalEur)}
+        </span>{" "}
+        — pagas MENOS do que comprar este produto isolado na concorrência (
+        {formatEUR(opp.competitorMinPrice)})!
+      </p>
+      <p className="mt-2 text-xs font-medium text-emerald-800">
+        Poupança estimada vs concorrência: {formatEUR(opp.savingsEur)}
+      </p>
     </div>
   );
 }

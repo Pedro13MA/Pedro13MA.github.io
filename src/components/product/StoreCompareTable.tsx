@@ -109,6 +109,9 @@ export function StoreCompareTable({ offers }: Props) {
                   {offer.store === best ? (
                     <Badge variant="teal">Melhor</Badge>
                   ) : null}
+                  {offer.smartBasketOpportunity ? (
+                    <Badge variant="fair">🔥 Compensa c/ Carrinho</Badge>
+                  ) : null}
                 </div>
                 <PaymentMethodBadges methods={offer.paymentMethods || []} />
                 {offer.shippingInfo ? (

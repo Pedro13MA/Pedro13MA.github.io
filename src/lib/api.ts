@@ -173,6 +173,7 @@ export type ApiOffer = {
   /** CamelCase fallback se o proxy normalizar. */
   paymentMethods?: ApiPaymentMethod[];
   shippingInfo?: ApiShippingInfo | string | null;
+  smartBasketOpportunity?: boolean;
 };
 
 export type ApiProductDetail = {
@@ -215,6 +216,19 @@ export type ApiProductDetail = {
   activePromotion?: Record<string, unknown> | null;
   activeCoupon?: Record<string, unknown> | null;
   activeCampaign?: Record<string, unknown> | null;
+  smartBasketOpportunity?: {
+    smartBasketOpportunity?: boolean;
+    amountNeededEur: number;
+    potentialTotalEur: number;
+    competitorMinPrice: number;
+    savingsEur: number;
+    discountPct: number;
+    minSpendEur: number;
+    storeCode: string;
+    storeName?: string | null;
+    campaignTitle?: string | null;
+    brands?: string[];
+  } | null;
 };
 
 export type ApiSmartCoupon = {
@@ -246,6 +260,11 @@ export type ApiStoreCampaign = {
   startDate?: string | null;
   endDate?: string | null;
   isActive?: boolean;
+  requiresCode?: boolean;
+  minSpendEur?: number | null;
+  discountPct?: number | null;
+  brands?: string[] | null;
+  maxGapEur?: number | null;
 };
 
 export type CampaignsResponse = {
@@ -430,6 +449,11 @@ export function mapStoreCampaign(c: ApiStoreCampaign): StoreCampaign {
     startDate: c.startDate,
     endDate: c.endDate,
     isActive: c.isActive,
+    requiresCode: c.requiresCode,
+    minSpendEur: c.minSpendEur,
+    discountPct: c.discountPct,
+    brands: c.brands,
+    maxGapEur: c.maxGapEur,
   };
 }
 
@@ -469,6 +493,7 @@ export function detailToProduct(d: ApiProductDetail): Product {
     couponLabel: o.couponLabel,
     paymentMethods: mapPaymentMethods(o.payment_methods ?? o.paymentMethods),
     shippingInfo: formatShippingInfo(o.shipping_info ?? o.shippingInfo),
+    smartBasketOpportunity: Boolean(o.smartBasketOpportunity),
   }));
   const listPrice = d.currentPrice;
   const effectivePrice = d.effectivePrice ?? null;
@@ -487,6 +512,23 @@ export function detailToProduct(d: ApiProductDetail): Product {
     : null;
   const activeCampaign = d.activeCampaign
     ? mapStoreCampaign(d.activeCampaign as ApiStoreCampaign)
+    : null;
+  const smartBasket = d.smartBasketOpportunity
+    ? {
+        smartBasketOpportunity: Boolean(
+          d.smartBasketOpportunity.smartBasketOpportunity ?? true,
+        ),
+        amountNeededEur: d.smartBasketOpportunity.amountNeededEur,
+        potentialTotalEur: d.smartBasketOpportunity.potentialTotalEur,
+        competitorMinPrice: d.smartBasketOpportunity.competitorMinPrice,
+        savingsEur: d.smartBasketOpportunity.savingsEur,
+        discountPct: d.smartBasketOpportunity.discountPct,
+        minSpendEur: d.smartBasketOpportunity.minSpendEur,
+        storeCode: d.smartBasketOpportunity.storeCode,
+        storeName: d.smartBasketOpportunity.storeName,
+        campaignTitle: d.smartBasketOpportunity.campaignTitle,
+        brands: d.smartBasketOpportunity.brands,
+      }
     : null;
   return {
     slug: d.slug,
@@ -510,6 +552,7 @@ export function detailToProduct(d: ApiProductDetail): Product {
     condition: normalizeCondition(d.condition),
     activeCoupon,
     activeCampaign,
+    smartBasketOpportunity: smartBasket,
     decision: {
       finalScore: d.decision.finalScore,
       publish: d.decision.publish,

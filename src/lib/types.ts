@@ -39,6 +39,8 @@ export interface Offer {
   paymentMethods?: PaymentMethod[];
   /** Resumo legível (ex: "2–5 dias"). */
   shippingInfo?: string;
+  /** Campanha de carrinho estratégica nesta loja. */
+  smartBasketOpportunity?: boolean;
 }
 
 export interface PricePoint {
@@ -92,6 +94,25 @@ export interface StoreCampaign {
   startDate?: string | null;
   endDate?: string | null;
   isActive?: boolean;
+  requiresCode?: boolean;
+  minSpendEur?: number | null;
+  discountPct?: number | null;
+  brands?: string[] | null;
+  maxGapEur?: number | null;
+}
+
+export interface SmartBasketOpportunity {
+  smartBasketOpportunity: boolean;
+  amountNeededEur: number;
+  potentialTotalEur: number;
+  competitorMinPrice: number;
+  savingsEur: number;
+  discountPct: number;
+  minSpendEur: number;
+  storeCode: string;
+  storeName?: string | null;
+  campaignTitle?: string | null;
+  brands?: string[];
 }
 
 export interface ScoreBreakdown {
@@ -191,6 +212,8 @@ export interface Product {
   activeCoupon?: SmartCoupon | null;
   /** Campanha de loja em vigor (banner). */
   activeCampaign?: StoreCampaign | null;
+  /** Oportunidade de carrinho estratégico (abaixo do min_spend). */
+  smartBasketOpportunity?: SmartBasketOpportunity | null;
   /** Preço de lista (antes do cupão). */
   listPrice?: number;
   /** Preço final com cupão. */
