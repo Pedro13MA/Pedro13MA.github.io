@@ -78,6 +78,12 @@ export function ProductHeader({ product }: Props) {
             <p className="font-display text-4xl font-bold text-slate-900">
               {formatEUR(currentPrice)}
             </p>
+            {product.effectivePrice != null &&
+            product.effectivePrice < (product.listPrice ?? currentPrice) ? (
+              <p className="text-sm text-slate-400 line-through">
+                Sem cupão {formatEUR(product.listPrice ?? currentPrice)}
+              </p>
+            ) : null}
             {product.isOnSale &&
             product.originalPrice != null &&
             product.originalPrice > currentPrice ? (

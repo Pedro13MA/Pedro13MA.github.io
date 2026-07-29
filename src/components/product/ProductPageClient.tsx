@@ -9,6 +9,10 @@ import { DecisionCard } from "@/components/product/DecisionCard";
 import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
 import { PriceAlertForm } from "@/components/product/PriceAlertForm";
 import { ProductHeader } from "@/components/product/ProductHeader";
+import {
+  ActiveCampaignBanner,
+  CouponPriceBlock,
+} from "@/components/product/CampaignCouponBlock";
 import { SeasonalityCard } from "@/components/product/SeasonalityCard";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
 
@@ -70,6 +74,8 @@ export function ProductPageClient({ slug }: Props) {
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
       <ProductHeader product={product} />
+      <ActiveCampaignBanner product={product} />
+      <CouponPriceBlock product={product} />
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <LimiarIndexCard

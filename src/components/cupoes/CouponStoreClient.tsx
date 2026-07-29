@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CouponCard } from "@/components/cupoes/CouponCard";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
-import { getStorePromotions, mapPromotion } from "@/lib/api";
+import { getStoreCampaigns, getStorePromotions, mapPromotion, mapSmartCoupon, smartCouponToPromotion } from "@/lib/api";
 import { COUPON_HUB_STORES } from "@/lib/mocks";
-import type { Promotion } from "@/lib/types";
+import type { Promotion, StoreCampaign } from "@/lib/types";
 
 type Props = {
   store: string;
@@ -15,15 +15,43 @@ type Props = {
 
 export function CouponStoreClient({ store, storeName }: Props) {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [campaigns, setCampaigns] = useState<StoreCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getStorePromotions(store, 50)
-      .then((res) => {
-        if (!cancelled) setPromotions(res.results.map(mapPromotion));
+    Promise.all([
+      getStorePromotions(store, 50),
+      getStoreCampaigns(store).catch(() => ({
+        store,
+        campaigns: [],
+        coupons: [],
+      })),
+    ])
+      .then(([promoRes, campRes]) => {
+        if (cancelled) return;
+        const promos = promoRes.results.map(mapPromotion);
+        for (const c of campRes.coupons) {
+          promos.push(smartCouponToPromotion(mapSmartCoupon(c), storeName));
+        }
+        setPromotions(promos);
+        setCampaigns(
+          campRes.campaigns.map((c) => ({
+            storeCode: c.storeCode,
+            title: c.title,
+            description: c.description,
+            rulesSummary: c.rulesSummary,
+            appliesTo: c.appliesTo,
+            category: c.category,
+            couponCode: c.couponCode,
+            affiliateUrl: c.affiliateUrl,
+            startDate: c.startDate,
+            endDate: c.endDate,
+            isActive: c.isActive,
+          })),
+        );
       })
       .catch((err) => {
         if (!cancelled) {
@@ -36,7 +64,7 @@ export function CouponStoreClient({ store, storeName }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [store]);
+  }, [store, storeName]);
 
   return (
     <>
@@ -54,9 +82,25 @@ export function CouponStoreClient({ store, storeName }: Props) {
           Cupões {storeName}
         </h1>
         <p className="mt-2 max-w-2xl text-slate-500">
-          Vouchers e códigos validados para {storeName}. Clica para copiar e abrir a loja
-          com link AWIN.
+          Vouchers, campanhas e códigos validados para {storeName}. Clica para copiar e
+          abrir a loja com link AWIN.
         </p>
+
+        {!loading && campaigns.length > 0 ? (
+          <div className="mt-8 space-y-3">
+            {campaigns.map((c) => (
+              <div
+                key={`${c.storeCode}-${c.title}`}
+                className="rounded-2xl border border-amber-200/90 bg-amber-50/80 px-4 py-3"
+              >
+                <p className="text-sm font-bold text-amber-900">🔥 {c.title}</p>
+                {c.rulesSummary ? (
+                  <p className="mt-1 text-sm text-amber-950/85">{c.rulesSummary}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         {error ? (
           <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

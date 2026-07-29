@@ -31,6 +31,8 @@ export interface Offer {
   price: number;
   currency?: string;
   originalPrice?: number | null;
+  /** Preço após cupão aplicável (se menor que price). */
+  effectivePrice?: number | null;
   inStock?: boolean | null;
   couponCode?: string | null;
   couponLabel?: string | null;
@@ -56,6 +58,37 @@ export interface Promotion {
   promotionType?: string;
   discountKind?: DiscountKind;
   discountValue?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  isActive?: boolean;
+}
+
+export interface SmartCoupon {
+  storeCode: string;
+  code: string;
+  discountPct?: number | null;
+  discountKind?: DiscountKind | string;
+  discountAmount?: number | null;
+  appliesTo?: string;
+  category?: string | null;
+  title?: string | null;
+  description?: string | null;
+  affiliateUrl?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  isActive?: boolean;
+  source?: string;
+}
+
+export interface StoreCampaign {
+  storeCode: string;
+  title: string;
+  description?: string | null;
+  rulesSummary?: string | null;
+  appliesTo?: string;
+  category?: string | null;
+  couponCode?: string | null;
+  affiliateUrl?: string | null;
   startDate?: string | null;
   endDate?: string | null;
   isActive?: boolean;
@@ -154,6 +187,14 @@ export interface Product {
   decision: DecisionScore;
   seasonality: Seasonality;
   activePromotion?: Promotion | null;
+  /** Cupão inteligente aplicável a este produto (motor de campanhas). */
+  activeCoupon?: SmartCoupon | null;
+  /** Campanha de loja em vigor (banner). */
+  activeCampaign?: StoreCampaign | null;
+  /** Preço de lista (antes do cupão). */
+  listPrice?: number;
+  /** Preço final com cupão. */
+  effectivePrice?: number | null;
   inStock?: boolean | null;
   originalPrice?: number | null;
   /** Promoção imediata vs PVPR (≥20%). */

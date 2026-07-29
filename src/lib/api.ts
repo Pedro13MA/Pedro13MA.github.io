@@ -11,6 +11,8 @@ import type {
   ProductCondition,
   Promotion,
   Seasonality,
+  SmartCoupon,
+  StoreCampaign,
 } from "@/lib/types";
 
 /** Proxy HTTPS nginx → FastAPI :8000 (domínio sem challenge Cloudflare bot). */
@@ -146,6 +148,7 @@ export type ApiOffer = {
   price: number;
   currency?: string;
   originalPrice?: number | null;
+  effectivePrice?: number | null;
   inStock?: boolean | null;
   couponCode?: string | null;
   couponLabel?: string | null;
@@ -166,6 +169,7 @@ export type ApiProductDetail = {
   imageUrl?: string | null;
   currency?: string;
   currentPrice: number;
+  effectivePrice?: number | null;
   avg30d?: number | null;
   historicalMin?: number | null;
   historicalMax?: number | null;
@@ -194,6 +198,45 @@ export type ApiProductDetail = {
     limiarIndex: LimiarIndex;
   };
   activePromotion?: Record<string, unknown> | null;
+  activeCoupon?: Record<string, unknown> | null;
+  activeCampaign?: Record<string, unknown> | null;
+};
+
+export type ApiSmartCoupon = {
+  storeCode: string;
+  code: string;
+  discountPct?: number | null;
+  discountKind?: string;
+  discountAmount?: number | null;
+  appliesTo?: string;
+  category?: string | null;
+  title?: string | null;
+  description?: string | null;
+  affiliateUrl?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  isActive?: boolean;
+  source?: string;
+};
+
+export type ApiStoreCampaign = {
+  storeCode: string;
+  title: string;
+  description?: string | null;
+  rulesSummary?: string | null;
+  appliesTo?: string;
+  category?: string | null;
+  couponCode?: string | null;
+  affiliateUrl?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  isActive?: boolean;
+};
+
+export type CampaignsResponse = {
+  store: string;
+  campaigns: ApiStoreCampaign[];
+  coupons: ApiSmartCoupon[];
 };
 
 function normalizeCondition(raw: unknown): ProductCondition {
@@ -327,6 +370,63 @@ export function summaryToProduct(s: ApiProductSummary): Product {
   };
 }
 
+export function mapSmartCoupon(c: ApiSmartCoupon): SmartCoupon {
+  return {
+    storeCode: c.storeCode,
+    code: c.code,
+    discountPct: c.discountPct,
+    discountKind: (c.discountKind as Promotion["discountKind"]) || "percent",
+    discountAmount: c.discountAmount,
+    appliesTo: c.appliesTo,
+    category: c.category,
+    title: c.title,
+    description: c.description,
+    affiliateUrl: c.affiliateUrl,
+    startDate: c.startDate,
+    endDate: c.endDate,
+    isActive: c.isActive,
+    source: c.source,
+  };
+}
+
+export function mapStoreCampaign(c: ApiStoreCampaign): StoreCampaign {
+  return {
+    storeCode: c.storeCode,
+    title: c.title,
+    description: c.description,
+    rulesSummary: c.rulesSummary,
+    appliesTo: c.appliesTo,
+    category: c.category,
+    couponCode: c.couponCode,
+    affiliateUrl: c.affiliateUrl,
+    startDate: c.startDate,
+    endDate: c.endDate,
+    isActive: c.isActive,
+  };
+}
+
+/** Converte cupão inteligente para Promotion (CouponCard). */
+export function smartCouponToPromotion(c: SmartCoupon, storeName?: string): Promotion {
+  const slug = c.storeCode;
+  return {
+    externalId: `smart-${slug}-${c.code}`,
+    merchantId: slug,
+    storeName: storeName || slug,
+    storeSlug: slug,
+    title: c.title,
+    description: c.description,
+    code: c.code,
+    url: c.affiliateUrl || "#",
+    promotionType: "voucher",
+    discountKind:
+      c.discountKind === "amount" ? "amount" : c.discountPct ? "percent" : "unknown",
+    discountValue: c.discountPct ?? c.discountAmount,
+    startDate: c.startDate,
+    endDate: c.endDate,
+    isActive: c.isActive,
+  };
+}
+
 export function detailToProduct(d: ApiProductDetail): Product {
   const offers: Offer[] = (d.offers || []).map((o) => ({
     store: o.store,
@@ -335,19 +435,31 @@ export function detailToProduct(d: ApiProductDetail): Product {
     price: o.price,
     currency: o.currency,
     originalPrice: o.originalPrice,
+    effectivePrice: o.effectivePrice,
     inStock: o.inStock,
     couponCode: o.couponCode,
     couponLabel: o.couponLabel,
     paymentMethods: mapPaymentMethods(o.payment_methods ?? o.paymentMethods),
     shippingInfo: formatShippingInfo(o.shipping_info ?? o.shippingInfo),
   }));
-  // Fonte única de verdade: melhor oferta ativa (menor preço)
+  const listPrice = d.currentPrice;
+  const effectivePrice = d.effectivePrice ?? null;
+  const displayPrice =
+    effectivePrice != null && effectivePrice < listPrice ? effectivePrice : listPrice;
   const bestOffer =
     offers.length > 0
-      ? [...offers].sort((a, b) => a.price - b.price)[0]
+      ? [...offers].sort(
+          (a, b) =>
+            (a.effectivePrice ?? a.price) - (b.effectivePrice ?? b.price),
+        )[0]
       : null;
-  const currentPrice = bestOffer?.price ?? d.currentPrice;
   const originalPrice = bestOffer?.originalPrice ?? d.originalPrice ?? null;
+  const activeCoupon = d.activeCoupon
+    ? mapSmartCoupon(d.activeCoupon as ApiSmartCoupon)
+    : null;
+  const activeCampaign = d.activeCampaign
+    ? mapStoreCampaign(d.activeCampaign as ApiStoreCampaign)
+    : null;
   return {
     slug: d.slug,
     ean: d.ean,
@@ -356,16 +468,20 @@ export function detailToProduct(d: ApiProductDetail): Product {
     category: d.category || "Other",
     imageUrl: d.imageUrl,
     currency: d.currency,
-    currentPrice,
-    avg30d: d.avg30d ?? currentPrice,
-    historicalMin: d.historicalMin ?? currentPrice,
-    historicalMax: d.historicalMax ?? currentPrice,
+    listPrice,
+    effectivePrice,
+    currentPrice: displayPrice,
+    avg30d: d.avg30d ?? displayPrice,
+    historicalMin: d.historicalMin ?? displayPrice,
+    historicalMax: d.historicalMax ?? displayPrice,
     dropTodayPct: d.dropTodayPct ?? undefined,
     history: d.history || [],
     offers,
     originalPrice,
     isOnSale: Boolean(d.isOnSale),
     condition: normalizeCondition(d.condition),
+    activeCoupon,
+    activeCampaign,
     decision: {
       finalScore: d.decision.finalScore,
       publish: d.decision.publish,
@@ -552,6 +668,12 @@ export async function fetchPriceHistory(
 export async function fetchProductMetrics(ean: string): Promise<ProductMetricsOut> {
   return apiGet<ProductMetricsOut>(
     `/api/v1/metrics/product/${encodeURIComponent(ean)}`,
+  );
+}
+
+export async function getStoreCampaigns(store: string): Promise<CampaignsResponse> {
+  return apiGet<CampaignsResponse>(
+    `/api/v1/campaigns?store=${encodeURIComponent(store)}`,
   );
 }
 

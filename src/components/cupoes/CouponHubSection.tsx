@@ -2,9 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CouponCard } from "@/components/cupoes/CouponCard";
-import { getStorePromotions, mapPromotion } from "@/lib/api";
+import {
+  getStoreCampaigns,
+  getStorePromotions,
+  mapPromotion,
+  mapSmartCoupon,
+  smartCouponToPromotion,
+} from "@/lib/api";
 import { normalizeCouponStoreSlug } from "@/lib/coupon-utils";
-import type { Promotion } from "@/lib/types";
+import type { Promotion, StoreCampaign } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Lojas com API de promoções ativa — usado só para fetch, não para labels das tabs. */
@@ -41,6 +47,7 @@ function CouponEmptyState() {
 
 export function CouponHubSection() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [campaigns, setCampaigns] = useState<StoreCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [storeFilter, setStoreFilter] = useState<string>("all");
@@ -52,12 +59,42 @@ export function CouponHubSection() {
       setError(null);
       try {
         const batches = await Promise.all(
-          INTEGRATED_PROMO_STORES.map((slug) =>
-            getStorePromotions(slug, 24).catch(() => ({ results: [] as never[] })),
-          ),
+          INTEGRATED_PROMO_STORES.map(async (slug) => {
+            const [promoRes, campRes] = await Promise.all([
+              getStorePromotions(slug, 24).catch(() => ({ results: [] as never[] })),
+              getStoreCampaigns(slug).catch(() => ({
+                store: slug,
+                campaigns: [],
+                coupons: [],
+              })),
+            ]);
+            return { slug, promoRes, campRes };
+          }),
         );
         if (cancelled) return;
-        setPromotions(batches.flatMap((b) => b.results).map(mapPromotion));
+        const promos: Promotion[] = [];
+        const camps: StoreCampaign[] = [];
+        for (const { slug, promoRes, campRes } of batches) {
+          promos.push(...promoRes.results.map(mapPromotion));
+          for (const c of campRes.coupons) {
+            promos.push(smartCouponToPromotion(mapSmartCoupon(c), slug));
+          }
+          camps.push(...campRes.campaigns.map((c) => ({
+            storeCode: c.storeCode,
+            title: c.title,
+            description: c.description,
+            rulesSummary: c.rulesSummary,
+            appliesTo: c.appliesTo,
+            category: c.category,
+            couponCode: c.couponCode,
+            affiliateUrl: c.affiliateUrl,
+            startDate: c.startDate,
+            endDate: c.endDate,
+            isActive: c.isActive,
+          })));
+        }
+        setPromotions(promos);
+        setCampaigns(camps);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Falha ao carregar cupões");
@@ -97,6 +134,13 @@ export function CouponHubSection() {
     );
   }, [promotions, storeFilter]);
 
+  const filteredCampaigns = useMemo(() => {
+    if (storeFilter === "all") return campaigns;
+    return campaigns.filter(
+      (c) => normalizeCouponStoreSlug(c.storeCode) === storeFilter,
+    );
+  }, [campaigns, storeFilter]);
+
   return (
     <section id="cupoes" className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -105,9 +149,25 @@ export function CouponHubSection() {
             🎟️ Hub de Cupões Validados
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Copia o código e abre a loja parceira com link AWIN — um clique.
+            Campanhas ativas, cupões com regras por loja/categoria/condição — link AWIN.
           </p>
         </div>
+
+        {!loading && filteredCampaigns.length > 0 ? (
+          <div className="mb-8 space-y-3">
+            {filteredCampaigns.map((c) => (
+              <div
+                key={`${c.storeCode}-${c.title}`}
+                className="rounded-2xl border border-amber-200/90 bg-amber-50/80 px-4 py-3"
+              >
+                <p className="text-sm font-bold text-amber-900">🔥 {c.title}</p>
+                {c.rulesSummary ? (
+                  <p className="mt-1 text-sm text-amber-950/85">{c.rulesSummary}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         {!loading && (promotions.length > 0 || storeTabs.length > 0) ? (
           <div className="mb-8 flex flex-wrap gap-2">

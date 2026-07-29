@@ -72,11 +72,14 @@ function PaymentMethodBadges({ methods }: { methods: PaymentMethod[] }) {
 }
 
 export function StoreCompareTable({ offers }: Props) {
-  const sorted = [...offers].sort((a, b) => a.price - b.price);
-  const best = sorted[0]?.store;
-  const showPriorPrice = sorted.some(
-    (o) => o.originalPrice != null && o.originalPrice > o.price,
+  const sorted = [...offers].sort(
+    (a, b) => (a.effectivePrice ?? a.price) - (b.effectivePrice ?? b.price),
   );
+  const best = sorted[0]?.store;
+  const showPriorPrice = sorted.some((o) => {
+    const p = o.effectivePrice ?? o.price;
+    return o.originalPrice != null && o.originalPrice > p;
+  });
 
   return (
     <Table>
@@ -92,9 +95,10 @@ export function StoreCompareTable({ offers }: Props) {
       </TableHeader>
       <TableBody>
         {sorted.map((offer) => {
+          const displayPrice = offer.effectivePrice ?? offer.price;
           const coupon = sanitizeCouponCode(offer.couponCode, offer.originalPrice);
           const prior =
-            offer.originalPrice != null && offer.originalPrice > offer.price
+            offer.originalPrice != null && offer.originalPrice > displayPrice
               ? offer.originalPrice
               : null;
           return (
@@ -114,7 +118,12 @@ export function StoreCompareTable({ offers }: Props) {
                 ) : null}
               </TableCell>
               <TableCell className="align-top">
-                <span className="font-bold text-slate-900">{formatEUR(offer.price)}</span>
+                <span className="font-bold text-slate-900">{formatEUR(displayPrice)}</span>
+                {offer.effectivePrice != null && offer.effectivePrice < offer.price ? (
+                  <span className="text-xs text-slate-400 line-through">
+                    {formatEUR(offer.price)}
+                  </span>
+                ) : null}
               </TableCell>
               {showPriorPrice ? (
                 <TableCell className="align-top">
