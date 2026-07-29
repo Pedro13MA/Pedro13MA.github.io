@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
+import {
+  ConditionFilterPills,
+  matchesHomeCondition,
+  type HomeConditionFilter,
+} from "@/components/home/ConditionFilterPills";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,15 +18,14 @@ import {
   summaryToProduct,
   type SearchSortBy,
 } from "@/lib/api";
-import type { Product, ProductCondition } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { TELEGRAM_CHANNEL } from "@/lib/constants";
+import type { Product } from "@/lib/types";
+import { cn, formatEUR } from "@/lib/utils";
 
 const PAGE_SIZE = 24;
 
 export type CatalogSection = "deals" | "overpriced" | "drops" | "";
-
-type ConditionMode = "new" | "all";
-
+type CatalogTab = "products" | "alerts";
 type CatalogSort = "discount_desc" | "limiar_desc" | "price_asc";
 
 const SORT_OPTIONS: { value: CatalogSort; label: string; api?: SearchSortBy }[] = [
@@ -102,10 +106,16 @@ function matchesCategory(product: Product, categoryId: string): boolean {
   return pill.keywords.some((kw) => hay.includes(kw.toLowerCase()));
 }
 
-function matchesCondition(product: Product, mode: ConditionMode): boolean {
-  if (mode === "all") return true;
-  const c = (product.condition ?? "NEW") as ProductCondition;
-  return c === "NEW";
+function matchesCondition(product: Product, mode: HomeConditionFilter): boolean {
+  return matchesHomeCondition(product.condition, mode);
+}
+
+function isTelegramAlert(p: Product): boolean {
+  return (
+    p.decision.isHistoricalMin ||
+    p.decision.semaphore === "buy" ||
+    p.decision.limiarIndex.value >= 85
+  );
 }
 
 function matchesQuery(product: Product, q: string): boolean {
@@ -143,15 +153,17 @@ function readCatalogState(params: URLSearchParams) {
       ? sectionRaw
       : "";
   const category = params.get("category") || "";
-  const condition: ConditionMode =
-    params.get("condition") === "all" ? "all" : "new";
+  const conditionRaw = (params.get("condition") || "all").toLowerCase();
+  const condition: HomeConditionFilter =
+    conditionRaw === "new" || conditionRaw === "outlet" ? conditionRaw : "all";
   const sortRaw = (params.get("sort") || "limiar_desc") as CatalogSort;
   const sort = SORT_OPTIONS.some((o) => o.value === sortRaw)
     ? sortRaw
     : "limiar_desc";
   const q = (params.get("q") || "").trim();
   const page = Math.max(1, Number(params.get("page") || "1") || 1);
-  return { section, category, condition, sort, q, page };
+  const tab: CatalogTab = params.get("tab") === "alerts" ? "alerts" : "products";
+  return { section, category, condition, sort, q, page, tab };
 }
 
 export function CatalogPageClient() {
@@ -174,9 +186,12 @@ export function CatalogPageClient() {
     (patch: Partial<ReturnType<typeof readCatalogState>>) => {
       const next = { ...state, ...patch, page: patch.page ?? 1 };
       const params = new URLSearchParams();
+      if (next.tab === "alerts") params.set("tab", "alerts");
       if (next.section) params.set("section", next.section);
       if (next.category) params.set("category", next.category);
-      if (next.condition === "all") params.set("condition", "all");
+      if (next.condition && next.condition !== "all") {
+        params.set("condition", next.condition);
+      }
       if (next.sort && next.sort !== "limiar_desc") params.set("sort", next.sort);
       if (next.q) params.set("q", next.q);
       if (next.page > 1) params.set("page", String(next.page));
@@ -204,9 +219,11 @@ export function CatalogPageClient() {
 
   const pill = CATEGORY_PILLS.find((c) => c.id === state.category);
   const useApiSearch =
-    !state.section && (state.q.length >= 2 || Boolean(pill?.searchQ));
+    state.tab === "products" &&
+    !state.section &&
+    (state.q.length >= 2 || Boolean(pill?.searchQ));
 
-  // Secções deals / catálogo base (pool local)
+  // Secções deals / catálogo base / alertas Telegram (pool local)
   useEffect(() => {
     if (useApiSearch) return;
     let cancelled = false;
@@ -217,10 +234,13 @@ export function CatalogPageClient() {
 
     (async () => {
       try {
-        if (state.section === "deals") {
+        if (state.tab === "alerts" || state.section === "deals") {
           const res = await getDealsNow(50);
           if (cancelled) return;
-          setPool(res.results.map(summaryToProduct));
+          const products = res.results.map(summaryToProduct);
+          setPool(
+            state.tab === "alerts" ? products.filter(isTelegramAlert) : products,
+          );
         } else if (state.section === "overpriced") {
           const res = await getDealsWait(50);
           if (cancelled) return;
@@ -265,7 +285,7 @@ export function CatalogPageClient() {
     return () => {
       cancelled = true;
     };
-  }, [state.section, useApiSearch]);
+  }, [state.section, state.tab, useApiSearch]);
 
   // Pesquisa API (query ou pill de categoria, fora das secções deals)
   useEffect(() => {
@@ -328,7 +348,7 @@ export function CatalogPageClient() {
     return list;
   }, [pool, state.condition, state.category, state.q, state.sort]);
 
-  const usingApiSearch = searchResults !== null && !state.section;
+  const usingApiSearch = searchResults !== null && state.tab === "products" && !state.section;
   const total = usingApiSearch ? searchTotal : filteredPool.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(state.page, totalPages);
@@ -342,12 +362,18 @@ export function CatalogPageClient() {
   const shownFrom = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const shownTo = Math.min(page * PAGE_SIZE, total);
 
-  const meta = state.section
-    ? SECTION_META[state.section]
-    : {
-        title: "Catálogo Limiar",
-        subtitle: "Explora oportunidades com filtros por categoria, condição e preço.",
-      };
+  const meta =
+    state.tab === "alerts"
+      ? {
+          title: "📢 Histórico de Alertas do Bot",
+          subtitle: "Oportunidades com perfil de publicação no canal Telegram Limiar.",
+        }
+      : state.section
+        ? SECTION_META[state.section]
+        : {
+            title: "Catálogo Limiar",
+            subtitle: "Explora oportunidades com filtros por categoria, condição e preço.",
+          };
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -358,68 +384,89 @@ export function CatalogPageClient() {
         <p className="mt-1 text-sm text-slate-500">{meta.subtitle}</p>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-5">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <Input
-          value={queryDraft}
-          onChange={(e) => setQueryDraft(e.target.value)}
-          placeholder="Filtrar por título ou EAN…"
-          className="h-12 rounded-xl pl-10"
-          aria-label="Filtrar catálogo"
-        />
+      {/* Tabs */}
+      <div className="mb-6 flex gap-2 border-b border-slate-200 pb-3">
+        <button
+          type="button"
+          onClick={() => pushState({ tab: "products", page: 1 })}
+          className={cn(
+            "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+            state.tab === "products"
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+          )}
+        >
+          Produtos
+        </button>
+        <button
+          type="button"
+          onClick={() => pushState({ tab: "alerts", section: "", page: 1 })}
+          className={cn(
+            "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+            state.tab === "alerts"
+              ? "bg-sky-700 text-white"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+          )}
+        >
+          Histórico de Alertas do Bot
+        </button>
       </div>
 
-      {/* Category pills */}
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CATEGORY_PILLS.map((pill) => {
-          const active = state.category === pill.id;
-          return (
-            <button
-              key={pill.id || "all"}
-              type="button"
-              onClick={() => pushState({ category: pill.id, page: 1 })}
-              className={cn(
-                "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-                active
-                  ? "border-slate-900 bg-slate-900 text-white"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900",
-              )}
-            >
-              {pill.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Condition + sort */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => pushState({ condition: "new", page: 1 })}
-            className={cn(
-              "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-              state.condition === "new"
-                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
-            )}
+      {state.tab === "alerts" ? (
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-slate-500">
+            Alertas com mínimo histórico, semáforo comprar ou Índice ≥ 85.
+          </p>
+          <a
+            href={TELEGRAM_CHANNEL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-9 items-center rounded-xl bg-sky-700 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-800"
           >
-            Apenas Novos
-          </button>
-          <button
-            type="button"
-            onClick={() => pushState({ condition: "all", page: 1 })}
-            className={cn(
-              "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-              state.condition === "all"
-                ? "border-amber-300 bg-amber-50 text-amber-900"
-                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
-            )}
-          >
-            Incluir Outlet/Caixa Aberta
-          </button>
+            📢 Entrar no Telegram
+          </a>
         </div>
+      ) : (
+        <>
+          <div className="relative mb-5">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              value={queryDraft}
+              onChange={(e) => setQueryDraft(e.target.value)}
+              placeholder="Filtrar por título ou EAN…"
+              className="h-12 rounded-xl pl-10"
+              aria-label="Filtrar catálogo"
+            />
+          </div>
+
+          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CATEGORY_PILLS.map((cat) => {
+              const active = state.category === cat.id;
+              return (
+                <button
+                  key={cat.id || "all"}
+                  type="button"
+                  onClick={() => pushState({ category: cat.id, page: 1 })}
+                  className={cn(
+                    "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+                    active
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900",
+                  )}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <ConditionFilterPills
+          value={state.condition}
+          onChange={(value) => pushState({ condition: value, page: 1 })}
+        />
 
         <label className="flex items-center gap-2 text-sm text-slate-600">
           <span className="shrink-0">Ordenar</span>
@@ -439,13 +486,14 @@ export function CatalogPageClient() {
         </label>
       </div>
 
-      {/* Count */}
       <p className="mb-5 text-sm text-slate-500">
         {loading
-          ? "A carregar produtos…"
+          ? "A carregar…"
           : total === 0
-            ? "Nenhum produto encontrado com estes filtros."
-            : `A mostrar ${shownFrom}–${shownTo} de ${total} produto${total === 1 ? "" : "s"}`}
+            ? "Nenhum resultado com estes filtros."
+            : `A mostrar ${shownFrom}–${shownTo} de ${total} ${
+                state.tab === "alerts" ? "alerta" : "produto"
+              }${total === 1 ? "" : "s"}`}
       </p>
 
       {error ? (
@@ -464,22 +512,44 @@ export function CatalogPageClient() {
           ))}
         </div>
       ) : pageItems.length ? (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {pageItems.map((product) => (
-            <OpportunityCard
-              key={product.ean}
-              product={product}
-              showDropToday={state.section === "drops"}
-            />
-          ))}
-        </div>
+        state.tab === "alerts" ? (
+          <div className="space-y-3">
+            {pageItems.map((product) => (
+              <a
+                key={product.ean}
+                href={`/p/?id=${encodeURIComponent(product.slug)}`}
+                className="flex items-center justify-between gap-4 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-white to-sky-50/50 px-4 py-3 shadow-sm transition-colors hover:border-sky-300"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-900">{product.name}</p>
+                  <p className="mt-0.5 text-xs text-sky-700">
+                    Índice {product.decision.limiarIndex.value}/100
+                    {product.decision.isHistoricalMin ? " · Mín. histórico" : ""}
+                  </p>
+                </div>
+                <span className="shrink-0 font-display text-lg font-bold text-slate-900">
+                  {formatEUR(product.currentPrice)}
+                </span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {pageItems.map((product) => (
+              <OpportunityCard
+                key={product.ean}
+                product={product}
+                showDropToday={state.section === "drops"}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <p className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">
           Sem resultados. Ajusta os filtros ou experimenta outra pesquisa.
         </p>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 ? (
         <div className="mt-10 flex items-center justify-center gap-3">
           <Button

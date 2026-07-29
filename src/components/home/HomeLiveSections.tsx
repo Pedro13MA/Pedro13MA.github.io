@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
 import { CouponHubSection } from "@/components/cupoes/CouponHubSection";
+import {
+  ConditionFilterPills,
+  matchesHomeCondition,
+  type HomeConditionFilter,
+} from "@/components/home/ConditionFilterPills";
 import {
   getDealsNow,
   getDealsWait,
@@ -29,6 +34,7 @@ export function HomeLiveSections() {
   const [wait, setWait] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [condition, setCondition] = useState<HomeConditionFilter>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -56,10 +62,22 @@ export function HomeLiveSections() {
     };
   }, []);
 
-  const drops = [...buyNow, ...wait]
-    .filter((p) => (p.dropTodayPct ?? 0) > 0)
-    .sort((a, b) => (b.dropTodayPct ?? 0) - (a.dropTodayPct ?? 0))
-    .slice(0, 6);
+  const filteredBuyNow = useMemo(
+    () => buyNow.filter((p) => matchesHomeCondition(p.condition, condition)),
+    [buyNow, condition],
+  );
+  const filteredWait = useMemo(
+    () => wait.filter((p) => matchesHomeCondition(p.condition, condition)),
+    [wait, condition],
+  );
+  const drops = useMemo(
+    () =>
+      [...filteredBuyNow, ...filteredWait]
+        .filter((p) => (p.dropTodayPct ?? 0) > 0)
+        .sort((a, b) => (b.dropTodayPct ?? 0) - (a.dropTodayPct ?? 0))
+        .slice(0, 6),
+    [filteredBuyNow, filteredWait],
+  );
 
   return (
     <>
@@ -72,7 +90,11 @@ export function HomeLiveSections() {
         </div>
       ) : null}
 
-      <section id="comprar-agora" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 scroll-mt-16">
+      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
+        <ConditionFilterPills value={condition} onChange={setCondition} />
+      </div>
+
+      <section id="comprar-agora" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 scroll-mt-16">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="font-display text-2xl font-bold text-slate-900">
@@ -91,16 +113,16 @@ export function HomeLiveSections() {
         </div>
         {loading ? (
           <SectionSkeleton />
-        ) : buyNow.length ? (
+        ) : filteredBuyNow.length ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {buyNow.map((product) => (
+            {filteredBuyNow.map((product) => (
               <OpportunityCard key={product.ean} product={product} />
             ))}
           </div>
         ) : (
           <p className="text-sm text-slate-500">
-            Sem super promoções no momento. Explora o catálogo ou cria um alerta de preço para
-            seres notificado!
+            Sem super promoções com este filtro. Experimenta &quot;Todos&quot; ou explora o
+            catálogo.
           </p>
         )}
       </section>
@@ -125,15 +147,15 @@ export function HomeLiveSections() {
           </div>
           {loading ? (
             <SectionSkeleton />
-          ) : wait.length ? (
+          ) : filteredWait.length ? (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {wait.map((product) => (
+              {filteredWait.map((product) => (
                 <OpportunityCard key={product.ean} product={product} />
               ))}
             </div>
           ) : (
             <p className="text-sm text-slate-500">
-              Neste momento não há produtos claramente acima do valor habitual.
+              Neste momento não há produtos claramente acima do valor habitual com este filtro.
             </p>
           )}
         </div>
@@ -163,7 +185,7 @@ export function HomeLiveSections() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">Sem quedas significativas registadas hoje.</p>
+          <p className="text-sm text-slate-500">Sem quedas significativas com este filtro.</p>
         )}
       </section>
 

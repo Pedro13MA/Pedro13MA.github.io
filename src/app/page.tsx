@@ -1,6 +1,8 @@
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { SearchBar } from "@/components/layout/SearchBar";
+import { HomeHeroStats } from "@/components/home/HomeHeroStats";
 import { HomeLiveSections } from "@/components/home/HomeLiveSections";
+import { TelegramAlertsCarousel } from "@/components/home/TelegramAlertsCarousel";
 import { LimiarLogo } from "@/components/ui/LimiarLogo";
 import { BRAND_TAGLINE } from "@/lib/constants";
 
@@ -10,7 +12,7 @@ export default function HomePage() {
       <SiteHeader />
       <main>
         <section className="relative overflow-visible border-b border-slate-200/80 bg-gradient-to-b from-white via-slate-50 to-blue-50/30">
-          <div className="relative mx-auto max-w-6xl overflow-visible px-4 pb-16 pt-16 sm:px-6 sm:pt-24">
+          <div className="relative mx-auto max-w-6xl overflow-visible px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20">
             <div className="mb-6 flex items-center gap-3">
               <LimiarLogo size={40} />
               <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">
@@ -27,9 +29,11 @@ export default function HomePage() {
             <div className="mt-10 max-w-2xl">
               <SearchBar autoFocus />
             </div>
+            <HomeHeroStats />
           </div>
         </section>
 
+        <TelegramAlertsCarousel />
         <HomeLiveSections />
       </main>
       <SiteFooter />
