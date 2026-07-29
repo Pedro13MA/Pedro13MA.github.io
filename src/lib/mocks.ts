@@ -127,6 +127,18 @@ export const COUPON_HUB_STORES = [
   { slug: "globaldata", name: "Globaldata", href: "/cupoes/globaldata/" },
 ] as const;
 
+/** Códigos conhecidos para SSG de `/cupoes/[store]/[code]`. */
+export const KNOWN_COUPON_CODES = [
+  "OFF15",
+  "TCL15",
+  "HOTPOINT20",
+  "CAD10",
+  "BOSCH10",
+  "LEGO10",
+  "MAISCASA",
+  "VERAO",
+] as const;
+
 export const MOCK_PRODUCTS: Product[] = [
   {
     slug: "samsung-990-pro-2tb",

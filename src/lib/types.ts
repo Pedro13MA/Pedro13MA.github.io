@@ -195,6 +195,8 @@ export interface Product {
   listPrice?: number;
   /** Preço final com cupão. */
   effectivePrice?: number | null;
+  /** Poupança face ao preço de lista (cupão). */
+  savings?: number | null;
   inStock?: boolean | null;
   originalPrice?: number | null;
   /** Promoção imediata vs PVPR (≥20%). */

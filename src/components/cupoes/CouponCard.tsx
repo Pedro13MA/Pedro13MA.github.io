@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { Promotion } from "@/lib/types";
 import {
@@ -14,11 +15,13 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   promotion: Promotion;
+  /** Contagem opcional de oportunidades (label "Ver X Oportunidades"). */
+  opportunityCount?: number | null;
 };
 
 const COPIED_MS = 3000;
 
-export function CouponCard({ promotion }: Props) {
+export function CouponCard({ promotion, opportunityCount }: Props) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -33,17 +36,21 @@ export function CouponCard({ promotion }: Props) {
   const title = formatCouponTitle(promotion);
   const validity = formatCouponValidity(promotion);
   const code = promotion.code?.trim() || "";
-  const affiliateUrl = promotion.url?.trim() || "";
+  const detailHref =
+    code && storeKey
+      ? `/cupoes/${encodeURIComponent(storeKey)}/${encodeURIComponent(code.toUpperCase())}/`
+      : null;
 
-  const handleAction = useCallback(async () => {
-    if (code) {
-      const ok = await copyCouponCode(code);
-      if (ok) setCopied(true);
-    }
-    if (affiliateUrl) {
-      window.open(affiliateUrl, "_blank", "noopener,noreferrer");
-    }
-  }, [code, affiliateUrl]);
+  const handleCopy = useCallback(async () => {
+    if (!code) return;
+    const ok = await copyCouponCode(code);
+    if (ok) setCopied(true);
+  }, [code]);
+
+  const ctaLabel =
+    opportunityCount != null && opportunityCount > 0
+      ? `Ver ${opportunityCount} Oportunidades`
+      : "Ver Produtos com Cupão";
 
   return (
     <article
@@ -73,9 +80,7 @@ export function CouponCard({ promotion }: Props) {
             </p>
           </div>
           {discount ? (
-            <span
-              className="shrink-0 rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800 ring-1 ring-teal-200/80"
-            >
+            <span className="shrink-0 rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800 ring-1 ring-teal-200/80">
               {discount}
             </span>
           ) : null}
@@ -88,33 +93,39 @@ export function CouponCard({ promotion }: Props) {
         <p className="mt-1.5 line-clamp-2 text-xs text-slate-500">{validity}</p>
 
         {code ? (
-          <div className="mt-4 rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5">
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="mt-4 w-full rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-left transition hover:bg-amber-100/80"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700/80">
-              Código
+              {copied ? "Copiado ✓" : "Código — clica para copiar"}
             </p>
             <p className="mt-0.5 font-mono text-lg font-bold tracking-wide text-amber-900">
               {code}
             </p>
-          </div>
+          </button>
         ) : (
           <p className="mt-4 text-xs text-slate-400">Sem código — desconto automático na loja</p>
         )}
 
         <div className="mt-4 border-t border-dashed border-slate-200 pt-4">
-          <button
-            type="button"
-            onClick={handleAction}
-            disabled={!affiliateUrl}
-            className={cn(
-              "w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors",
-              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600",
-              copied
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "bg-sky-600 text-white hover:bg-sky-700 disabled:bg-slate-200 disabled:text-slate-500",
-            )}
-          >
-            {copied ? "Copiado! ✓" : code ? "Copiar e Ir para a Loja" : "Ir para a Loja"}
-          </button>
+          {detailHref ? (
+            <Link
+              href={detailHref}
+              className={cn(
+                "block w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition-colors",
+                "bg-sky-600 text-white hover:bg-sky-700",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600",
+              )}
+            >
+              {ctaLabel}
+            </Link>
+          ) : (
+            <span className="block w-full rounded-xl bg-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-slate-500">
+              Cupão sem código
+            </span>
+          )}
         </div>
       </div>
     </article>

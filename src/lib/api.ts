@@ -68,6 +68,21 @@ export type ApiProductSummary = {
   vramSpec?: string | null;
   /** True apenas quando o bot confirmou publicação no Telegram. */
   sentToTelegram?: boolean;
+  listPrice?: number | null;
+  effectivePrice?: number | null;
+  savings?: number | null;
+  couponCode?: string | null;
+  offerUrl?: string | null;
+};
+
+export type CouponProductsResponse = {
+  store: string;
+  code: string;
+  coupon: ApiSmartCoupon;
+  total: number;
+  limit: number;
+  offset: number;
+  results: ApiProductSummary[];
 };
 
 export type FacetBucket = {
@@ -352,12 +367,25 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     category: s.category || "Other",
     imageUrl: s.imageUrl,
     currentPrice: s.currentPrice,
+    listPrice: s.listPrice ?? undefined,
+    effectivePrice: s.effectivePrice ?? undefined,
+    savings: s.savings ?? undefined,
     avg30d: s.avg30d ?? s.currentPrice,
     historicalMin: s.historicalMin ?? s.currentPrice,
     historicalMax: s.historicalMax ?? s.currentPrice,
     dropTodayPct: s.dropTodayPct ?? undefined,
     history: [],
-    offers: [],
+    offers: s.offerUrl
+      ? [
+          {
+            store: s.cheapestStore || "store",
+            storeName: s.cheapestStore || "Loja",
+            url: s.offerUrl,
+            price: s.listPrice ?? s.currentPrice,
+            effectivePrice: s.effectivePrice ?? s.currentPrice,
+          },
+        ]
+      : [],
     decision,
     seasonality: DEFAULT_SEASONALITY,
     inStock: s.inStock,
@@ -674,6 +702,21 @@ export async function fetchProductMetrics(ean: string): Promise<ProductMetricsOu
 export async function getStoreCampaigns(store: string): Promise<CampaignsResponse> {
   return apiGet<CampaignsResponse>(
     `/api/v1/campaigns?store=${encodeURIComponent(store)}`,
+  );
+}
+
+export async function getCouponProducts(
+  store: string,
+  code: string,
+  limit = 48,
+  offset = 0,
+): Promise<CouponProductsResponse> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  return apiGet<CouponProductsResponse>(
+    `/api/v1/coupons/${encodeURIComponent(store)}/${encodeURIComponent(code)}/products?${params}`,
   );
 }
 
