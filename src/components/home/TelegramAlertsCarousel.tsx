@@ -4,45 +4,52 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { getDealsNow, summaryToProduct } from "@/lib/api";
+import { getTelegramDeals, summaryToProduct } from "@/lib/api";
 import { TELEGRAM_CHANNEL } from "@/lib/constants";
 import type { Product } from "@/lib/types";
 import { cn, formatEUR } from "@/lib/utils";
 
-function isTelegramWorthy(p: Product): boolean {
-  return (
-    p.decision.isHistoricalMin ||
-    p.decision.semaphore === "buy" ||
-    p.decision.limiarIndex.value >= 85
-  );
-}
+type Props = {
+  /** Quando definido, o carrossel usa estes itens (já filtrados pela API). */
+  products?: Product[] | null;
+  loading?: boolean;
+};
 
-export function TelegramAlertsCarousel() {
-  const [items, setItems] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export function TelegramAlertsCarousel({
+  products: controlledProducts,
+  loading: controlledLoading,
+}: Props = {}) {
+  const [fetched, setFetched] = useState<Product[]>([]);
+  const [fetchLoading, setFetchLoading] = useState(controlledProducts == null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const isControlled = controlledProducts != null;
 
   useEffect(() => {
+    if (isControlled) return;
     let cancelled = false;
-    getDealsNow(50)
+    getTelegramDeals(12, 36)
       .then((res) => {
         if (cancelled) return;
-        const products = res.results
-          .map(summaryToProduct)
-          .filter(isTelegramWorthy)
-          .slice(0, 12);
-        setItems(products);
+        setFetched(
+          res.results
+            .filter((s) => s.sentToTelegram !== false)
+            .map(summaryToProduct)
+            .slice(0, 12),
+        );
       })
       .catch(() => {
-        if (!cancelled) setItems([]);
+        if (!cancelled) setFetched([]);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setFetchLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isControlled]);
+
+  const items = isControlled ? controlledProducts : fetched;
+  const loading = isControlled ? Boolean(controlledLoading) : fetchLoading;
 
   function scrollByCard(dir: -1 | 1) {
     const el = scrollerRef.current;
@@ -66,7 +73,7 @@ export function TelegramAlertsCarousel() {
               ⚡ Alertas do Telegram de Hoje
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              As melhores oportunidades publicadas no canal — em tempo quase real.
+              Apenas oportunidades publicadas no canal pelo bot — sem heurísticas.
             </p>
           </div>
           <div className="flex items-center gap-2">

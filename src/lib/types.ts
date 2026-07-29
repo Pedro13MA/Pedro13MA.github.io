@@ -162,4 +162,6 @@ export interface Product {
   condition?: ProductCondition;
   chipsetModel?: string | null;
   vramSpec?: string | null;
+  /** True só se o bot publicou este produto no canal Telegram. */
+  sentToTelegram?: boolean;
 }

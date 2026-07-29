@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import {
   getDealsNow,
   getDealsWait,
+  getTelegramDeals,
   searchProducts,
   summaryToProduct,
   type SearchSortBy,
@@ -108,14 +109,6 @@ function matchesCategory(product: Product, categoryId: string): boolean {
 
 function matchesCondition(product: Product, mode: HomeConditionFilter): boolean {
   return matchesHomeCondition(product.condition, mode);
-}
-
-function isTelegramAlert(p: Product): boolean {
-  return (
-    p.decision.isHistoricalMin ||
-    p.decision.semaphore === "buy" ||
-    p.decision.limiarIndex.value >= 85
-  );
 }
 
 function matchesQuery(product: Product, q: string): boolean {
@@ -234,13 +227,18 @@ export function CatalogPageClient() {
 
     (async () => {
       try {
-        if (state.tab === "alerts" || state.section === "deals") {
+        if (state.tab === "alerts") {
+          const res = await getTelegramDeals(50, 168);
+          if (cancelled) return;
+          setPool(
+            res.results
+              .filter((s) => s.sentToTelegram !== false)
+              .map(summaryToProduct),
+          );
+        } else if (state.section === "deals") {
           const res = await getDealsNow(50);
           if (cancelled) return;
-          const products = res.results.map(summaryToProduct);
-          setPool(
-            state.tab === "alerts" ? products.filter(isTelegramAlert) : products,
-          );
+          setPool(res.results.map(summaryToProduct));
         } else if (state.section === "overpriced") {
           const res = await getDealsWait(50);
           if (cancelled) return;

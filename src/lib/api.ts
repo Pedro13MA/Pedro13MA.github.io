@@ -64,6 +64,8 @@ export type ApiProductSummary = {
   condition?: ProductCondition | string | null;
   chipsetModel?: string | null;
   vramSpec?: string | null;
+  /** True apenas quando o bot confirmou publicação no Telegram. */
+  sentToTelegram?: boolean;
 };
 
 export type FacetBucket = {
@@ -321,6 +323,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     condition: normalizeCondition(s.condition),
     chipsetModel: s.chipsetModel,
     vramSpec: s.vramSpec,
+    sentToTelegram: Boolean(s.sentToTelegram),
   };
 }
 
@@ -474,6 +477,16 @@ export async function getDealsNow(limit = 24): Promise<DealsResponse> {
 
 export async function getDealsWait(limit = 24): Promise<DealsResponse> {
   return apiGet<DealsResponse>(`/api/v1/deals/wait?limit=${limit}`);
+}
+
+/** Alertas efetivamente enviados ao Telegram (ledger de publish confirmado). */
+export async function getTelegramDeals(
+  limit = 24,
+  sinceHours = 36,
+): Promise<DealsResponse> {
+  return apiGet<DealsResponse>(
+    `/api/v1/deals/telegram?limit=${limit}&since_hours=${sinceHours}`,
+  );
 }
 
 export async function getProductBySlug(slug: string): Promise<ApiProductDetail> {

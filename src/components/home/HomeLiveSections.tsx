@@ -29,12 +29,19 @@ function SectionSkeleton({ n = 3 }: { n?: number }) {
   );
 }
 
-export function HomeLiveSections() {
+type Props = {
+  /** EANs já visíveis no carrossel Telegram — excluídos de Super Oportunidades. */
+  excludeEans?: string[];
+};
+
+export function HomeLiveSections({ excludeEans = [] }: Props) {
   const [buyNow, setBuyNow] = useState<Product[]>([]);
   const [wait, setWait] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [condition, setCondition] = useState<HomeConditionFilter>("all");
+
+  const excludeSet = useMemo(() => new Set(excludeEans), [excludeEans]);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,8 +70,12 @@ export function HomeLiveSections() {
   }, []);
 
   const filteredBuyNow = useMemo(
-    () => buyNow.filter((p) => matchesHomeCondition(p.condition, condition)),
-    [buyNow, condition],
+    () =>
+      buyNow.filter(
+        (p) =>
+          matchesHomeCondition(p.condition, condition) && !excludeSet.has(p.ean),
+      ),
+    [buyNow, condition, excludeSet],
   );
   const filteredWait = useMemo(
     () => wait.filter((p) => matchesHomeCondition(p.condition, condition)),

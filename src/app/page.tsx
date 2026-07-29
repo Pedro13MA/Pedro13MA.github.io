@@ -1,8 +1,7 @@
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { HomeHeroStats } from "@/components/home/HomeHeroStats";
-import { HomeLiveSections } from "@/components/home/HomeLiveSections";
-import { TelegramAlertsCarousel } from "@/components/home/TelegramAlertsCarousel";
+import { HomeTelegramAndDeals } from "@/components/home/HomeTelegramAndDeals";
 import { LimiarLogo } from "@/components/ui/LimiarLogo";
 import { BRAND_TAGLINE } from "@/lib/constants";
 
@@ -33,8 +32,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <TelegramAlertsCarousel />
-        <HomeLiveSections />
+        <HomeTelegramAndDeals />
       </main>
       <SiteFooter />
     </>
