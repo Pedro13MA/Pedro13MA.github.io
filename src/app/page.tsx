@@ -1,9 +1,9 @@
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { SearchBar } from "@/components/layout/SearchBar";
-import { HomeHeroStats } from "@/components/home/HomeHeroStats";
-import { HomeTelegramAndDeals } from "@/components/home/HomeTelegramAndDeals";
+import { HomePageBody } from "@/components/home/HomePageBody";
+import { HomeStatsStrip } from "@/components/home/HomeStatsStrip";
 import { LimiarLogo } from "@/components/ui/LimiarLogo";
-import { BRAND_TAGLINE } from "@/lib/constants";
+import { BRAND_SUBTITLE, BRAND_TAGLINE } from "@/lib/constants";
 
 export default function HomePage() {
   return (
@@ -21,18 +21,17 @@ export default function HomePage() {
             <h1 className="font-display max-w-3xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
               {BRAND_TAGLINE}
             </h1>
-            <p className="mt-4 max-w-2xl text-base text-slate-500 sm:text-lg">
-              Comparamos preços em Worten, Globaldata e outras lojas para te dizer quando
-              vale mesmo a pena comprar.
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg">
+              {BRAND_SUBTITLE}
             </p>
             <div className="mt-10 max-w-2xl">
               <SearchBar autoFocus />
             </div>
-            <HomeHeroStats />
           </div>
         </section>
 
-        <HomeTelegramAndDeals />
+        <HomeStatsStrip />
+        <HomePageBody />
       </main>
       <SiteFooter />
     </>

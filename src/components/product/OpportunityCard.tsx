@@ -9,6 +9,8 @@ import { formatEUR, formatPct, limiarIndexTone, SEMAPHORE_LABEL } from "@/lib/ut
 type Props = {
   product: Product;
   showDropToday?: boolean;
+  /** Homepage: imagem, nome, preço, índice, selo, CTA — sem ruído. */
+  compact?: boolean;
 };
 
 function DealScoreBar({ score }: { score: number }) {
@@ -28,11 +30,19 @@ function DealScoreBar({ score }: { score: number }) {
   );
 }
 
-export function OpportunityCard({ product, showDropToday }: Props) {
+function opportunitySeal(product: Product): string {
+  if (product.decision.isHistoricalMin) return "Mínimo Histórico";
+  if (product.decision.semaphore === "buy") return "Excelente Oportunidade";
+  if (product.decision.semaphore === "fair") return "Bom Preço";
+  return "Aguardar";
+}
+
+export function OpportunityCard({ product, showDropToday, compact }: Props) {
   const currentPrice = product.currentPrice;
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   const tone = limiarIndexTone(product.decision.limiarIndex.value);
   const specParts = [product.chipsetModel, product.vramSpec].filter(Boolean);
+  const href = `/p/?id=${encodeURIComponent(product.slug)}`;
 
   const pvpr = product.originalPrice;
   const showPvpr =
@@ -60,11 +70,52 @@ export function OpportunityCard({ product, showDropToday }: Props) {
       ? product.dealScore
       : product.decision.limiarIndex.value;
 
+  if (compact) {
+    const seal = opportunitySeal(product);
+    return (
+      <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
+        <Link href={href} className="group block flex-1">
+          <div className="relative flex h-44 w-full items-center justify-center bg-white p-4">
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                sizes="(max-width:768px) 100vw, 33vw"
+                unoptimized
+              />
+            ) : null}
+          </div>
+          <CardContent className="space-y-2.5 p-4 pt-2">
+            <p className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-slate-900">
+              {product.name}
+            </p>
+            <p className="font-display text-2xl font-bold tabular-nums text-slate-900">
+              {formatEUR(currentPrice)}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="teal" className={tone.text}>
+                Índice {product.decision.limiarIndex.value}/100
+              </Badge>
+              <Badge variant={product.decision.semaphore}>{seal}</Badge>
+            </div>
+          </CardContent>
+        </Link>
+        <div className="px-4 pb-4">
+          <Link
+            href={href}
+            className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900"
+          >
+            Ver análise
+          </Link>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <Link
-      href={`/p/?id=${encodeURIComponent(product.slug)}`}
-      className="group block h-full"
-    >
+    <Link href={href} className="group block h-full">
       <Card className="h-full overflow-hidden">
         <div className="relative flex h-52 w-full items-center justify-center rounded-t-xl bg-white p-4">
           {product.imageUrl ? (
@@ -126,9 +177,6 @@ export function OpportunityCard({ product, showDropToday }: Props) {
                 title={discountTooltip}
               >
                 {discountLabel}
-                <span className="pointer-events-none absolute bottom-full right-0 z-10 mb-1 hidden w-44 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[10px] font-normal normal-case leading-snug text-slate-600 shadow-md group-hover:block">
-                  {discountTooltip}
-                </span>
               </span>
             ) : null}
           </div>

@@ -830,6 +830,7 @@ export async function getStoreCampaigns(store: string): Promise<CampaignsRespons
 export async function getCoupons(store?: string): Promise<{
   store: string | null;
   coupons: ApiSmartCoupon[];
+  stores?: Array<{ slug: string; name: string; count: number }>;
   rules?: {
     store: string;
     supportsCodes: boolean;

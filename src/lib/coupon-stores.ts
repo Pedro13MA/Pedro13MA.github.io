@@ -1,4 +1,4 @@
-/** Lojas do Hub de Cupões — metadados UI (sem dados mock de campanhas). */
+/** Lojas do Hub de Cupões e grelha da homepage — metadados UI. */
 
 export type CouponStoreMeta = {
   slug: string;
@@ -18,9 +18,24 @@ export const COUPON_HUB_STORES: CouponStoreMeta[] = [
   { slug: "globaldata", name: "Globaldata", logoUrl: favicon("www.globaldata.pt") },
 ];
 
+/** Lojas apresentadas na homepage (logos). */
+export const MONITORED_STORES: CouponStoreMeta[] = [
+  ...COUPON_HUB_STORES,
+  { slug: "fnac", name: "Fnac", logoUrl: favicon("www.fnac.pt") },
+  { slug: "castro", name: "Castro Electrónica", logoUrl: favicon("www.castroelectronica.pt") },
+  {
+    slug: "switch",
+    name: "Switch Technology",
+    logoUrl: favicon("www.switch.pt"),
+  },
+];
+
 export function getCouponStoreMeta(slug: string): CouponStoreMeta | undefined {
   const key = (slug || "").trim().toLowerCase();
-  return COUPON_HUB_STORES.find((s) => s.slug === key);
+  return (
+    COUPON_HUB_STORES.find((s) => s.slug === key) ||
+    MONITORED_STORES.find((s) => s.slug === key)
+  );
 }
 
 export function storeLogoUrl(slug: string): string {
