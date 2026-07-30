@@ -48,65 +48,49 @@ export function SiteHeader() {
 export function SiteFooter() {
   const columns = [
     {
-      title: "Produtos",
+      title: "Produto",
       links: [
-        { href: "/catalog/?section=deals", label: "Melhores oportunidades" },
-        { href: "/#comprar-agora", label: "Comprar agora" },
-        { href: "/#esperar", label: "Vale a pena esperar" },
+        { href: "/catalog/?section=deals", label: "Oportunidades" },
         { href: "/catalog/", label: "Catálogo" },
+        { href: "/#cupoes", label: "Cupões" },
+        { href: "/#lojas", label: "Lojas" },
       ],
     },
     {
-      title: "Lojas",
-      links: [
-        { href: "/#lojas", label: "Lojas monitorizadas" },
-        { href: "/#cupoes", label: "Hub de cupões" },
-        { href: "/cupoes/worten/", label: "Cupões Worten" },
-      ],
-    },
-    {
-      title: "Ferramentas",
+      title: "Limiar",
       links: [
         { href: "/#como-funciona", label: "Como funciona" },
+        { href: "/#porque-limiar", label: "Porque confiar" },
         { href: "/#alertas", label: "Alertas" },
-        { href: TELEGRAM_CHANNEL, label: "Telegram", external: true },
       ],
     },
     {
-      title: "Empresa",
-      links: [
-        { href: "/#porque-limiar", label: "Porque o Limiar" },
-        { href: "/", label: "Início" },
-      ],
-    },
-    {
-      title: "Legal",
-      links: [
-        { href: "/", label: "Privacidade" },
-        { href: "/", label: "Termos" },
-      ],
+      title: "Canal",
+      links: [{ href: TELEGRAM_CHANNEL, label: "Telegram", external: true }],
     },
   ] as const;
 
   return (
-    <footer className="mt-8 border-t border-slate-200/80 bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="flex flex-col gap-10 lg:flex-row lg:justify-between">
-          <div className="max-w-xs">
+    <footer className="border-t border-slate-200/60 bg-white">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <div className="flex flex-col gap-12 lg:flex-row lg:justify-between lg:gap-16">
+          <div className="max-w-xs shrink-0">
             <div className="flex items-center gap-2.5">
               <LimiarLogo size={28} />
               <p className="font-display font-semibold text-slate-900">Limiar</p>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-500">{BRAND_TAGLINE}</p>
+            <p className="mt-4 text-[15px] leading-relaxed text-slate-500">
+              {BRAND_TAGLINE}
+            </p>
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid flex-1 grid-cols-2 gap-10 sm:grid-cols-3 sm:gap-12">
             {columns.map((col) => (
               <div key={col.title}>
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                   {col.title}
                 </p>
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-4 space-y-3">
                   {col.links.map((link) => (
                     <li key={link.label}>
                       {"external" in link && link.external ? (
@@ -114,14 +98,14 @@ export function SiteFooter() {
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-slate-600 transition hover:text-slate-900"
+                          className="text-[15px] text-slate-600 transition-colors duration-150 hover:text-slate-900"
                         >
                           {link.label}
                         </a>
                       ) : (
                         <Link
                           href={link.href}
-                          className="text-sm text-slate-600 transition hover:text-slate-900"
+                          className="text-[15px] text-slate-600 transition-colors duration-150 hover:text-slate-900"
                         >
                           {link.label}
                         </Link>
@@ -134,7 +118,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="mt-10 border-t border-slate-100 pt-6 text-xs text-slate-400">
+        <p className="mt-14 border-t border-slate-100 pt-8 text-xs text-slate-400">
           © {new Date().getFullYear()} Limiar · Preços observados · Sem previsões inventadas
         </p>
       </div>

@@ -259,6 +259,9 @@ export interface Product {
   vramSpec?: string | null;
   /** True só se o bot publicou este produto no canal Telegram. */
   sentToTelegram?: boolean;
+  /** ISO timestamp — quando a oportunidade foi detetada / publicada. */
+  detectedAt?: string | null;
+  publishedAt?: string | null;
   /** Limiar v2 — preço de referência e desconto real. */
   referencePrice?: number | null;
   referenceSource?: string | null;

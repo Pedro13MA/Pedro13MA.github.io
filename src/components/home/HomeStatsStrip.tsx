@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getCoupons, searchProducts } from "@/lib/api";
+import { MONITORED_STORES } from "@/lib/coupon-stores";
+import { formatRelativeTimePt } from "@/lib/product-insights";
 
 type Stat = {
   icon: string;
@@ -19,6 +21,7 @@ function formatCount(n: number): string {
 
 export function HomeStatsStrip() {
   const [stats, setStats] = useState<Stat[] | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,39 +36,75 @@ export function HomeStatsStrip() {
         const products = search?.total ?? 0;
         const facetStores = search?.facets?.stores?.length ?? 0;
         const couponStores = coupons?.stores?.length ?? 0;
-        const storeCount = Math.max(facetStores, couponStores);
+        const storeCount = Math.max(
+          facetStores,
+          couponStores,
+          MONITORED_STORES.length,
+        );
         const campaigns = coupons?.coupons?.length ?? 0;
+        const nowIso = new Date().toISOString();
+        setFetchedAt(nowIso);
 
-        const next: Stat[] = [
-          {
-            icon: "📦",
-            label: "Produtos monitorizados",
-            value: products > 0 ? formatCount(products) : "—",
-          },
-          {
-            icon: "🏪",
-            label: "Lojas monitorizadas",
-            value: storeCount > 0 ? String(storeCount) : "—",
-          },
-          {
-            icon: "📈",
-            label: "Histórico disponível",
-            value: products > 0 ? "Activo" : "—",
-          },
-          {
-            icon: "🔄",
-            label: "Actualização",
-            value: "Diária",
-          },
-          {
+        const next: Stat[] = [];
+
+        next.push({
+          icon: "📦",
+          label: "Produtos monitorizados",
+          value: products > 0 ? formatCount(products) : "Em crescimento",
+        });
+
+        next.push({
+          icon: "🏪",
+          label: "Lojas monitorizadas",
+          value: storeCount > 0 ? String(storeCount) : "Em crescimento",
+        });
+
+        next.push({
+          icon: "📈",
+          label: "Histórico máximo",
+          value: products > 0 ? "Até 5 anos" : "Em crescimento",
+        });
+
+        next.push({
+          icon: "🔄",
+          label: "Última actualização",
+          value: formatRelativeTimePt(nowIso) || "há pouco",
+        });
+
+        if (campaigns > 0) {
+          next.push({
             icon: "🎟️",
             label: "Campanhas activas",
-            value: campaigns > 0 ? String(campaigns) : "—",
-          },
-        ];
+            value: String(campaigns),
+          });
+        }
+
         setStats(next);
       } catch {
-        if (!cancelled) setStats(null);
+        if (!cancelled) {
+          setStats([
+            {
+              icon: "📦",
+              label: "Produtos monitorizados",
+              value: "Em crescimento",
+            },
+            {
+              icon: "🏪",
+              label: "Lojas monitorizadas",
+              value: String(MONITORED_STORES.length),
+            },
+            {
+              icon: "📈",
+              label: "Histórico máximo",
+              value: "Em crescimento",
+            },
+            {
+              icon: "🔄",
+              label: "Última actualização",
+              value: "Actualização diária",
+            },
+          ]);
+        }
       }
     })();
     return () => {
@@ -73,12 +112,32 @@ export function HomeStatsStrip() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!fetchedAt) return;
+    const id = window.setInterval(() => {
+      setStats((prev) => {
+        if (!prev) return prev;
+        return prev.map((s) =>
+          s.label === "Última actualização"
+            ? { ...s, value: formatRelativeTimePt(fetchedAt) || "há pouco" }
+            : s,
+        );
+      });
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, [fetchedAt]);
+
+  const gridClass =
+    stats && stats.length >= 5
+      ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+      : "grid-cols-2 sm:grid-cols-4";
+
   if (!stats) {
     return (
-      <section className="border-b border-slate-200/80 bg-white">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-slate-100" />
+      <section className="border-b border-slate-200/60 bg-white">
+        <div className={`mx-auto grid max-w-6xl gap-3 px-4 py-8 sm:px-6 ${gridClass}`}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-[4.5rem] animate-pulse rounded-2xl bg-slate-100" />
           ))}
         </div>
       </section>
@@ -86,20 +145,22 @@ export function HomeStatsStrip() {
   }
 
   return (
-    <section className="border-b border-slate-200/80 bg-white">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-5">
+    <section className="border-b border-slate-200/60 bg-white">
+      <div className={`mx-auto grid max-w-6xl gap-3 px-4 py-8 sm:gap-4 sm:px-6 ${gridClass}`}>
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-xl border border-slate-200/90 bg-slate-50/50 px-3 py-3 text-center sm:text-left"
+            className="flex min-h-[4.5rem] flex-col justify-center rounded-2xl border border-slate-200/70 bg-[#FAFAFA] px-3.5 py-3 sm:px-4"
           >
-            <p className="text-lg" aria-hidden>
-              {stat.icon}
-            </p>
-            <p className="mt-1 font-display text-xl font-bold tabular-nums text-slate-900">
-              {stat.value}
-            </p>
-            <p className="mt-0.5 text-[11px] font-medium leading-snug text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="text-sm leading-none" aria-hidden>
+                {stat.icon}
+              </span>
+              <p className="font-display text-lg font-bold tabular-nums tracking-tight text-slate-900 sm:text-xl">
+                {stat.value}
+              </p>
+            </div>
+            <p className="mt-1 text-xs font-medium leading-snug text-slate-500">
               {stat.label}
             </p>
           </div>

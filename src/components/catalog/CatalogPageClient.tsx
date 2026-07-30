@@ -25,7 +25,7 @@ import { cn, formatEUR } from "@/lib/utils";
 
 const PAGE_SIZE = 24;
 
-export type CatalogSection = "deals" | "overpriced" | "drops" | "";
+export type CatalogSection = "deals" | "overpriced" | "drops" | "telegram" | "";
 type CatalogTab = "products" | "alerts";
 type CatalogSort = "discount_desc" | "limiar_desc" | "price_asc";
 
@@ -86,6 +86,10 @@ const SECTION_META: Record<
     title: "📉 Maiores Quedas",
     subtitle: "Maiores descidas de preço face a ontem.",
   },
+  telegram: {
+    title: "⚡ Últimas oportunidades detetadas",
+    subtitle: "Produtos enviados automaticamente para o canal Telegram do Limiar.",
+  },
 };
 
 function dedupeByEan(products: Product[]): Product[] {
@@ -142,7 +146,10 @@ function sortProducts(products: Product[], sort: CatalogSort): Product[] {
 function readCatalogState(params: URLSearchParams) {
   const sectionRaw = (params.get("section") || "").trim().toLowerCase();
   const section: CatalogSection =
-    sectionRaw === "deals" || sectionRaw === "overpriced" || sectionRaw === "drops"
+    sectionRaw === "deals" ||
+    sectionRaw === "overpriced" ||
+    sectionRaw === "drops" ||
+    sectionRaw === "telegram"
       ? sectionRaw
       : "";
   const category = params.get("category") || "";
@@ -256,6 +263,14 @@ export function CatalogPageClient() {
             ])
               .filter((p) => (p.dropTodayPct ?? 0) > 0)
               .sort((a, b) => (b.dropTodayPct ?? 0) - (a.dropTodayPct ?? 0)),
+          );
+        } else if (state.section === "telegram") {
+          const res = await getTelegramDeals(50, 168);
+          if (cancelled) return;
+          setPool(
+            res.results
+              .filter((s) => s.sentToTelegram !== false)
+              .map(summaryToProduct),
           );
         } else {
           const [nowRes, waitRes] = await Promise.all([
@@ -538,6 +553,12 @@ export function CatalogPageClient() {
                 key={product.ean}
                 product={product}
                 showDropToday={state.section === "drops"}
+                compact={state.section === "telegram" || state.tab === "alerts"}
+                detectedAt={
+                  state.section === "telegram" || state.tab === "alerts"
+                    ? product.detectedAt
+                    : undefined
+                }
               />
             ))}
           </div>

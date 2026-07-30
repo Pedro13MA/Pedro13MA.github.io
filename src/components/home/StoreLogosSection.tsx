@@ -7,7 +7,7 @@ function StoreLogo({ name, logoUrl }: { name: string; logoUrl: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500">
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-[11px] font-bold text-slate-500">
         {name.slice(0, 2).toUpperCase()}
       </span>
     );
@@ -17,9 +17,9 @@ function StoreLogo({ name, logoUrl }: { name: string; logoUrl: string }) {
     <img
       src={logoUrl}
       alt=""
-      width={40}
-      height={40}
-      className="h-10 w-10 object-contain"
+      width={44}
+      height={44}
+      className="h-11 w-11 object-contain"
       onError={() => setFailed(true)}
     />
   );
@@ -27,20 +27,20 @@ function StoreLogo({ name, logoUrl }: { name: string; logoUrl: string }) {
 
 export function StoreLogosSection() {
   return (
-    <section id="lojas" className="border-t border-slate-200/80 bg-white scroll-mt-16">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <h2 className="text-center font-display text-2xl font-bold text-slate-900">
+    <section id="lojas" className="scroll-mt-16 border-t border-slate-200/60 bg-white">
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+        <h2 className="text-center font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
           Lojas monitorizadas
         </h2>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+        <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-8 sm:gap-x-10">
           {MONITORED_STORES.map((store) => (
             <div
               key={store.slug}
-              className="flex h-20 w-28 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-200/90 bg-slate-50/60 px-3 transition hover:border-slate-300 hover:bg-white"
+              className="flex w-[4.5rem] flex-col items-center gap-2.5"
               title={store.name}
             >
               <StoreLogo name={store.name} logoUrl={store.logoUrl} />
-              <span className="truncate text-[10px] font-medium text-slate-500">
+              <span className="truncate text-center text-xs font-medium text-slate-500">
                 {store.name}
               </span>
             </div>

@@ -146,8 +146,8 @@ export function CouponHubSection() {
   }, [promotions, storeFilter]);
 
   return (
-    <section id="cupoes" className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <section id="cupoes" className="scroll-mt-16 border-t border-slate-200/60 bg-white">
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
         <div className="mb-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">
             🎟️ Hub de Cupões

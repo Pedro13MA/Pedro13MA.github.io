@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getOpportunitySeal } from "@/lib/opportunity-seal";
+import { formatRelativeTimePt } from "@/lib/product-insights";
 import { referenceSourceTooltip } from "@/lib/referenceSource";
 import { formatEUR, formatPct, limiarIndexTone, SEMAPHORE_LABEL } from "@/lib/utils";
 
@@ -11,6 +13,8 @@ type Props = {
   showDropToday?: boolean;
   /** Homepage: imagem, nome, preço, índice, selo, CTA — sem ruído. */
   compact?: boolean;
+  /** Hora em que a oportunidade foi identificada (ex.: publish Telegram). */
+  detectedAt?: string | null;
 };
 
 function DealScoreBar({ score }: { score: number }) {
@@ -30,14 +34,19 @@ function DealScoreBar({ score }: { score: number }) {
   );
 }
 
-function opportunitySeal(product: Product): string {
-  if (product.decision.isHistoricalMin) return "Mínimo Histórico";
-  if (product.decision.semaphore === "buy") return "Excelente Oportunidade";
-  if (product.decision.semaphore === "fair") return "Bom Preço";
-  return "Aguardar";
+function LimiarIndexChip({ value, className }: { value: number; className?: string }) {
+  const tone = limiarIndexTone(value);
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-2.5 py-1 text-xs ${className ?? ""}`}
+    >
+      <span className="font-medium text-slate-500">Índice Limiar</span>
+      <span className={`font-semibold tabular-nums ${tone.text}`}>{value}/100</span>
+    </span>
+  );
 }
 
-export function OpportunityCard({ product, showDropToday, compact }: Props) {
+export function OpportunityCard({ product, showDropToday, compact, detectedAt }: Props) {
   const currentPrice = product.currentPrice;
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   const tone = limiarIndexTone(product.decision.limiarIndex.value);
@@ -71,41 +80,46 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
       : product.decision.limiarIndex.value;
 
   if (compact) {
-    const seal = opportunitySeal(product);
+    const seal = getOpportunitySeal(product);
+    const when = formatRelativeTimePt(detectedAt ?? product.detectedAt);
     return (
-      <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
+      <Card className="flex h-full flex-col overflow-hidden">
         <Link href={href} className="group block flex-1">
-          <div className="relative flex h-44 w-full items-center justify-center bg-white p-4">
+          <div className="relative flex h-44 w-full items-center justify-center border-b border-slate-100 bg-[#FAFAFA] p-5 sm:h-48">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
                 alt={product.name}
                 fill
-                className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                className="object-contain p-3"
                 sizes="(max-width:768px) 100vw, 33vw"
                 unoptimized
               />
             ) : null}
           </div>
-          <CardContent className="space-y-2.5 p-4 pt-2">
-            <p className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-slate-900">
+          <CardContent className="flex flex-col gap-3 p-5 pt-4">
+            <p
+              className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[13px] font-semibold leading-snug ${seal.className}`}
+            >
+              <span aria-hidden>{seal.emoji}</span>
+              <span className="truncate">{seal.label}</span>
+            </p>
+            <p className="line-clamp-2 min-h-[2.75rem] text-[15px] font-medium leading-snug text-slate-800">
               {product.name}
             </p>
-            <p className="font-display text-2xl font-bold tabular-nums text-slate-900">
+            <p className="font-display text-[1.75rem] font-bold leading-none tracking-tight tabular-nums text-slate-900">
               {formatEUR(currentPrice)}
             </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="teal" className={tone.text}>
-                Índice {product.decision.limiarIndex.value}/100
-              </Badge>
-              <Badge variant={product.decision.semaphore}>{seal}</Badge>
-            </div>
+            <LimiarIndexChip value={product.decision.limiarIndex.value} />
+            {when ? (
+              <p className="text-xs text-slate-400">Identificado {when}</p>
+            ) : null}
           </CardContent>
         </Link>
-        <div className="px-4 pb-4">
+        <div className="px-5 pb-5">
           <Link
             href={href}
-            className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900"
+            className="flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition-colors duration-150 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900"
           >
             Ver análise
           </Link>
@@ -117,13 +131,13 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
   return (
     <Link href={href} className="group block h-full">
       <Card className="h-full overflow-hidden">
-        <div className="relative flex h-52 w-full items-center justify-center rounded-t-xl bg-white p-4">
+        <div className="relative flex h-52 w-full items-center justify-center rounded-t-2xl border-b border-slate-100 bg-[#FAFAFA] p-4">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
               alt={product.name}
               fill
-              className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+              className="object-contain p-3"
               sizes="(max-width:768px) 100vw, 33vw"
               unoptimized
             />
@@ -135,7 +149,7 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
             </Badge>
           </div>
         </div>
-        <CardContent className="space-y-2 p-4">
+        <CardContent className="space-y-2 p-5">
           <p className="line-clamp-2 font-semibold text-slate-900">
             {product.condition && product.condition !== "NEW" ? (
               <span className="mr-1.5 inline-block rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-amber-900">
@@ -149,7 +163,7 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
             {product.name}
           </p>
           {specParts.length ? (
-            <p className="text-xs font-medium text-slate-600">{specParts.join(" · ")}</p>
+            <p className="text-xs font-medium text-slate-500">{specParts.join(" · ")}</p>
           ) : null}
           {product.decision.isHistoricalMin ? (
             <p className="text-[11px] font-medium uppercase tracking-wide text-sky-700">

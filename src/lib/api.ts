@@ -70,6 +70,9 @@ export type ApiProductSummary = {
   vramSpec?: string | null;
   /** True apenas quando o bot confirmou publicação no Telegram. */
   sentToTelegram?: boolean;
+  /** ISO — publicação Telegram / deteção. */
+  publishedAt?: string | null;
+  detectedAt?: string | null;
   listPrice?: number | null;
   effectivePrice?: number | null;
   savings?: number | null;
@@ -475,6 +478,8 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     chipsetModel: s.chipsetModel,
     vramSpec: s.vramSpec,
     sentToTelegram: Boolean(s.sentToTelegram),
+    detectedAt: s.detectedAt ?? s.publishedAt ?? undefined,
+    publishedAt: s.publishedAt ?? s.detectedAt ?? undefined,
     referencePrice: s.referencePrice ?? undefined,
     referenceSource: s.referenceSource ?? undefined,
     realDiscountPct: s.realDiscountPct ?? undefined,

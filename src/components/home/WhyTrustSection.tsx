@@ -16,23 +16,26 @@ const LIMIAR = [
 
 export function WhyTrustSection() {
   return (
-    <section id="porque-limiar" className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50/80">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="text-center font-display text-2xl font-bold text-slate-900">
-          Porque confiar no Limiar
+    <section
+      id="porque-limiar"
+      className="scroll-mt-16 border-t border-slate-200/60 bg-[#FAFAFA]"
+    >
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
+        <h2 className="mx-auto max-w-2xl text-center font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          Porque milhares de preços não chegam.
         </h2>
-        <p className="mx-auto mt-2 max-w-xl text-center text-sm text-slate-500">
+        <p className="mx-auto mt-3.5 max-w-lg text-center text-[15px] leading-relaxed text-slate-500">
           Comparadores clássicos mostram um número. O Limiar contextualiza esse número.
         </p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="mt-14 grid gap-5 md:grid-cols-2 md:gap-6">
+          <div className="rounded-2xl border border-slate-200/70 bg-white p-7 sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Outros comparadores
             </p>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-3.5">
               {OTHERS.map((item) => (
-                <li key={item} className="flex gap-2.5 text-sm text-slate-600">
+                <li key={item} className="flex gap-2.5 text-[15px] text-slate-500">
                   <span className="text-slate-300" aria-hidden>
                     —
                   </span>
@@ -42,13 +45,13 @@ export function WhyTrustSection() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-sky-200/80 bg-gradient-to-br from-sky-50/90 to-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-sky-100 bg-white p-7 sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-wider text-sky-700">
               Limiar
             </p>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-3.5">
               {LIMIAR.map((item) => (
-                <li key={item} className="flex gap-2.5 text-sm font-medium text-slate-800">
+                <li key={item} className="flex gap-2.5 text-[15px] font-medium text-slate-800">
                   <span className="text-emerald-600" aria-hidden>
                     ✓
                   </span>
