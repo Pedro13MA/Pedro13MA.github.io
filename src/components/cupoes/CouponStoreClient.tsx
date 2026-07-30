@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CouponCard } from "@/components/cupoes/CouponCard";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
-import { getStoreCampaigns, getStorePromotions, mapPromotion, mapSmartCoupon, smartCouponToPromotion } from "@/lib/api";
+import { getCoupons, getStoreCampaigns, mapSmartCoupon, smartCouponToPromotion } from "@/lib/api";
 import { COUPON_HUB_STORES } from "@/lib/mocks";
 import type { Promotion, StoreCampaign } from "@/lib/types";
 
@@ -23,17 +23,20 @@ export function CouponStoreClient({ store, storeName }: Props) {
     let cancelled = false;
     setLoading(true);
     Promise.all([
-      getStorePromotions(store, 50),
+      getCoupons(store).catch(() => ({ store, coupons: [] as never[] })),
       getStoreCampaigns(store).catch(() => ({
         store,
         campaigns: [],
         coupons: [],
       })),
     ])
-      .then(([promoRes, campRes]) => {
+      .then(([hubRes, campRes]) => {
         if (cancelled) return;
-        const promos = promoRes.results.map(mapPromotion);
+        const promos = (hubRes.coupons || []).map((c) =>
+          smartCouponToPromotion(mapSmartCoupon(c), storeName),
+        );
         for (const c of campRes.coupons) {
+          if (promos.some((p) => p.code && p.code === c.code)) continue;
           promos.push(smartCouponToPromotion(mapSmartCoupon(c), storeName));
         }
         setPromotions(promos);
@@ -82,8 +85,8 @@ export function CouponStoreClient({ store, storeName }: Props) {
           Cupões {storeName}
         </h1>
         <p className="mt-2 max-w-2xl text-slate-500">
-          Vouchers, campanhas e códigos validados para {storeName}. Clica para copiar e
-          abrir a loja com link AWIN.
+          Campanhas e códigos para {storeName}. Copia o código e aplica as condições
+          na loja. O preço Limiar não inclui cupões.
         </p>
 
         {!loading && campaigns.length > 0 ? (

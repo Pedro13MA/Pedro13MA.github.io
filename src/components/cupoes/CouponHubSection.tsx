@@ -3,18 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { CouponCard } from "@/components/cupoes/CouponCard";
 import {
-  getStoreCampaigns,
-  getStorePromotions,
-  mapPromotion,
+  getCoupons,
   mapSmartCoupon,
   smartCouponToPromotion,
 } from "@/lib/api";
 import { normalizeCouponStoreSlug } from "@/lib/coupon-utils";
-import type { Promotion, StoreCampaign } from "@/lib/types";
+import type { Promotion } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-/** Lojas com API de promoções ativa — usado só para fetch, não para labels das tabs. */
-const INTEGRATED_PROMO_STORES = ["worten", "globaldata"] as const;
 
 function SectionSkeleton({ n = 4 }: { n?: number }) {
   return (
@@ -36,10 +31,10 @@ function CouponEmptyState() {
         🏷️
       </span>
       <p className="mt-4 font-display text-lg font-semibold text-slate-900">
-        Sem cupões adicionais no momento
+        Sem campanhas no momento
       </p>
       <p className="mt-2 max-w-md text-sm text-slate-500">
-        Os preços listados para esta loja já refletem o melhor valor direto no carrinho.
+        Os cupões são informativos e não alteram o preço Limiar. Volta mais tarde.
       </p>
     </div>
   );
@@ -47,7 +42,6 @@ function CouponEmptyState() {
 
 export function CouponHubSection() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
-  const [campaigns, setCampaigns] = useState<StoreCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [storeFilter, setStoreFilter] = useState<string>("all");
@@ -58,43 +52,12 @@ export function CouponHubSection() {
       setLoading(true);
       setError(null);
       try {
-        const batches = await Promise.all(
-          INTEGRATED_PROMO_STORES.map(async (slug) => {
-            const [promoRes, campRes] = await Promise.all([
-              getStorePromotions(slug, 24).catch(() => ({ results: [] as never[] })),
-              getStoreCampaigns(slug).catch(() => ({
-                store: slug,
-                campaigns: [],
-                coupons: [],
-              })),
-            ]);
-            return { slug, promoRes, campRes };
-          }),
-        );
+        const hub = await getCoupons();
         if (cancelled) return;
-        const promos: Promotion[] = [];
-        const camps: StoreCampaign[] = [];
-        for (const { slug, promoRes, campRes } of batches) {
-          promos.push(...promoRes.results.map(mapPromotion));
-          for (const c of campRes.coupons) {
-            promos.push(smartCouponToPromotion(mapSmartCoupon(c), slug));
-          }
-          camps.push(...campRes.campaigns.map((c) => ({
-            storeCode: c.storeCode,
-            title: c.title,
-            description: c.description,
-            rulesSummary: c.rulesSummary,
-            appliesTo: c.appliesTo,
-            category: c.category,
-            couponCode: c.couponCode,
-            affiliateUrl: c.affiliateUrl,
-            startDate: c.startDate,
-            endDate: c.endDate,
-            isActive: c.isActive,
-          })));
-        }
+        const promos = (hub.coupons || []).map((c) =>
+          smartCouponToPromotion(mapSmartCoupon(c), c.storeCode || "loja"),
+        );
         setPromotions(promos);
-        setCampaigns(camps);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Falha ao carregar cupões");
@@ -134,13 +97,6 @@ export function CouponHubSection() {
     );
   }, [promotions, storeFilter]);
 
-  const filteredCampaigns = useMemo(() => {
-    if (storeFilter === "all") return campaigns;
-    return campaigns.filter(
-      (c) => normalizeCouponStoreSlug(c.storeCode) === storeFilter,
-    );
-  }, [campaigns, storeFilter]);
-
   return (
     <section id="cupoes" className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -154,22 +110,6 @@ export function CouponHubSection() {
           </p>
         </div>
 
-        {!loading && filteredCampaigns.length > 0 ? (
-          <div className="mb-8 space-y-3">
-            {filteredCampaigns.map((c) => (
-              <div
-                key={`${c.storeCode}-${c.title}`}
-                className="rounded-2xl border border-amber-200/90 bg-amber-50/80 px-4 py-3"
-              >
-                <p className="text-sm font-bold text-amber-900">🔥 {c.title}</p>
-                {c.rulesSummary ? (
-                  <p className="mt-1 text-sm text-amber-950/85">{c.rulesSummary}</p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        ) : null}
-
         {!loading && (promotions.length > 0 || storeTabs.length > 0) ? (
           <div className="mb-8 flex flex-wrap gap-2">
             <button
@@ -178,49 +118,47 @@ export function CouponHubSection() {
               className={cn(
                 "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
                 storeFilter === "all"
-                  ? "border-sky-600 bg-sky-600 text-white shadow-sm"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:shadow-sm",
+                  ? "border-sky-600 bg-sky-600 text-white"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
               )}
             >
-              Todas as Lojas
+              Todas
             </button>
-            {storeTabs.map((store) => {
-              const active = storeFilter === store.id;
-              return (
-                <button
-                  key={store.id}
-                  type="button"
-                  onClick={() => setStoreFilter(store.id)}
-                  className={cn(
-                    "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
-                    active
-                      ? "border-sky-600 bg-sky-600 text-white shadow-sm"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:shadow-sm",
-                  )}
-                >
-                  {store.label}
-                </button>
-              );
-            })}
+            {storeTabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setStoreFilter(t.id)}
+                className={cn(
+                  "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
+                  storeFilter === t.id
+                    ? "border-sky-600 bg-sky-600 text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
-        ) : null}
-
-        {error ? (
-          <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            {error}
-          </p>
         ) : null}
 
         {loading ? (
           <SectionSkeleton />
-        ) : filtered.length ? (
+        ) : error ? (
+          <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-6 text-sm text-rose-800">
+            {error}
+          </p>
+        ) : filtered.length === 0 ? (
+          <CouponEmptyState />
+        ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((promo) => (
-              <CouponCard key={promo.externalId} promotion={promo} />
+            {filtered.map((p) => (
+              <CouponCard
+                key={`${p.storeSlug}-${p.code || p.externalId || p.title}`}
+                promotion={p}
+              />
             ))}
           </div>
-        ) : (
-          <CouponEmptyState />
         )}
       </div>
     </section>

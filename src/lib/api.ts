@@ -758,6 +758,20 @@ export async function getStoreCampaigns(store: string): Promise<CampaignsRespons
   );
 }
 
+export async function getCoupons(store?: string): Promise<{
+  store: string | null;
+  coupons: ApiSmartCoupon[];
+  rules?: {
+    store: string;
+    supportsCodes: boolean;
+    requiresVerification: boolean;
+    displayConditions: boolean;
+  } | null;
+}> {
+  const q = store ? `?store=${encodeURIComponent(store)}` : "";
+  return apiGet(`/api/v1/coupons${q}`);
+}
+
 export async function getCouponProducts(
   store: string,
   code: string,
