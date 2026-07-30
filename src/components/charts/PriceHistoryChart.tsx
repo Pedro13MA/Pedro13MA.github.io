@@ -5,6 +5,7 @@ import {
   AreaChart,
   CartesianGrid,
   ReferenceDot,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,18 +13,32 @@ import {
 } from "recharts";
 import type { PricePoint } from "@/lib/types";
 import { formatEUR } from "@/lib/utils";
+import { referenceSourceLabelPt } from "@/lib/referenceSource";
 
 type Props = {
   history: PricePoint[];
   historicalMin: number;
   historicalMax: number;
+  referencePrice?: number | null;
+  referenceSource?: string | null;
 };
 
 const CHART_STROKE = "#0284c7";
+const REF_STROKE = "#d97706";
 
-export function PriceHistoryChart({ history, historicalMin, historicalMax }: Props) {
+export function PriceHistoryChart({
+  history,
+  historicalMin,
+  historicalMax,
+  referencePrice,
+  referenceSource,
+}: Props) {
   const minPoint = history.reduce((best, p) => (p.price < best.price ? p : best), history[0]);
   const maxPoint = history.reduce((best, p) => (p.price > best.price ? p : best), history[0]);
+
+  const ref = referencePrice != null && referencePrice > 0 ? referencePrice : null;
+  const yMin = Math.floor(Math.min(historicalMin, ref ?? historicalMin) * 0.95);
+  const yMax = Math.ceil(Math.max(historicalMax, ref ?? historicalMax) * 1.02);
 
   return (
     <div className="h-72 w-full">
@@ -47,10 +62,7 @@ export function PriceHistoryChart({ history, historicalMin, historicalMax }: Pro
             minTickGap={28}
           />
           <YAxis
-            domain={[
-              Math.floor(historicalMin * 0.95),
-              Math.ceil(historicalMax * 1.02),
-            ]}
+            domain={[yMin, yMax]}
             tickFormatter={(v: number) => `€${v}`}
             tick={{ fill: "#94a3b8", fontSize: 11 }}
             axisLine={false}
@@ -84,6 +96,20 @@ export function PriceHistoryChart({ history, historicalMin, historicalMax }: Pro
             dot={false}
             activeDot={{ r: 4, fill: CHART_STROKE }}
           />
+          {ref != null ? (
+            <ReferenceLine
+              y={ref}
+              stroke={REF_STROKE}
+              strokeDasharray="6 4"
+              strokeWidth={1.5}
+              label={{
+                value: `Ref. ${referenceSourceLabelPt(referenceSource)}`,
+                position: "insideTopRight",
+                fill: "#b45309",
+                fontSize: 11,
+              }}
+            />
+          ) : null}
           {minPoint ? (
             <ReferenceDot
               x={minPoint.date}

@@ -93,6 +93,8 @@ export function ProductPageClient({ slug }: Props) {
           fallbackHistory={product.history}
           fallbackMin={histMin}
           fallbackMax={histMax}
+          referencePrice={product.referencePrice ?? product.avg30d}
+          referenceSource={product.referenceSource ?? "HISTORY_30D"}
         />
 
         <div className="space-y-6">

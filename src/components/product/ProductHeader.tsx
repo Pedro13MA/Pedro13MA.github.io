@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Product, ProductCondition } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { referenceSourceLabelPt, referenceSourceTooltip } from "@/lib/referenceSource";
 import { formatEUR, formatPct, SEMAPHORE_LABEL } from "@/lib/utils";
 
 type Props = { product: Product };
@@ -13,16 +14,17 @@ const CONDITION_LABEL: Record<Exclude<ProductCondition, "NEW">, string> = {
 
 export function ProductHeader({ product }: Props) {
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
-  // Fonte única: currentPrice (= melhor oferta ativa)
   const currentPrice = product.currentPrice;
-  const dropVsAvg =
-    product.avg30d > 0
-      ? ((product.avg30d - currentPrice) / product.avg30d) * 100
-      : 0;
-  const stableVsAvg = Math.abs(dropVsAvg) < 1;
+  const refPrice = product.referencePrice ?? product.avg30d;
+  const realDiscount =
+    product.realDiscountPct != null
+      ? product.realDiscountPct
+      : product.decision.discountPct;
   const condition = product.condition ?? "NEW";
   const isNonNew = condition !== "NEW";
   const conditionLabel = isNonNew ? CONDITION_LABEL[condition] : null;
+  const dealScore = product.dealScore;
+  const refLabel = referenceSourceLabelPt(product.referenceSource);
 
   return (
     <header className="grid gap-8 md:grid-cols-[220px_1fr]">
@@ -46,6 +48,11 @@ export function ProductHeader({ product }: Props) {
           <Badge variant="default">{product.brand ?? product.category}</Badge>
           <Badge variant="tier">Tier {product.decision.tier}</Badge>
           <Badge variant="teal">Índice {product.decision.limiarIndex.value}/100</Badge>
+          {dealScore != null ? (
+            <Badge variant="teal" title="Deal Score Limiar v2">
+              Deal {Math.round(dealScore)}/100
+            </Badge>
+          ) : null}
           <Badge variant={product.decision.semaphore} className="gap-1.5 text-sm">
             <span aria-hidden>{sem.emoji}</span>
             {sem.label}
@@ -93,12 +100,20 @@ export function ProductHeader({ product }: Props) {
             ) : null}
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wider text-slate-500">Média 30 dias</p>
-            <p className="text-xl font-semibold text-slate-900">{formatEUR(product.avg30d)}</p>
-            {stableVsAvg ? (
-              <p className="text-sm text-slate-500">Igual à média (0,0%)</p>
+            <p className="text-xs uppercase tracking-wider text-slate-500">
+              Preço referência
+            </p>
+            <p className="text-xl font-semibold text-slate-900">{formatEUR(refPrice)}</p>
+            <p className="text-sm text-slate-500">{refLabel}</p>
+            {realDiscount >= 1 ? (
+              <p
+                className="cursor-help text-sm font-medium text-emerald-700"
+                title={referenceSourceTooltip(product.referenceSource)}
+              >
+                Desconto real {formatPct(realDiscount)}
+              </p>
             ) : (
-              <p className="text-sm text-emerald-700">{formatPct(dropVsAvg)} vs média</p>
+              <p className="text-sm text-slate-500">Sem desconto real significativo</p>
             )}
           </div>
           <div>

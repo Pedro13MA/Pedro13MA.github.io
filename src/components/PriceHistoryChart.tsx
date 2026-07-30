@@ -12,15 +12,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const PERIODS = [
-  { days: 30, label: "30 dias" },
-  { days: 90, label: "90 dias" },
-  { days: 365, label: "1 ano" },
+  { days: 7, label: "7D" },
+  { days: 30, label: "1M" },
+  { days: 90, label: "3M" },
+  { days: 180, label: "6M" },
+  { days: 365, label: "1A" },
 ] as const;
-
-const GRANULARITIES: { value: HistoryGranularity; label: string }[] = [
-  { value: "daily", label: "Diário" },
-  { value: "weekly", label: "Semanal" },
-];
 
 type Props = {
   productId: string;
@@ -28,6 +25,8 @@ type Props = {
   fallbackHistory?: PricePoint[];
   fallbackMin?: number;
   fallbackMax?: number;
+  referencePrice?: number | null;
+  referenceSource?: string | null;
 };
 
 function ChartSkeleton() {
@@ -39,17 +38,24 @@ function ChartSkeleton() {
   );
 }
 
+function autoGranularity(days: number): HistoryGranularity {
+  return days >= 180 ? "weekly" : "daily";
+}
+
 export function PriceHistoryChart({
   productId,
   fallbackHistory = [],
   fallbackMin,
   fallbackMax,
+  referencePrice,
+  referenceSource,
 }: Props) {
   const [days, setDays] = useState<(typeof PERIODS)[number]["days"]>(30);
-  const [granularity, setGranularity] = useState<HistoryGranularity>("daily");
   const [data, setData] = useState<PriceHistoryOut | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const granularity = autoGranularity(days);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,60 +92,46 @@ export function PriceHistoryChart({
     fallbackMax ??
     (points.length ? Math.max(...points.map((p) => p.price)) : 0);
 
+  const refPrice = data?.referencePrice ?? referencePrice;
+  const refSource = data?.referenceSource ?? referenceSource;
+
   return (
     <Card>
       <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
         <CardTitle>Histórico de preço</CardTitle>
-        <div className="flex flex-wrap gap-2">
-          <div
-            className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5"
-            role="group"
-            aria-label="Período"
-          >
-            {PERIODS.map((p) => (
-              <button
-                key={p.days}
-                type="button"
-                onClick={() => setDays(p.days)}
-                className={cn(
-                  "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
-                  days === p.days
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800",
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <div
-            className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5"
-            role="group"
-            aria-label="Granularidade"
-          >
-            {GRANULARITIES.map((g) => (
-              <button
-                key={g.value}
-                type="button"
-                onClick={() => setGranularity(g.value)}
-                className={cn(
-                  "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
-                  granularity === g.value
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800",
-                )}
-              >
-                {g.label}
-              </button>
-            ))}
-          </div>
+        <div
+          className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5"
+          role="group"
+          aria-label="Período"
+        >
+          {PERIODS.map((p) => (
+            <button
+              key={p.days}
+              type="button"
+              onClick={() => setDays(p.days)}
+              className={cn(
+                "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                days === p.days
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800",
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
       </CardHeader>
       <CardContent>
         {loading ? <ChartSkeleton /> : null}
 
         {!loading && points.length > 1 ? (
-          <Chart history={points} historicalMin={histMin} historicalMax={histMax} />
+          <Chart
+            history={points}
+            historicalMin={histMin}
+            historicalMax={histMax}
+            referencePrice={refPrice}
+            referenceSource={refSource}
+          />
         ) : null}
 
         {!loading && points.length <= 1 ? (

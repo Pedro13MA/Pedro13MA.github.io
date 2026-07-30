@@ -230,4 +230,10 @@ export interface Product {
   vramSpec?: string | null;
   /** True só se o bot publicou este produto no canal Telegram. */
   sentToTelegram?: boolean;
+  /** Limiar v2 — preço de referência e desconto real. */
+  referencePrice?: number | null;
+  referenceSource?: string | null;
+  realDiscountPct?: number | null;
+  promotionConfidence?: number | null;
+  dealScore?: number | null;
 }

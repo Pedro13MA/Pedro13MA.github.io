@@ -73,6 +73,12 @@ export type ApiProductSummary = {
   savings?: number | null;
   couponCode?: string | null;
   offerUrl?: string | null;
+  /** Limiar v2 */
+  referencePrice?: number | null;
+  referenceSource?: string | null;
+  realDiscountPct?: number | null;
+  promotionConfidence?: number | null;
+  dealScore?: number | null;
 };
 
 export type CouponProductsResponse = {
@@ -229,6 +235,16 @@ export type ApiProductDetail = {
     campaignTitle?: string | null;
     brands?: string[];
   } | null;
+  /** Limiar v2 */
+  referencePrice?: number | null;
+  referenceSource?: string | null;
+  realDiscountPct?: number | null;
+  promotionConfidence?: number | null;
+  dealScore?: number | null;
+  historicalLow?: number | null;
+  historicalHigh?: number | null;
+  priceTrend?: string | null;
+  dailySummary?: Array<Record<string, unknown>> | null;
 };
 
 export type ApiSmartCoupon = {
@@ -366,7 +382,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
       storeDominance: 0,
       feedbackAdjustment: 0,
     },
-    discountPct: Number(s.discountPct ?? 0),
+    discountPct: Number(s.realDiscountPct ?? s.discountPct ?? 0),
     dealQuality: "NORMAL",
     opportunityType: s.isHistoricalMin ? "NEW_LOW" : "NOISE",
     historicalAvg: s.avg30d ?? null,
@@ -414,6 +430,11 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     chipsetModel: s.chipsetModel,
     vramSpec: s.vramSpec,
     sentToTelegram: Boolean(s.sentToTelegram),
+    referencePrice: s.referencePrice ?? undefined,
+    referenceSource: s.referenceSource ?? undefined,
+    realDiscountPct: s.realDiscountPct ?? undefined,
+    promotionConfidence: s.promotionConfidence ?? undefined,
+    dealScore: s.dealScore ?? undefined,
   };
 }
 
@@ -567,7 +588,7 @@ export function detailToProduct(d: ApiProductDetail): Product {
         storeDominance: 0,
         feedbackAdjustment: 0,
       },
-      discountPct: d.decision.discountPct,
+      discountPct: Number(d.realDiscountPct ?? d.decision.discountPct),
       zScore: d.decision.zScore,
       dealQuality: d.decision.dealQuality as DecisionScore["dealQuality"],
       opportunityType: d.decision.opportunityType as DecisionScore["opportunityType"],
@@ -603,6 +624,11 @@ export function detailToProduct(d: ApiProductDetail): Product {
           isActive: true,
         }
       : null,
+    referencePrice: d.referencePrice ?? undefined,
+    referenceSource: d.referenceSource ?? undefined,
+    realDiscountPct: d.realDiscountPct ?? undefined,
+    promotionConfidence: d.promotionConfidence ?? undefined,
+    dealScore: d.dealScore ?? undefined,
   };
 }
 
@@ -699,6 +725,9 @@ export type PriceHistoryOut = {
   currentPrice?: number | null;
   historicalMin?: number | null;
   historicalMax?: number | null;
+  referencePrice?: number | null;
+  referenceSource?: string | null;
+  seriesSource?: string;
 };
 
 export type StorePriceSpread = {
