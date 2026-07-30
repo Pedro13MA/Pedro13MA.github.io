@@ -1,43 +1,38 @@
 import type { DecisionScore } from "@/lib/types";
+import { buildDecisionVerdict, historySpanDays } from "@/lib/product-insights";
+import type { PricePoint } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn, formatEUR, formatPct, SEMAPHORE_LABEL } from "@/lib/utils";
+import { cn, SEMAPHORE_LABEL } from "@/lib/utils";
 
 type Props = {
   decision: DecisionScore;
   currentPrice?: number;
   avg30d?: number | null;
+  history?: PricePoint[];
 };
 
-export function DecisionCard({ decision, currentPrice, avg30d }: Props) {
+export function DecisionCard({
+  decision,
+  currentPrice = 0,
+  avg30d,
+  history = [],
+}: Props) {
   const sem = SEMAPHORE_LABEL[decision.semaphore];
   const isBuy = decision.semaphore === "buy";
-  const histAvg = decision.historicalAvg ?? avg30d ?? null;
-  const histMin = decision.historicalMin ?? null;
-
-  const justification: string[] = [...(decision.bullets || [])];
-
-  if (histAvg != null && currentPrice != null && histAvg > 0) {
-    const vsAvg = ((histAvg - currentPrice) / histAvg) * 100;
-    if (vsAvg >= 1) {
-      const line = `${formatPct(vsAvg)} abaixo da média de 30 dias (${formatEUR(histAvg)})`;
-      if (!justification.some((b) => b.toLowerCase().includes("média"))) {
-        justification.unshift(line);
-      }
-    }
-  }
-
-  if (decision.isHistoricalMin || (histMin != null && currentPrice != null && Math.abs(currentPrice - histMin) < 0.015)) {
-    const line = `Preço no mínimo histórico${histMin != null ? ` (${formatEUR(histMin)})` : ""}`;
-    if (!justification.some((b) => b.toLowerCase().includes("mínimo histórico"))) {
-      justification.unshift(line);
-    }
-  }
+  const { points, conclusion } = buildDecisionVerdict({
+    decision,
+    currentPrice,
+    avg30d,
+    historyLength: history.length,
+    historySpanDays: historySpanDays(history),
+  });
 
   return (
     <Card
       className={cn(
-        isBuy && "border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/40",
+        isBuy &&
+          "border-emerald-200/90 bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/40",
       )}
     >
       <CardHeader>
@@ -49,38 +44,36 @@ export function DecisionCard({ decision, currentPrice, avg30d }: Props) {
           </Badge>
         </div>
         <CardDescription>
-          Veredito baseado em dados históricos — sem previsões.
+          Parecer técnico Limiar com base apenas em dados históricos observados.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {isBuy ? (
-          <p className="rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-3 py-2.5 text-sm font-semibold text-emerald-900">
-            Sim — o Limiar considera esta uma oportunidade favorável face ao histórico.
-          </p>
-        ) : decision.semaphore === "fair" ? (
-          <p className="rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-sm font-medium text-amber-950">
-            Preço razoável, mas ainda não é o melhor momento absoluto segundo o histórico.
-          </p>
-        ) : (
-          <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-700">
-            Por agora convém esperar — o histórico sugere melhores oportunidades.
-          </p>
-        )}
-
+      <CardContent className="space-y-5">
         <ul className="space-y-3">
-          {justification.map((bullet) => (
-            <li key={bullet} className="flex gap-3 text-sm leading-relaxed text-slate-600">
-              <span
-                className={cn(
-                  "mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full",
-                  isBuy ? "bg-emerald-600" : "bg-sky-600",
-                )}
-                aria-hidden
-              />
-              {bullet}
+          {points.map((point) => (
+            <li
+              key={`${point.kind}-${point.text}`}
+              className="flex gap-2.5 text-sm leading-relaxed text-slate-700"
+            >
+              <span className="shrink-0 text-base leading-5" aria-hidden>
+                {point.kind === "pro" ? "✅" : "⚠"}
+              </span>
+              <span>{point.text}</span>
             </li>
           ))}
         </ul>
+
+        <div
+          className={cn(
+            "rounded-xl border px-3.5 py-3 text-sm font-medium leading-relaxed",
+            isBuy
+              ? "border-emerald-200 bg-emerald-50/90 text-emerald-950"
+              : decision.semaphore === "fair"
+                ? "border-amber-200 bg-amber-50/80 text-amber-950"
+                : "border-slate-200 bg-slate-50 text-slate-800",
+          )}
+        >
+          {conclusion}
+        </div>
       </CardContent>
     </Card>
   );

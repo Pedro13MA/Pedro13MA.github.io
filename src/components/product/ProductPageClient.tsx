@@ -1,12 +1,26 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { detailToProduct, getProductBySlug } from "@/lib/api";
+import {
+  detailToProduct,
+  fetchProductMetrics,
+  getProductBySlug,
+  searchProducts,
+  type ProductMetricsOut,
+} from "@/lib/api";
 import type { Product } from "@/lib/types";
-import { estimateSeasonality } from "@/lib/product-insights";
+import {
+  buildLimiarInsights,
+  computeDataConfidence,
+  estimateSeasonality,
+  findBetterStorageVariantTip,
+  stripCapacityFromName,
+} from "@/lib/product-insights";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
+import { DataConfidenceCard } from "@/components/product/DataConfidenceCard";
 import { DecisionCard } from "@/components/product/DecisionCard";
 import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
+import { LimiarInsights } from "@/components/product/LimiarInsights";
 import { MarketSummaryPanel } from "@/components/product/MarketSummaryPanel";
 import { PriceAlertForm } from "@/components/product/PriceAlertForm";
 import { ProductHeader } from "@/components/product/ProductHeader";
@@ -14,14 +28,18 @@ import {
   ActiveCampaignBanner,
   StoreCouponsInfoBanner,
 } from "@/components/product/CampaignCouponBlock";
+import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
 import { SeasonalityCard } from "@/components/product/SeasonalityCard";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
-import { VariantValueTip } from "@/components/product/VariantValueTip";
 
 type Props = { slug: string };
 
 export function ProductPageClient({ slug }: Props) {
   const [product, setProduct] = useState<Product | null>(null);
+  const [metrics, setMetrics] = useState<ProductMetricsOut | null>(null);
+  const [variantTip, setVariantTip] = useState<ReturnType<
+    typeof findBetterStorageVariantTip
+  >>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,9 +47,37 @@ export function ProductPageClient({ slug }: Props) {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setMetrics(null);
+    setVariantTip(null);
+
     getProductBySlug(slug)
-      .then((detail) => {
-        if (!cancelled) setProduct(detailToProduct(detail));
+      .then(async (detail) => {
+        if (cancelled) return;
+        const mapped = detailToProduct(detail);
+        setProduct(mapped);
+
+        const [metricsRes, searchRes] = await Promise.all([
+          fetchProductMetrics(mapped.ean).catch(() => null),
+          searchProducts(stripCapacityFromName(mapped.name) || mapped.name, {
+            brand: mapped.brand || undefined,
+            limit: 16,
+            sortBy: "price_asc",
+          }).catch(() => null),
+        ]);
+        if (cancelled) return;
+        setMetrics(metricsRes);
+        setVariantTip(
+          findBetterStorageVariantTip({
+            currentName: mapped.name,
+            currentSlug: mapped.slug,
+            currentPrice: mapped.currentPrice,
+            siblings: (searchRes?.results || []).map((r) => ({
+              slug: r.slug,
+              name: r.name,
+              currentPrice: r.currentPrice,
+            })),
+          }),
+        );
       })
       .catch((err) => {
         if (!cancelled) {
@@ -42,6 +88,7 @@ export function ProductPageClient({ slug }: Props) {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
@@ -49,12 +96,33 @@ export function ProductPageClient({ slug }: Props) {
 
   const seasonality = useMemo(() => {
     if (!product) return null;
-    const timesHint = product.seasonality.timesBelowCurrent12m;
-    if (product.history.length >= 8) {
-      return estimateSeasonality(product.history, product.currentPrice, timesHint);
-    }
-    return product.seasonality;
+    return estimateSeasonality(
+      product.history,
+      product.currentPrice,
+      product.seasonality.timesBelowCurrent12m,
+    );
   }, [product]);
+
+  const confidence = useMemo(() => {
+    if (!product) return null;
+    return computeDataConfidence({
+      history: product.history,
+      storeCount: metrics?.storeCount ?? product.offers.length,
+      samples30d: metrics?.samples30d,
+      samples90d: metrics?.samples90d,
+      volatilityPct: metrics?.volatilityPct,
+    });
+  }, [product, metrics]);
+
+  const insights = useMemo(() => {
+    if (!product || !confidence || !seasonality) return [];
+    return buildLimiarInsights({
+      product,
+      confidence,
+      seasonality,
+      variantTip,
+    });
+  }, [product, confidence, seasonality, variantTip]);
 
   if (loading) {
     return (
@@ -68,7 +136,7 @@ export function ProductPageClient({ slug }: Props) {
     );
   }
 
-  if (error || !product) {
+  if (error || !product || !seasonality || !confidence) {
     return (
       <main className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-bold text-slate-900">Produto não encontrado</h1>
@@ -81,6 +149,10 @@ export function ProductPageClient({ slug }: Props) {
 
   const histMin = product.historicalMin;
   const histMax = product.historicalMax;
+  const pvpr =
+    product.originalPrice != null && product.originalPrice > product.currentPrice
+      ? product.originalPrice
+      : null;
 
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
@@ -97,15 +169,11 @@ export function ProductPageClient({ slug }: Props) {
           decision={product.decision}
           currentPrice={product.currentPrice}
           avg30d={product.avg30d}
+          history={product.history}
         />
       </div>
 
-      <VariantValueTip
-        slug={product.slug}
-        name={product.name}
-        brand={product.brand}
-        currentPrice={product.currentPrice}
-      />
+      <LimiarInsights insights={insights} />
 
       <div className="space-y-6">
         <PriceHistoryChart
@@ -115,23 +183,28 @@ export function ProductPageClient({ slug }: Props) {
           fallbackMax={histMax}
           referencePrice={product.referencePrice ?? product.avg30d}
           referenceSource={product.referenceSource ?? "HISTORY_30D"}
+          pvpr={pvpr}
         />
         <MarketSummaryPanel
           ean={product.ean}
           currentPrice={product.currentPrice}
           avg30d={product.avg30d}
+          metrics={metrics}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SeasonalityCard seasonality={seasonality ?? product.seasonality} />
-        <PriceAlertForm
-          productName={product.name}
-          currentPrice={product.currentPrice}
-          historicalMin={histMin}
-          avg30d={product.avg30d}
-          suggestedThreshold={Math.round(histMin * 100) / 100}
-        />
+        <SeasonalityCard seasonality={seasonality} />
+        <div className="space-y-6">
+          <DataConfidenceCard confidence={confidence} />
+          <PriceAlertForm
+            productName={product.name}
+            currentPrice={product.currentPrice}
+            historicalMin={histMin}
+            avg30d={product.avg30d}
+            suggestedThreshold={Math.round(histMin * 100) / 100}
+          />
+        </div>
       </div>
 
       <section className="space-y-4">
@@ -142,6 +215,8 @@ export function ProductPageClient({ slug }: Props) {
           <p className="text-sm text-slate-500">Sem ofertas multi-loja para este EAN.</p>
         )}
       </section>
+
+      <RelatedProductsSection product={product} />
     </main>
   );
 }

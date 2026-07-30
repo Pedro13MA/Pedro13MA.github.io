@@ -2,8 +2,9 @@
 
 import {
   Area,
-  AreaChart,
   CartesianGrid,
+  ComposedChart,
+  Line,
   ReferenceDot,
   ReferenceLine,
   ResponsiveContainer,
@@ -13,41 +14,120 @@ import {
 } from "recharts";
 import type { PricePoint } from "@/lib/types";
 import { formatEUR } from "@/lib/utils";
-import { referenceSourceLabelPt } from "@/lib/referenceSource";
+
+type ChartRow = PricePoint & { avg?: number | null };
 
 type Props = {
-  history: PricePoint[];
+  history: ChartRow[];
   historicalMin: number;
   historicalMax: number;
   referencePrice?: number | null;
   referenceSource?: string | null;
+  /** PVPR / preço de lista, quando existir e for superior ao actual. */
+  pvpr?: number | null;
 };
 
-const CHART_STROKE = "#0284c7";
-const REF_STROKE = "#d97706";
+const PRICE_STROKE = "#0284c7";
+const AVG_STROKE = "#64748b";
+const PVPR_STROKE = "#94a3b8";
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  avgFallback,
+  pvpr,
+}: {
+  active?: boolean;
+  payload?: Array<{ value?: number; dataKey?: string; payload?: ChartRow }>;
+  label?: string;
+  avgFallback?: number | null;
+  pvpr?: number | null;
+}) {
+  if (!active || !payload?.length) return null;
+  const row = payload[0]?.payload;
+  const price = row?.price ?? Number(payload.find((p) => p.dataKey === "price")?.value);
+  if (!(price > 0)) return null;
+  const avg = row?.avg ?? avgFallback ?? null;
+  const dateLabel = label
+    ? new Date(String(label)).toLocaleDateString("pt-PT", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })
+    : "";
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs shadow-lg">
+      <p className="font-medium text-slate-500">{dateLabel}</p>
+      <p className="mt-1.5 font-display text-sm font-bold tabular-nums text-slate-900">
+        {formatEUR(price)}
+      </p>
+      {avg != null && avg > 0 ? (
+        <p className="mt-1 text-slate-600">
+          vs média:{" "}
+          <span className="font-semibold tabular-nums">
+            {price <= avg
+              ? `−${formatEUR(avg - price)}`
+              : `+${formatEUR(price - avg)}`}
+          </span>
+        </p>
+      ) : null}
+      {pvpr != null && pvpr > 0 ? (
+        <p className="mt-0.5 text-slate-600">
+          vs PVPR:{" "}
+          <span className="font-semibold tabular-nums">
+            {price <= pvpr
+              ? `−${formatEUR(pvpr - price)}`
+              : `+${formatEUR(price - pvpr)}`}
+          </span>
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 export function PriceHistoryChart({
   history,
   historicalMin,
   historicalMax,
   referencePrice,
-  referenceSource,
+  pvpr,
 }: Props) {
   const minPoint = history.reduce((best, p) => (p.price < best.price ? p : best), history[0]);
   const maxPoint = history.reduce((best, p) => (p.price > best.price ? p : best), history[0]);
 
-  const ref = referencePrice != null && referencePrice > 0 ? referencePrice : null;
-  const yMin = Math.floor(Math.min(historicalMin, ref ?? historicalMin) * 0.95);
-  const yMax = Math.ceil(Math.max(historicalMax, ref ?? historicalMax) * 1.02);
+  const hasAvgSeries = history.some((p) => p.avg != null && p.avg > 0);
+  const avgFallback =
+    referencePrice != null && referencePrice > 0
+      ? referencePrice
+      : history.length
+        ? history.reduce((s, p) => s + p.price, 0) / history.length
+        : null;
+
+  const data = history.map((p) => ({
+    ...p,
+    avg: p.avg != null && p.avg > 0 ? p.avg : hasAvgSeries ? null : avgFallback,
+  }));
+
+  const showPvpr = pvpr != null && pvpr > 0;
+  const yMin = Math.floor(
+    Math.min(historicalMin, avgFallback ?? historicalMin, showPvpr ? pvpr! : historicalMin) *
+      0.95,
+  );
+  const yMax = Math.ceil(
+    Math.max(historicalMax, avgFallback ?? historicalMax, showPvpr ? pvpr! : historicalMax) *
+      1.02,
+  );
 
   return (
-    <div className="h-72 w-full">
+    <div className="h-72 w-full sm:h-80">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={history} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+        <ComposedChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={CHART_STROKE} stopOpacity={0.22} />
-              <stop offset="100%" stopColor={CHART_STROKE} stopOpacity={0} />
+              <stop offset="0%" stopColor={PRICE_STROKE} stopOpacity={0.2} />
+              <stop offset="100%" stopColor={PRICE_STROKE} stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke="#e2e8f0" vertical={false} />
@@ -70,46 +150,68 @@ export function PriceHistoryChart({
             width={52}
           />
           <Tooltip
-            contentStyle={{
-              background: "#ffffff",
-              border: "1px solid #e2e8f0",
-              borderRadius: 12,
-              color: "#0f172a",
-              boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
-            }}
-            labelStyle={{ color: "#64748b" }}
-            labelFormatter={(label) =>
-              new Date(String(label)).toLocaleDateString("pt-PT", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })
+            content={
+              <CustomTooltip avgFallback={avgFallback} pvpr={showPvpr ? pvpr : null} />
             }
-            formatter={(value) => [formatEUR(Number(value)), "Preço"]}
           />
           <Area
             type="monotone"
             dataKey="price"
-            stroke={CHART_STROKE}
+            stroke={PRICE_STROKE}
             strokeWidth={2.5}
             fill="url(#priceFill)"
             dot={false}
-            activeDot={{ r: 4, fill: CHART_STROKE }}
+            activeDot={{ r: 4, fill: PRICE_STROKE }}
+            name="Preço"
           />
-          {ref != null ? (
+          <Line
+            type="monotone"
+            dataKey="avg"
+            stroke={AVG_STROKE}
+            strokeWidth={1.5}
+            strokeDasharray="5 4"
+            dot={false}
+            connectNulls
+            name="Média"
+          />
+          {showPvpr ? (
             <ReferenceLine
-              y={ref}
-              stroke={REF_STROKE}
-              strokeDasharray="6 4"
-              strokeWidth={1.5}
+              y={pvpr!}
+              stroke={PVPR_STROKE}
+              strokeDasharray="2 4"
+              strokeWidth={1.25}
               label={{
-                value: `Ref. ${referenceSourceLabelPt(referenceSource)}`,
-                position: "insideTopRight",
-                fill: "#b45309",
-                fontSize: 11,
+                value: "PVPR",
+                position: "insideTopLeft",
+                fill: "#94a3b8",
+                fontSize: 10,
               }}
             />
           ) : null}
+          <ReferenceLine
+            y={historicalMin}
+            stroke="#059669"
+            strokeDasharray="4 4"
+            strokeWidth={1}
+            label={{
+              value: "Mín.",
+              position: "insideBottomLeft",
+              fill: "#059669",
+              fontSize: 10,
+            }}
+          />
+          <ReferenceLine
+            y={historicalMax}
+            stroke="#e11d48"
+            strokeDasharray="4 4"
+            strokeWidth={1}
+            label={{
+              value: "Máx.",
+              position: "insideTopRight",
+              fill: "#e11d48",
+              fontSize: 10,
+            }}
+          />
           {minPoint ? (
             <ReferenceDot
               x={minPoint.date}
@@ -130,8 +232,23 @@ export function PriceHistoryChart({
               strokeWidth={2}
             />
           ) : null}
-        </AreaChart>
+        </ComposedChart>
       </ResponsiveContainer>
+      <div className="mt-2 flex flex-wrap gap-3 text-[10px] font-medium uppercase tracking-wide text-slate-500">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-0.5 w-4 bg-sky-600" /> Preço
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-0.5 w-4 border-t border-dashed border-slate-500" /> Média
+        </span>
+        {showPvpr ? (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-0.5 w-4 border-t border-dotted border-slate-400" /> PVPR
+          </span>
+        ) : null}
+        <span className="inline-flex items-center gap-1.5 text-emerald-700">● Mín. histórico</span>
+        <span className="inline-flex items-center gap-1.5 text-rose-600">● Máx. histórico</span>
+      </div>
     </div>
   );
 }

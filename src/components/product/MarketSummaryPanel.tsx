@@ -13,15 +13,16 @@ type Props = {
   ean: string;
   currentPrice?: number;
   avg30d?: number | null;
-  /** ISO da última actualização conhecida (opcional). */
   lastUpdatedAt?: string | null;
+  /** Se já carregado no parent, evita segundo pedido. */
+  metrics?: ProductMetricsOut | null;
 };
 
 function Skeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5" aria-hidden>
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-100" />
+        <div key={i} className="h-24 animate-pulse rounded-2xl bg-slate-100" />
       ))}
     </div>
   );
@@ -32,19 +33,24 @@ export function MarketSummaryPanel({
   currentPrice,
   avg30d,
   lastUpdatedAt,
+  metrics: metricsProp,
 }: Props) {
-  const [metrics, setMetrics] = useState<ProductMetricsOut | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [metricsLocal, setMetricsLocal] = useState<ProductMetricsOut | null>(null);
+  const [loading, setLoading] = useState(metricsProp == null);
 
   useEffect(() => {
+    if (metricsProp != null) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     fetchProductMetrics(ean)
       .then((res) => {
-        if (!cancelled) setMetrics(res);
+        if (!cancelled) setMetricsLocal(res);
       })
       .catch(() => {
-        if (!cancelled) setMetrics(null);
+        if (!cancelled) setMetricsLocal(null);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -52,15 +58,15 @@ export function MarketSummaryPanel({
     return () => {
       cancelled = true;
     };
-  }, [ean]);
+  }, [ean, metricsProp]);
 
+  const metrics = metricsProp ?? metricsLocal;
   const marketAvg = metrics?.avg30d ?? avg30d ?? currentPrice ?? null;
   const storeCount = metrics?.storeCount ?? 0;
   const spread = metrics?.storeSpreadEur ?? null;
   const volLabel = volatilityLabelPt(metrics?.volatilityPct ?? null);
   const updated =
-    formatRelativeTimePt(lastUpdatedAt) ||
-    (metrics ? "há pouco" : null);
+    formatRelativeTimePt(lastUpdatedAt) || (metrics ? "há pouco" : null);
 
   const cells = [
     {
@@ -77,7 +83,7 @@ export function MarketSummaryPanel({
     },
     {
       icon: "📉",
-      label: "Diferença entre lojas",
+      label: "Maior diferença entre lojas",
       value: spread != null ? formatEUR(spread) : "—",
       hint: "Do mais barato ao mais caro",
     },
@@ -110,18 +116,18 @@ export function MarketSummaryPanel({
             {cells.map((cell) => (
               <div
                 key={cell.label}
-                className="rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-3"
+                className="flex flex-col rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/80 px-3.5 py-3.5 shadow-sm"
               >
-                <p className="text-[11px] font-medium leading-snug text-slate-500">
-                  <span aria-hidden className="mr-1">
-                    {cell.icon}
-                  </span>
+                <span className="text-lg" aria-hidden>
+                  {cell.icon}
+                </span>
+                <p className="mt-2 text-[11px] font-medium leading-snug text-slate-500">
                   {cell.label}
                 </p>
                 <p className="mt-1.5 font-display text-lg font-semibold tabular-nums text-slate-900">
                   {cell.value}
                 </p>
-                <p className="mt-0.5 text-[11px] text-slate-400">{cell.hint}</p>
+                <p className="mt-auto pt-1 text-[11px] text-slate-400">{cell.hint}</p>
               </div>
             ))}
           </div>

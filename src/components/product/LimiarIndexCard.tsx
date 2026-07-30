@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { LimiarIndex } from "@/lib/types";
+import { displayFactors } from "@/lib/product-insights";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, formatEUR, limiarIndexTone } from "@/lib/utils";
 
@@ -15,19 +19,18 @@ export function LimiarIndexCard({ index, currentPrice, className }: Props) {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - Math.min(100, Math.max(0, index.value)) / 100);
-  const factors = [
-    index.factors.vsAvg30d,
-    index.factors.historicalMin,
-    index.factors.couponApplied,
-    index.factors.volatility,
-  ];
+  const factors = displayFactors(index);
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => setAnimate(true));
+    return () => window.cancelAnimationFrame(id);
+  }, []);
 
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <CardTitle>
-          Porque é que o Índice Limiar é {index.value}?
-        </CardTitle>
+        <CardTitle>Porque é que o Índice Limiar é {index.value}?</CardTitle>
         <CardDescription>{index.summary}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -68,27 +71,55 @@ export function LimiarIndexCard({ index, currentPrice, className }: Props) {
               </p>
             ) : null}
             <p className="text-sm leading-relaxed text-slate-600">
-              Score factual 0–100 com base em histórico de preço, cupões e volatilidade — sem
-              previsões.
+              Contribuição de cada factor para o índice — valores factuais do histórico Limiar.
             </p>
           </div>
         </div>
 
-        <ul className="space-y-3">
-          {factors.map((factor) => (
-            <li
-              key={factor.label}
-              className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 last:border-0 last:pb-0"
-            >
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{factor.label}</p>
-                <p className="text-xs text-slate-500">{factor.detail}</p>
-              </div>
-              <span className="shrink-0 rounded-md bg-slate-50 px-2 py-1 text-xs font-medium tabular-nums text-slate-700">
-                +{factor.score}
-              </span>
-            </li>
-          ))}
+        <ul className="space-y-4">
+          {factors.map((factor) => {
+            const pct = Math.max(
+              0,
+              Math.min(100, (factor.score / factor.maxScore) * 100),
+            );
+            return (
+              <li key={factor.key} className="space-y-1.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-900">{factor.title}</p>
+                    <p className="text-xs leading-snug text-slate-500">{factor.description}</p>
+                  </div>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold tabular-nums",
+                      factor.tone.text,
+                    )}
+                  >
+                    {factor.score} pts
+                  </span>
+                </div>
+                <div
+                  className="h-2 overflow-hidden rounded-full bg-slate-100"
+                  role="meter"
+                  aria-valuenow={factor.score}
+                  aria-valuemin={0}
+                  aria-valuemax={factor.maxScore}
+                  aria-label={factor.title}
+                >
+                  <div
+                    className={cn(
+                      "h-full origin-left rounded-full transition-transform duration-700 ease-out",
+                      factor.tone.bar,
+                    )}
+                    style={{
+                      width: `${pct}%`,
+                      transform: animate ? "scaleX(1)" : "scaleX(0)",
+                    }}
+                  />
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </CardContent>
     </Card>

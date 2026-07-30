@@ -32,6 +32,7 @@ type Props = {
   fallbackMax?: number;
   referencePrice?: number | null;
   referenceSource?: string | null;
+  pvpr?: number | null;
 };
 
 function ChartSkeleton() {
@@ -54,6 +55,7 @@ export function PriceHistoryChart({
   fallbackMax,
   referencePrice,
   referenceSource,
+  pvpr,
 }: Props) {
   const [days, setDays] = useState<PeriodDays>(30);
   const [data, setData] = useState<PriceHistoryOut | null>(null);
@@ -84,9 +86,15 @@ export function PriceHistoryChart({
     };
   }, [productId, days, granularity]);
 
-  const points: PricePoint[] =
-    data?.points?.map((p) => ({ date: p.date, price: p.price })) ??
-    (error && fallbackHistory.length > 1 ? fallbackHistory : []);
+  const points =
+    data?.points?.map((p) => ({
+      date: p.date,
+      price: p.price,
+      avg: p.avgPrice ?? null,
+    })) ??
+    (error && fallbackHistory.length > 1
+      ? fallbackHistory.map((p) => ({ ...p, avg: null as number | null }))
+      : []);
 
   const histMin =
     data?.historicalMin ??
@@ -103,9 +111,7 @@ export function PriceHistoryChart({
   return (
     <Card>
       <CardHeader className="gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <CardTitle>Histórico de preço</CardTitle>
-        </div>
+        <CardTitle>Histórico de preço</CardTitle>
         <div
           className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1"
           role="group"
@@ -138,6 +144,7 @@ export function PriceHistoryChart({
             historicalMax={histMax}
             referencePrice={refPrice}
             referenceSource={refSource}
+            pvpr={pvpr}
           />
         ) : null}
 
