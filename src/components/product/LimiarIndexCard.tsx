@@ -25,7 +25,9 @@ export function LimiarIndexCard({ index, currentPrice, className }: Props) {
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <CardTitle>Índice Limiar</CardTitle>
+        <CardTitle>
+          Porque é que o Índice Limiar é {index.value}?
+        </CardTitle>
         <CardDescription>{index.summary}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { detailToProduct, getProductBySlug } from "@/lib/api";
 import type { Product } from "@/lib/types";
+import { estimateSeasonality } from "@/lib/product-insights";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
-import { ProductMetricsPanel } from "@/components/ProductMetricsPanel";
 import { DecisionCard } from "@/components/product/DecisionCard";
 import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
+import { MarketSummaryPanel } from "@/components/product/MarketSummaryPanel";
 import { PriceAlertForm } from "@/components/product/PriceAlertForm";
 import { ProductHeader } from "@/components/product/ProductHeader";
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/components/product/CampaignCouponBlock";
 import { SeasonalityCard } from "@/components/product/SeasonalityCard";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
+import { VariantValueTip } from "@/components/product/VariantValueTip";
 
 type Props = { slug: string };
 
@@ -44,6 +46,15 @@ export function ProductPageClient({ slug }: Props) {
       cancelled = true;
     };
   }, [slug]);
+
+  const seasonality = useMemo(() => {
+    if (!product) return null;
+    const timesHint = product.seasonality.timesBelowCurrent12m;
+    if (product.history.length >= 8) {
+      return estimateSeasonality(product.history, product.currentPrice, timesHint);
+    }
+    return product.seasonality;
+  }, [product]);
 
   if (loading) {
     return (
@@ -82,10 +93,21 @@ export function ProductPageClient({ slug }: Props) {
           index={product.decision.limiarIndex}
           currentPrice={product.currentPrice}
         />
-        <DecisionCard decision={product.decision} />
+        <DecisionCard
+          decision={product.decision}
+          currentPrice={product.currentPrice}
+          avg30d={product.avg30d}
+        />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
+      <VariantValueTip
+        slug={product.slug}
+        name={product.name}
+        brand={product.brand}
+        currentPrice={product.currentPrice}
+      />
+
+      <div className="space-y-6">
         <PriceHistoryChart
           productId={slug}
           fallbackHistory={product.history}
@@ -94,16 +116,22 @@ export function ProductPageClient({ slug }: Props) {
           referencePrice={product.referencePrice ?? product.avg30d}
           referenceSource={product.referenceSource ?? "HISTORY_30D"}
         />
+        <MarketSummaryPanel
+          ean={product.ean}
+          currentPrice={product.currentPrice}
+          avg30d={product.avg30d}
+        />
+      </div>
 
-        <div className="space-y-6">
-          <ProductMetricsPanel ean={product.ean} currentPrice={product.currentPrice} />
-          <SeasonalityCard seasonality={product.seasonality} />
-          <PriceAlertForm
-            productName={product.name}
-            currentPrice={product.currentPrice}
-            suggestedThreshold={Math.round(histMin * 100) / 100}
-          />
-        </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SeasonalityCard seasonality={seasonality ?? product.seasonality} />
+        <PriceAlertForm
+          productName={product.name}
+          currentPrice={product.currentPrice}
+          historicalMin={histMin}
+          avg30d={product.avg30d}
+          suggestedThreshold={Math.round(histMin * 100) / 100}
+        />
       </div>
 
       <section className="space-y-4">

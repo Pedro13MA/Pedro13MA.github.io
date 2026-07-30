@@ -20,16 +20,33 @@ const MONTH_SHORT = [
 type Props = { seasonality: Seasonality };
 
 export function SeasonalityCard({ seasonality }: Props) {
+  const promoMonths = seasonality.markers.filter((m) => m.kind === "promo");
+  const promoLabels = promoMonths.map((m) => MONTH_SHORT[m.month - 1]).join(", ");
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sazonalidade & Histórico</CardTitle>
+        <CardTitle>Sazonalidade &amp; Histórico</CardTitle>
         <CardDescription>
-          Historicamente esteve abaixo do preço atual em{" "}
-          <span className="font-semibold text-slate-800">
-            {seasonality.timesBelowCurrent12m} ocasiões
-          </span>{" "}
-          nos últimos 12 meses.
+          {promoMonths.length > 0 ? (
+            <>
+              Costuma entrar em promoção em{" "}
+              <span className="font-semibold text-slate-800">{promoLabels}</span>.
+              Historicamente esteve abaixo do preço actual em{" "}
+              <span className="font-semibold text-slate-800">
+                {seasonality.timesBelowCurrent12m} ocasiões
+              </span>
+              .
+            </>
+          ) : (
+            <>
+              Historicamente esteve abaixo do preço actual em{" "}
+              <span className="font-semibold text-slate-800">
+                {seasonality.timesBelowCurrent12m} ocasiões
+              </span>{" "}
+              nos últimos 12 meses.
+            </>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

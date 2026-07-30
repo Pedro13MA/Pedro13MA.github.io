@@ -12,16 +12,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const PERIODS = [
+  { days: 2, label: "2D" },
   { days: 7, label: "7D" },
-  { days: 30, label: "1M" },
+  { days: 15, label: "15D" },
+  { days: 30, label: "30D" },
+  { days: 60, label: "2M" },
   { days: 90, label: "3M" },
   { days: 180, label: "6M" },
   { days: 365, label: "1A" },
+  { days: 1825, label: "5A" },
 ] as const;
+
+type PeriodDays = (typeof PERIODS)[number]["days"];
 
 type Props = {
   productId: string;
-  /** Histórico embutido no detalhe — fallback se o endpoint falhar. */
   fallbackHistory?: PricePoint[];
   fallbackMin?: number;
   fallbackMax?: number;
@@ -50,7 +55,7 @@ export function PriceHistoryChart({
   referencePrice,
   referenceSource,
 }: Props) {
-  const [days, setDays] = useState<(typeof PERIODS)[number]["days"]>(30);
+  const [days, setDays] = useState<PeriodDays>(30);
   const [data, setData] = useState<PriceHistoryOut | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,12 +102,14 @@ export function PriceHistoryChart({
 
   return (
     <Card>
-      <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <CardTitle>Histórico de preço</CardTitle>
+      <CardHeader className="gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <CardTitle>Histórico de preço</CardTitle>
+        </div>
         <div
-          className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5"
+          className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1"
           role="group"
-          aria-label="Período"
+          aria-label="Período do gráfico"
         >
           {PERIODS.map((p) => (
             <button
@@ -110,7 +117,7 @@ export function PriceHistoryChart({
               type="button"
               onClick={() => setDays(p.days)}
               className={cn(
-                "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                "rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
                 days === p.days
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-800",
@@ -144,7 +151,7 @@ export function PriceHistoryChart({
 
         {!loading && error && points.length > 1 ? (
           <p className="mt-2 text-xs text-amber-600">
-            A mostrar histórico embutido (API de série temporal indisponível).
+            A mostrar histórico embutido (série temporal indisponível para este período).
           </p>
         ) : null}
       </CardContent>

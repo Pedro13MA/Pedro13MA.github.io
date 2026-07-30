@@ -73,3 +73,27 @@ body {
   background-color: #94a3b8;
 }
 
+/* Selo mínimo histórico absoluto — pulsação subtil */
+@keyframes limiar-flame-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(249, 115, 22, 0);
+    transform: scale(1.02);
+  }
+}
+
+.limiar-flame-badge {
+  animation: limiar-flame-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .limiar-flame-badge {
+    animation: none;
+  }
+}
+
+

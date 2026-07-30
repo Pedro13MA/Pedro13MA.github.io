@@ -253,6 +253,8 @@ export type ApiProductDetail = {
   historicalHigh?: number | null;
   priceTrend?: string | null;
   dailySummary?: Array<Record<string, unknown>> | null;
+  chipsetModel?: string | null;
+  vramSpec?: string | null;
 };
 
 export type ApiSmartCoupon = {
@@ -616,6 +618,8 @@ export function detailToProduct(d: ApiProductDetail): Product {
     originalPrice,
     isOnSale: Boolean(d.isOnSale),
     condition: normalizeCondition(d.condition),
+    chipsetModel: d.chipsetModel ?? undefined,
+    vramSpec: d.vramSpec ?? undefined,
     activeCoupon,
     activeCampaign,
     smartBasketOpportunity: null,
