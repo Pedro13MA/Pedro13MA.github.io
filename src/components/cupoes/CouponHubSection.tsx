@@ -146,10 +146,11 @@ export function CouponHubSection() {
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="mb-8">
           <h2 className="font-display text-2xl font-bold text-slate-900">
-            🎟️ Hub de Cupões Validados
+            🎟️ Hub de Cupões
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Campanhas ativas, cupões com regras por loja/categoria/condição — link AWIN.
+            Campanhas das lojas — informativas. O preço Limiar é sempre o preço real
+            publicado.
           </p>
         </div>
 

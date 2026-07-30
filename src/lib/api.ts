@@ -222,6 +222,7 @@ export type ApiProductDetail = {
   activePromotion?: Record<string, unknown> | null;
   activeCoupon?: Record<string, unknown> | null;
   activeCampaign?: Record<string, unknown> | null;
+  storeCouponsAvailable?: boolean;
   smartBasketOpportunity?: {
     smartBasketOpportunity?: boolean;
     amountNeededEur: number;
@@ -417,7 +418,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
             storeName: s.cheapestStore || "Loja",
             url: s.offerUrl,
             price: s.listPrice ?? s.currentPrice,
-            effectivePrice: s.effectivePrice ?? s.currentPrice,
+            effectivePrice: undefined,
           },
         ]
       : [],
@@ -453,7 +454,7 @@ export function mapSmartCoupon(c: ApiSmartCoupon): SmartCoupon {
     startDate: c.startDate,
     endDate: c.endDate,
     isActive: c.isActive,
-    source: c.source,
+    source: undefined, // interno — não expor na UI
   };
 }
 
@@ -517,15 +518,11 @@ export function detailToProduct(d: ApiProductDetail): Product {
     smartBasketOpportunity: Boolean(o.smartBasketOpportunity),
   }));
   const listPrice = d.currentPrice;
-  const effectivePrice = d.effectivePrice ?? null;
-  const displayPrice =
-    effectivePrice != null && effectivePrice < listPrice ? effectivePrice : listPrice;
+  const effectivePrice = null;
+  const displayPrice = listPrice;
   const bestOffer =
     offers.length > 0
-      ? [...offers].sort(
-          (a, b) =>
-            (a.effectivePrice ?? a.price) - (b.effectivePrice ?? b.price),
-        )[0]
+      ? [...offers].sort((a, b) => a.price - b.price)[0]
       : null;
   const originalPrice = bestOffer?.originalPrice ?? d.originalPrice ?? null;
   const activeCoupon = d.activeCoupon
@@ -533,23 +530,6 @@ export function detailToProduct(d: ApiProductDetail): Product {
     : null;
   const activeCampaign = d.activeCampaign
     ? mapStoreCampaign(d.activeCampaign as ApiStoreCampaign)
-    : null;
-  const smartBasket = d.smartBasketOpportunity
-    ? {
-        smartBasketOpportunity: Boolean(
-          d.smartBasketOpportunity.smartBasketOpportunity ?? true,
-        ),
-        amountNeededEur: d.smartBasketOpportunity.amountNeededEur,
-        potentialTotalEur: d.smartBasketOpportunity.potentialTotalEur,
-        competitorMinPrice: d.smartBasketOpportunity.competitorMinPrice,
-        savingsEur: d.smartBasketOpportunity.savingsEur,
-        discountPct: d.smartBasketOpportunity.discountPct,
-        minSpendEur: d.smartBasketOpportunity.minSpendEur,
-        storeCode: d.smartBasketOpportunity.storeCode,
-        storeName: d.smartBasketOpportunity.storeName,
-        campaignTitle: d.smartBasketOpportunity.campaignTitle,
-        brands: d.smartBasketOpportunity.brands,
-      }
     : null;
   return {
     slug: d.slug,
@@ -573,7 +553,8 @@ export function detailToProduct(d: ApiProductDetail): Product {
     condition: normalizeCondition(d.condition),
     activeCoupon,
     activeCampaign,
-    smartBasketOpportunity: smartBasket,
+    smartBasketOpportunity: null,
+    storeCouponsAvailable: Boolean(d.storeCouponsAvailable || activeCoupon?.code),
     decision: {
       finalScore: d.decision.finalScore,
       publish: d.decision.publish,

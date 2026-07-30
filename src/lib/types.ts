@@ -214,12 +214,14 @@ export interface Product {
   activeCampaign?: StoreCampaign | null;
   /** Oportunidade de carrinho estratégico (abaixo do min_spend). */
   smartBasketOpportunity?: SmartBasketOpportunity | null;
-  /** Preço de lista (antes do cupão). */
+  /** Preço de lista (preço factual da loja). */
   listPrice?: number;
-  /** Preço final com cupão. */
+  /** @deprecated Cupões não alteram preço — sempre null. */
   effectivePrice?: number | null;
-  /** Poupança face ao preço de lista (cupão). */
+  /** @deprecated */
   savings?: number | null;
+  /** Há campanhas/cupões informativos na loja. */
+  storeCouponsAvailable?: boolean;
   inStock?: boolean | null;
   originalPrice?: number | null;
   /** Promoção imediata vs PVPR (≥20%). */

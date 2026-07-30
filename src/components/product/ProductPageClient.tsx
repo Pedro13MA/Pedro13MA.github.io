@@ -11,8 +11,7 @@ import { PriceAlertForm } from "@/components/product/PriceAlertForm";
 import { ProductHeader } from "@/components/product/ProductHeader";
 import {
   ActiveCampaignBanner,
-  CouponPriceBlock,
-  SmartBasketBanner,
+  StoreCouponsInfoBanner,
 } from "@/components/product/CampaignCouponBlock";
 import { SeasonalityCard } from "@/components/product/SeasonalityCard";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
@@ -76,8 +75,7 @@ export function ProductPageClient({ slug }: Props) {
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
       <ProductHeader product={product} />
       <ActiveCampaignBanner product={product} />
-      <SmartBasketBanner product={product} />
-      <CouponPriceBlock product={product} />
+      <StoreCouponsInfoBanner product={product} />
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <LimiarIndexCard

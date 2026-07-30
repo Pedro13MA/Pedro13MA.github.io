@@ -137,14 +137,6 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => {
               const listPrice = product.listPrice ?? product.currentPrice;
-              const effective =
-                product.effectivePrice != null && product.effectivePrice < listPrice
-                  ? product.effectivePrice
-                  : product.currentPrice;
-              const savings =
-                product.savings != null
-                  ? product.savings
-                  : Math.max(0, listPrice - effective);
               const tone = limiarIndexTone(product.decision.limiarIndex.value);
               const sem = SEMAPHORE_LABEL[product.decision.semaphore];
               const offerUrl = product.offers[0]?.url;
@@ -183,16 +175,12 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
                     </p>
                     <p className="text-xs text-slate-500">{sem.short}</p>
                     <div className="mt-auto">
-                      <p className="font-display text-2xl font-bold text-emerald-800">
-                        {formatEUR(effective)}
+                      <p className="font-display text-2xl font-bold text-slate-900">
+                        {formatEUR(listPrice)}
                       </p>
-                      {savings > 0.01 ? (
-                        <p className="text-xs text-slate-500">
-                          <span className="line-through">{formatEUR(listPrice)}</span>
-                          {" · "}
-                          poupas {formatEUR(savings)}
-                        </p>
-                      ) : null}
+                      <p className="text-xs text-slate-500">
+                        Preço da loja · cupão informativo
+                      </p>
                     </div>
                     <div className="mt-2 flex gap-2">
                       <Link
