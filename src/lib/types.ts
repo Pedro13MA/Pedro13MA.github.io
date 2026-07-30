@@ -69,7 +69,11 @@ export interface Promotion {
   storeName: string;
   storeSlug: string;
   title?: string | null;
+  /** Ref interna Awin (ex: "DSI | Julho 2026") quando o título é a descrição comercial. */
+  campaignRef?: string | null;
   description?: string | null;
+  /** Termos e condições Awin (texto completo). */
+  terms?: string | null;
   conditions?: string | null;
   code?: string | null;
   url: string;
@@ -93,7 +97,11 @@ export interface SmartCoupon {
   appliesTo?: string;
   category?: string | null;
   title?: string | null;
+  /** Ref interna Awin (ex: "DSI | Julho 2026") quando o título é a descrição comercial. */
+  campaignRef?: string | null;
   description?: string | null;
+  descriptionFull?: string | null;
+  terms?: string | null;
   conditions?: string | null;
   startDate?: string | null;
   endDate?: string | null;

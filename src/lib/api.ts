@@ -268,7 +268,10 @@ export type ApiSmartCoupon = {
   appliesTo?: string;
   category?: string | null;
   title?: string | null;
+  campaignRef?: string | null;
   description?: string | null;
+  descriptionFull?: string | null;
+  terms?: string | null;
   conditions?: string | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -364,6 +367,7 @@ export type ApiPromotion = {
   storeName: string;
   storeSlug: string;
   title?: string | null;
+  campaignRef?: string | null;
   description?: string | null;
   code?: string | null;
   url: string;
@@ -496,8 +500,11 @@ export function mapSmartCoupon(c: ApiSmartCoupon): SmartCoupon {
     appliesTo: c.appliesTo,
     category: c.category,
     title: c.title,
-    description: c.description,
-    conditions: c.conditions,
+    campaignRef: c.campaignRef || null,
+    description: c.descriptionFull || c.description,
+    descriptionFull: c.descriptionFull || c.description,
+    terms: c.terms || c.conditions || null,
+    conditions: c.terms || c.conditions || null,
     startDate: c.validFrom || c.startDate,
     endDate: c.validUntil || c.endDate,
     isActive: c.isActive,
@@ -540,8 +547,10 @@ export function smartCouponToPromotion(c: SmartCoupon, storeName?: string): Prom
     storeName: c.storeName || storeName || slug,
     storeSlug: slug,
     title: c.title,
-    description: c.description,
-    conditions: c.conditions,
+    campaignRef: c.campaignRef || null,
+    description: c.descriptionFull || c.description,
+    terms: c.terms || c.conditions || null,
+    conditions: c.terms || c.conditions || null,
     code: c.code || null,
     url: `/cupoes/${encodeURIComponent(slug)}/`,
     promotionType: "voucher",

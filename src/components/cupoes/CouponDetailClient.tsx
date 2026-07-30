@@ -63,6 +63,12 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
   const headline =
     coupon?.title?.trim() ||
     (pct != null ? `${pct}% extra com ${code.toUpperCase()}` : `Cupão ${code.toUpperCase()}`);
+  const campaignRef = coupon?.campaignRef?.trim() || null;
+  const bodyCopy =
+    coupon?.description?.trim() &&
+    coupon.description.trim().toLowerCase() !== headline.toLowerCase()
+      ? coupon.description.trim()
+      : "Campanha Awin activa. Consulta as condições na loja antes de aplicar.";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -81,10 +87,10 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
             <h1 className="mt-1 font-display text-2xl font-bold text-slate-900 sm:text-3xl">
               {headline}
             </h1>
-            <p className="mt-2 max-w-xl text-sm text-slate-600">
-              {coupon?.description ||
-                "Produtos elegíveis na base Limiar com preço efetivo após este cupão."}
-            </p>
+            {campaignRef ? (
+              <p className="mt-1 text-xs font-medium text-slate-400">Ref. {campaignRef}</p>
+            ) : null}
+            <p className="mt-2 max-w-xl text-sm text-slate-600">{bodyCopy}</p>
             {data ? (
               <p className="mt-3 text-sm font-medium text-slate-700">
                 {data.total} oportunidade{data.total === 1 ? "" : "s"} elegível

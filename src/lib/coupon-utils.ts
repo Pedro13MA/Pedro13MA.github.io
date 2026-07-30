@@ -22,11 +22,48 @@ export function formatCouponDiscount(promo: Promotion): string | null {
   return null;
 }
 
-export function formatCouponTitle(promo: Promotion): string {
-  if (promo.title?.trim()) return promo.title.trim();
+/** Refs internas Awin (ex: "DSI | Julho 2026") — não são o título comercial. */
+export function looksLikeInternalCampaignRef(title: string | null | undefined): boolean {
+  const t = (title || "").trim();
+  if (!t) return false;
+  if (t.includes("|")) return true;
+  return /^[A-Z0-9][A-Z0-9._\-]{1,14}$/.test(t) && !/\d+%/.test(t);
+}
+
+/**
+ * Título principal do card: descrição comercial quando o title Awin é ref interna.
+ * Devolve também a ref para subtítulo.
+ */
+export function resolveCouponDisplayTitle(promo: Promotion): {
+  title: string;
+  campaignRef: string | null;
+} {
+  const apiRef = promo.campaignRef?.trim() || null;
+  const rawTitle = promo.title?.trim() || "";
+  const rawDesc = promo.description?.trim() || "";
+
+  if (apiRef && rawTitle) {
+    return { title: rawTitle, campaignRef: apiRef };
+  }
+
+  if (
+    rawTitle &&
+    rawDesc &&
+    rawDesc.toLowerCase() !== rawTitle.toLowerCase() &&
+    looksLikeInternalCampaignRef(rawTitle)
+  ) {
+    return { title: rawDesc, campaignRef: rawTitle };
+  }
+
+  if (rawTitle) return { title: rawTitle, campaignRef: null };
+
   const discount = formatCouponDiscount(promo);
-  if (discount) return `Desconto de ${discount}`;
-  return promo.description?.trim() || "Campanha na loja";
+  if (discount) return { title: `Desconto de ${discount}`, campaignRef: null };
+  return { title: rawDesc || "Campanha na loja", campaignRef: null };
+}
+
+export function formatCouponTitle(promo: Promotion): string {
+  return resolveCouponDisplayTitle(promo).title;
 }
 
 export function formatCouponValidity(promo: Promotion): string {

@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import type { Promotion } from "@/lib/types";
 import { storeLogoUrl } from "@/lib/coupon-stores";
 import {
   copyCouponCode,
   formatCouponDiscount,
-  formatCouponTitle,
   formatCouponValidity,
   normalizeCouponStoreSlug,
+  resolveCouponDisplayTitle,
   STORE_BADGE_STYLES,
 } from "@/lib/coupon-utils";
 import { cn } from "@/lib/utils";
@@ -51,8 +51,142 @@ function StoreLogo({ slug, name }: { slug: string; name: string }) {
   );
 }
 
+function resolveTermsText(promotion: Promotion): string | null {
+  const title = promotion.title?.trim() || "";
+  const campaignRef = promotion.campaignRef?.trim() || "";
+  const terms = (promotion.terms || promotion.conditions || "").trim();
+  const description = (promotion.description || "").trim();
+
+  const isDup = (text: string) => {
+    const n = text.toLowerCase();
+    return (
+      (title && n === title.toLowerCase()) ||
+      (campaignRef && n === campaignRef.toLowerCase())
+    );
+  };
+
+  // Preferir termos Awin explícitos
+  if (terms && !isDup(terms)) {
+    return terms;
+  }
+  // Se não houver terms, usar descrição completa quando for mais do que o título
+  if (description && !isDup(description)) {
+    return description;
+  }
+  return null;
+}
+
+function CouponTermsModal({
+  open,
+  onClose,
+  title,
+  campaignRef,
+  description,
+  terms,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  campaignRef?: string | null;
+  description?: string | null;
+  terms: string;
+}) {
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+      <button
+        type="button"
+        aria-label="Fechar condições"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl"
+      >
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              Condições da campanha
+            </p>
+            <h3
+              id={titleId}
+              className="mt-1 font-display text-lg font-bold leading-snug text-slate-900"
+            >
+              {title}
+            </h3>
+            {campaignRef ? (
+              <p className="mt-1 text-[11px] font-medium text-slate-400">
+                Ref. {campaignRef}
+              </p>
+            ) : null}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            Fechar
+          </button>
+        </div>
+
+        <div className="space-y-4 overflow-y-auto px-5 py-4">
+          {description && description !== terms ? (
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                Descrição
+              </p>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                {description}
+              </p>
+            </div>
+          ) : null}
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              Termos e condições
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+              {terms}
+            </p>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 px-5 py-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CouponCard({ promotion, opportunityCount }: Props) {
   const [copied, setCopied] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   useEffect(() => {
     if (!copied) return;
@@ -63,10 +197,15 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
   const storeKey = normalizeCouponStoreSlug(promotion.storeSlug);
   const badge = STORE_BADGE_STYLES[storeKey] ?? STORE_BADGE_STYLES.default;
   const discount = formatCouponDiscount(promotion);
-  const title = formatCouponTitle(promotion);
+  const { title, campaignRef } = resolveCouponDisplayTitle(promotion);
   const validity = formatCouponValidity(promotion);
   const code = promotion.code?.trim() || "";
-  const conditions = promotion.conditions?.trim() || promotion.description?.trim() || "";
+  const termsText = resolveTermsText(promotion);
+  const shortPreview =
+    promotion.description?.trim() &&
+    promotion.description.trim().toLowerCase() !== title.toLowerCase()
+      ? promotion.description.trim()
+      : null;
   const detailHref =
     code && storeKey
       ? `/cupoes/${encodeURIComponent(storeKey)}/${encodeURIComponent(code.toUpperCase())}/`
@@ -114,11 +253,17 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
           {title}
         </h3>
 
+        {campaignRef ? (
+          <p className="mt-1 text-[11px] font-medium text-slate-400">
+            Ref. {campaignRef}
+          </p>
+        ) : null}
+
         <p className="mt-1.5 text-xs font-medium text-slate-500">{validity}</p>
 
-        {conditions ? (
-          <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500">
-            {conditions}
+        {shortPreview ? (
+          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-500">
+            {shortPreview}
           </p>
         ) : null}
 
@@ -141,7 +286,7 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
           </p>
         )}
 
-        <div className="mt-4 border-t border-slate-100 pt-4">
+        <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
           {detailHref ? (
             <Link
               href={detailHref}
@@ -154,8 +299,29 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
               {ctaLabel}
             </Link>
           ) : null}
+
+          {termsText ? (
+            <button
+              type="button"
+              onClick={() => setTermsOpen(true)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+            >
+              Ver condições
+            </button>
+          ) : null}
         </div>
       </div>
+
+      {termsText ? (
+        <CouponTermsModal
+          open={termsOpen}
+          onClose={() => setTermsOpen(false)}
+          title={title}
+          campaignRef={campaignRef}
+          description={promotion.description}
+          terms={termsText}
+        />
+      ) : null}
     </article>
   );
 }

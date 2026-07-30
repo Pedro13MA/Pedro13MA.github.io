@@ -756,16 +756,13 @@ export function getBiggestDropsToday(): Product[] {
     .sort((a, b) => (b.dropTodayPct ?? 0) - (a.dropTodayPct ?? 0));
 }
 
+/** @deprecated Hub usa apenas GET /coupons (Awin). Não devolver mocks. */
 export function getActivePromotions(): Promotion[] {
-  return MOCK_PROMOTIONS.filter((p) => p.isActive !== false).sort((a, b) => {
-    const ac = a.code ? 0 : 1;
-    const bc = b.code ? 0 : 1;
-    return ac - bc;
-  });
+  return [];
 }
 
-export function getPromotionsByStore(storeSlug: string): Promotion[] {
-  return getActivePromotions().filter((p) => p.storeSlug === storeSlug);
+export function getPromotionsByStore(_storeSlug: string): Promotion[] {
+  return [];
 }
 
 export function getDailyOpportunities(): Product[] {
