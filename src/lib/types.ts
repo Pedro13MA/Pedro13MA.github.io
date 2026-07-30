@@ -24,9 +24,21 @@ export interface PaymentMethod {
   icon?: string;
 }
 
+export interface ShippingInfo {
+  estimatedDaysMin: number;
+  estimatedDaysMax: number;
+  shippingCost?: string;
+  supportsPickup?: boolean;
+}
+
+export type StockStatus = "in_stock" | "out_of_stock" | "unknown";
+
 export interface Offer {
   store: string;
   storeName: string;
+  /** Slug canónico da loja (igual a `store` quando a API o envia). */
+  slug?: string;
+  logoUrl?: string | null;
   url: string;
   price: number;
   currency?: string;
@@ -34,11 +46,14 @@ export interface Offer {
   /** Preço após cupão aplicável (se menor que price). */
   effectivePrice?: number | null;
   inStock?: boolean | null;
+  stockStatus?: StockStatus | null;
   couponCode?: string | null;
   couponLabel?: string | null;
   paymentMethods?: PaymentMethod[];
   /** Resumo legível (ex: "2–5 dias"). */
   shippingInfo?: string;
+  /** Detalhe estruturado de entrega (API). */
+  shippingDetails?: ShippingInfo | null;
   /** Campanha de carrinho estratégica nesta loja. */
   smartBasketOpportunity?: boolean;
 }
@@ -55,6 +70,7 @@ export interface Promotion {
   storeSlug: string;
   title?: string | null;
   description?: string | null;
+  conditions?: string | null;
   code?: string | null;
   url: string;
   promotionType?: string;
@@ -63,23 +79,26 @@ export interface Promotion {
   startDate?: string | null;
   endDate?: string | null;
   isActive?: boolean;
+  logoUrl?: string | null;
 }
 
 export interface SmartCoupon {
   storeCode: string;
+  storeName?: string | null;
   code: string;
   discountPct?: number | null;
   discountKind?: DiscountKind | string;
   discountAmount?: number | null;
+  discountValue?: number | null;
   appliesTo?: string;
   category?: string | null;
   title?: string | null;
   description?: string | null;
-  affiliateUrl?: string | null;
+  conditions?: string | null;
   startDate?: string | null;
   endDate?: string | null;
   isActive?: boolean;
-  source?: string;
+  status?: string | null;
 }
 
 export interface StoreCampaign {

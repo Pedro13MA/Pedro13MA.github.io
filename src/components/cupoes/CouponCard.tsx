@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { Promotion } from "@/lib/types";
+import { storeLogoUrl } from "@/lib/coupon-stores";
 import {
   copyCouponCode,
   formatCouponDiscount,
@@ -15,11 +16,40 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   promotion: Promotion;
-  /** Contagem opcional de oportunidades (label "Ver X Oportunidades"). */
   opportunityCount?: number | null;
 };
 
 const COPIED_MS = 3000;
+
+function StoreLogo({ slug, name }: { slug: string; name: string }) {
+  const [failed, setFailed] = useState(false);
+  const badge = STORE_BADGE_STYLES[slug] ?? STORE_BADGE_STYLES.default;
+  if (failed) {
+    return (
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold uppercase",
+          badge.bg,
+          badge.text,
+        )}
+        aria-hidden
+      >
+        {name.slice(0, 2)}
+      </span>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={storeLogoUrl(slug)}
+      alt=""
+      width={36}
+      height={36}
+      className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 bg-white object-contain p-1"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 export function CouponCard({ promotion, opportunityCount }: Props) {
   const [copied, setCopied] = useState(false);
@@ -36,10 +66,13 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
   const title = formatCouponTitle(promotion);
   const validity = formatCouponValidity(promotion);
   const code = promotion.code?.trim() || "";
+  const conditions = promotion.conditions?.trim() || promotion.description?.trim() || "";
   const detailHref =
     code && storeKey
       ? `/cupoes/${encodeURIComponent(storeKey)}/${encodeURIComponent(code.toUpperCase())}/`
-      : null;
+      : storeKey
+        ? `/cupoes/${encodeURIComponent(storeKey)}/`
+        : null;
 
   const handleCopy = useCallback(async () => {
     if (!code) return;
@@ -49,14 +82,14 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
 
   const ctaLabel =
     opportunityCount != null && opportunityCount > 0
-      ? `Ver ${opportunityCount} Oportunidades`
-      : "Ver Produtos com Cupão";
+      ? `Ver ${opportunityCount} produtos elegíveis`
+      : "Ver produtos elegíveis";
 
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border-2 border-dashed bg-white shadow-sm transition-all",
-        "border-sky-200/90 hover:border-sky-400 hover:shadow-md",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all",
+        "border-slate-200/90 hover:border-sky-300 hover:shadow-md",
         badge.ring,
       )}
     >
@@ -64,23 +97,14 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
 
       <div className="flex flex-1 flex-col p-4 pl-5">
         <div className="mb-3 flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span
-              className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold uppercase",
-                badge.bg,
-                badge.text,
-              )}
-              aria-hidden
-            >
-              {promotion.storeName.slice(0, 2)}
-            </span>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <StoreLogo slug={storeKey} name={promotion.storeName} />
             <p className="truncate text-sm font-semibold text-slate-900">
               {promotion.storeName}
             </p>
           </div>
           {discount ? (
-            <span className="shrink-0 rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800 ring-1 ring-teal-200/80">
+            <span className="shrink-0 rounded-md bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800 ring-1 ring-teal-200/80">
               {discount}
             </span>
           ) : null}
@@ -90,7 +114,13 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
           {title}
         </h3>
 
-        <p className="mt-1.5 line-clamp-2 text-xs text-slate-500">{validity}</p>
+        <p className="mt-1.5 text-xs font-medium text-slate-500">{validity}</p>
+
+        {conditions ? (
+          <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500">
+            {conditions}
+          </p>
+        ) : null}
 
         {code ? (
           <button
@@ -99,17 +129,19 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
             className="mt-4 w-full rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-left transition hover:bg-amber-100/80"
           >
             <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700/80">
-              {copied ? "Copiado ✓" : "Código — clica para copiar"}
+              {copied ? "Copiado ✓" : "Copiar código"}
             </p>
             <p className="mt-0.5 font-mono text-lg font-bold tracking-wide text-amber-900">
               {code}
             </p>
           </button>
         ) : (
-          <p className="mt-4 text-xs text-slate-400">Sem código — desconto automático na loja</p>
+          <p className="mt-4 text-xs text-slate-400">
+            Sem código — campanha automática na loja
+          </p>
         )}
 
-        <div className="mt-4 border-t border-dashed border-slate-200 pt-4">
+        <div className="mt-4 border-t border-slate-100 pt-4">
           {detailHref ? (
             <Link
               href={detailHref}
@@ -121,11 +153,7 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
             >
               {ctaLabel}
             </Link>
-          ) : (
-            <span className="block w-full rounded-xl bg-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-slate-500">
-              Cupão sem código
-            </span>
-          )}
+          ) : null}
         </div>
       </div>
     </article>

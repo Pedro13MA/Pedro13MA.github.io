@@ -121,23 +121,11 @@ export const MOCK_PROMOTIONS: Promotion[] = [
   },
 ];
 
-/** Lojas com promoções AWIN ativas no hub (sem Fnac/PC Componentes até haver feed). */
-export const COUPON_HUB_STORES = [
-  { slug: "worten", name: "Worten", href: "/cupoes/worten/" },
-  { slug: "globaldata", name: "Globaldata", href: "/cupoes/globaldata/" },
-] as const;
+/** @deprecated Use `@/lib/coupon-stores` — mantido para compat SSG legado. */
+export { COUPON_HUB_STORES } from "@/lib/coupon-stores";
 
-/** Códigos conhecidos para SSG de `/cupoes/[store]/[code]`. */
-export const KNOWN_COUPON_CODES = [
-  "OFF15",
-  "TCL15",
-  "HOTPOINT20",
-  "CAD10",
-  "BOSCH10",
-  "LEGO10",
-  "MAISCASA",
-  "VERAO",
-] as const;
+/** @deprecated Códigos hardcoded removidos — SSG usa API Limiar. */
+export const KNOWN_COUPON_CODES: string[] = [];
 
 export const MOCK_PRODUCTS: Product[] = [
   {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CouponStoreClient } from "@/components/cupoes/CouponStoreClient";
-import { COUPON_HUB_STORES } from "@/lib/mocks";
+import { COUPON_HUB_STORES } from "@/lib/coupon-stores";
 
 type PageProps = {
   params: Promise<{ store: string }>;

@@ -11,7 +11,9 @@ import type {
   ProductCondition,
   Promotion,
   Seasonality,
+  ShippingInfo,
   SmartCoupon,
+  StockStatus,
   StoreCampaign,
 } from "@/lib/types";
 
@@ -165,12 +167,17 @@ export type ApiShippingInfo = {
 export type ApiOffer = {
   store: string;
   storeName: string;
+  slug?: string | null;
+  logoUrl?: string | null;
+  logo_url?: string | null;
   url: string;
   price: number;
   currency?: string;
   originalPrice?: number | null;
   effectivePrice?: number | null;
   inStock?: boolean | null;
+  stockStatus?: "in_stock" | "out_of_stock" | "unknown" | null;
+  stock_status?: "in_stock" | "out_of_stock" | "unknown" | null;
   couponCode?: string | null;
   couponLabel?: string | null;
   /** Backend snake_case (OfferOut). */
@@ -249,20 +256,27 @@ export type ApiProductDetail = {
 };
 
 export type ApiSmartCoupon = {
+  store?: string | null;
+  storeSlug?: string | null;
   storeCode: string;
-  code: string;
+  code?: string | null;
   discountPct?: number | null;
   discountKind?: string;
+  discountType?: string | null;
   discountAmount?: number | null;
+  discountValue?: number | null;
   appliesTo?: string;
   category?: string | null;
   title?: string | null;
   description?: string | null;
-  affiliateUrl?: string | null;
+  conditions?: string | null;
   startDate?: string | null;
   endDate?: string | null;
+  validFrom?: string | null;
+  validUntil?: string | null;
   isActive?: boolean;
-  source?: string;
+  status?: string | null;
+  brands?: string[] | null;
 };
 
 export type ApiStoreCampaign = {
@@ -305,6 +319,30 @@ function formatShippingInfo(
   const max = info.estimatedDaysMax ?? 5;
   const pickup = info.supportsPickup ? " · levantamento" : "";
   return `${min}–${max} dias${pickup}`;
+}
+
+function mapShippingDetails(
+  info: ApiShippingInfo | string | null | undefined,
+): ShippingInfo | null {
+  if (!info || typeof info === "string") return null;
+  return {
+    estimatedDaysMin: info.estimatedDaysMin ?? 2,
+    estimatedDaysMax: info.estimatedDaysMax ?? 5,
+    shippingCost: info.shippingCost,
+    supportsPickup: Boolean(info.supportsPickup),
+  };
+}
+
+function mapStockStatus(
+  status: ApiOffer["stockStatus"] | ApiOffer["stock_status"],
+  inStock: boolean | null | undefined,
+): StockStatus {
+  if (status === "in_stock" || status === "out_of_stock" || status === "unknown") {
+    return status;
+  }
+  if (inStock === true) return "in_stock";
+  if (inStock === false) return "out_of_stock";
+  return "unknown";
 }
 
 function mapPaymentMethods(
@@ -440,21 +478,30 @@ export function summaryToProduct(s: ApiProductSummary): Product {
 }
 
 export function mapSmartCoupon(c: ApiSmartCoupon): SmartCoupon {
+  const kind = (c.discountType || c.discountKind || "percent") as Promotion["discountKind"];
+  const pct =
+    c.discountPct ??
+    (kind === "percent" ? c.discountValue ?? null : null);
+  const amount =
+    c.discountAmount ??
+    (kind === "amount" ? c.discountValue ?? null : null);
   return {
-    storeCode: c.storeCode,
-    code: c.code,
-    discountPct: c.discountPct,
-    discountKind: (c.discountKind as Promotion["discountKind"]) || "percent",
-    discountAmount: c.discountAmount,
+    storeCode: c.storeSlug || c.storeCode,
+    storeName: c.store || null,
+    code: (c.code || "").trim(),
+    discountPct: pct,
+    discountKind: kind || "percent",
+    discountAmount: amount,
+    discountValue: c.discountValue ?? pct ?? amount,
     appliesTo: c.appliesTo,
     category: c.category,
     title: c.title,
     description: c.description,
-    affiliateUrl: c.affiliateUrl,
-    startDate: c.startDate,
-    endDate: c.endDate,
+    conditions: c.conditions,
+    startDate: c.validFrom || c.startDate,
+    endDate: c.validUntil || c.endDate,
     isActive: c.isActive,
-    source: undefined, // interno — não expor na UI
+    status: c.status,
   };
 }
 
@@ -482,19 +529,24 @@ export function mapStoreCampaign(c: ApiStoreCampaign): StoreCampaign {
 /** Converte cupão inteligente para Promotion (CouponCard). */
 export function smartCouponToPromotion(c: SmartCoupon, storeName?: string): Promotion {
   const slug = c.storeCode;
+  const kind = (c.discountKind as Promotion["discountKind"]) || "percent";
+  const value =
+    c.discountValue ??
+    (kind === "amount" ? c.discountAmount : c.discountPct) ??
+    null;
   return {
-    externalId: `smart-${slug}-${c.code}`,
+    externalId: `coupon-${slug}-${c.code || c.title || "campanha"}`,
     merchantId: slug,
-    storeName: storeName || slug,
+    storeName: c.storeName || storeName || slug,
     storeSlug: slug,
     title: c.title,
     description: c.description,
-    code: c.code,
-    url: c.affiliateUrl || "#",
+    conditions: c.conditions,
+    code: c.code || null,
+    url: `/cupoes/${encodeURIComponent(slug)}/`,
     promotionType: "voucher",
-    discountKind:
-      c.discountKind === "amount" ? "amount" : c.discountPct ? "percent" : "unknown",
-    discountValue: c.discountPct ?? c.discountAmount,
+    discountKind: kind,
+    discountValue: value,
     startDate: c.startDate,
     endDate: c.endDate,
     isActive: c.isActive,
@@ -503,18 +555,22 @@ export function smartCouponToPromotion(c: SmartCoupon, storeName?: string): Prom
 
 export function detailToProduct(d: ApiProductDetail): Product {
   const offers: Offer[] = (d.offers || []).map((o) => ({
-    store: o.store,
+    store: o.slug || o.store,
     storeName: o.storeName,
+    slug: o.slug || o.store,
+    logoUrl: o.logoUrl ?? o.logo_url ?? null,
     url: o.url,
     price: o.price,
     currency: o.currency,
     originalPrice: o.originalPrice,
     effectivePrice: o.effectivePrice,
     inStock: o.inStock,
+    stockStatus: mapStockStatus(o.stockStatus ?? o.stock_status, o.inStock),
     couponCode: o.couponCode,
     couponLabel: o.couponLabel,
     paymentMethods: mapPaymentMethods(o.payment_methods ?? o.paymentMethods),
     shippingInfo: formatShippingInfo(o.shipping_info ?? o.shippingInfo),
+    shippingDetails: mapShippingDetails(o.shipping_info ?? o.shippingInfo),
     smartBasketOpportunity: Boolean(o.smartBasketOpportunity),
   }));
   const listPrice = d.currentPrice;

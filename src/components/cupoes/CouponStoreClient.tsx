@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CouponCard } from "@/components/cupoes/CouponCard";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { getCoupons, getStoreCampaigns, mapSmartCoupon, smartCouponToPromotion } from "@/lib/api";
-import { COUPON_HUB_STORES } from "@/lib/mocks";
+import { COUPON_HUB_STORES } from "@/lib/coupon-stores";
 import type { Promotion, StoreCampaign } from "@/lib/types";
 
 type Props = {
