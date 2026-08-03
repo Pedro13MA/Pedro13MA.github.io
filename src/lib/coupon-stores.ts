@@ -1,47 +1,58 @@
 /** Lojas do Hub de Cupões e grelha da homepage — metadados UI. */
 
+import {
+  getStoreLogoMeta,
+  storeDisplayName as displayNameFromRegistry,
+  storeLogoUrl as logoUrlFromRegistry,
+} from "@/lib/storeLogos";
+
 export type CouponStoreMeta = {
   slug: string;
   name: string;
   logoUrl: string;
 };
 
-/** Domínios oficiais → favicon real (mesma abordagem das offers). */
-function favicon(domain: string): string {
-  return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+function toMeta(slug: string, name?: string): CouponStoreMeta {
+  const reg = getStoreLogoMeta(slug);
+  return {
+    slug: reg?.slug || slug,
+    name: name || reg?.name || slug,
+    logoUrl: logoUrlFromRegistry(slug),
+  };
 }
 
 export const COUPON_HUB_STORES: CouponStoreMeta[] = [
-  { slug: "worten", name: "Worten", logoUrl: favicon("www.worten.pt") },
-  { slug: "amazon", name: "Amazon", logoUrl: favicon("www.amazon.es") },
-  { slug: "pccomponentes", name: "PCComponentes", logoUrl: favicon("www.pccomponentes.pt") },
-  { slug: "globaldata", name: "Globaldata", logoUrl: favicon("www.globaldata.pt") },
+  toMeta("worten"),
+  toMeta("amazon"),
+  toMeta("pccomponentes"),
+  toMeta("globaldata"),
 ];
 
 /** Lojas apresentadas na homepage (logos). */
 export const MONITORED_STORES: CouponStoreMeta[] = [
   ...COUPON_HUB_STORES,
-  { slug: "fnac", name: "Fnac", logoUrl: favicon("www.fnac.pt") },
-  { slug: "castro", name: "Castro Electrónica", logoUrl: favicon("www.castroelectronica.pt") },
-  {
-    slug: "switch",
-    name: "Switch Technology",
-    logoUrl: favicon("www.switch.pt"),
-  },
+  toMeta("fnac"),
+  toMeta("castro"),
+  toMeta("switch"),
+  toMeta("pcdiga"),
+  toMeta("radio-popular"),
 ];
 
 export function getCouponStoreMeta(slug: string): CouponStoreMeta | undefined {
   const key = (slug || "").trim().toLowerCase();
-  return (
+  const fromLists =
     COUPON_HUB_STORES.find((s) => s.slug === key) ||
-    MONITORED_STORES.find((s) => s.slug === key)
-  );
+    MONITORED_STORES.find((s) => s.slug === key);
+  if (fromLists) return fromLists;
+  const reg = getStoreLogoMeta(key);
+  if (!reg) return undefined;
+  return toMeta(reg.slug, reg.name);
 }
 
 export function storeLogoUrl(slug: string): string {
-  return getCouponStoreMeta(slug)?.logoUrl || favicon("example.com");
+  return logoUrlFromRegistry(slug);
 }
 
 export function storeDisplayName(slug: string, fallback?: string): string {
-  return getCouponStoreMeta(slug)?.name || fallback || slug;
+  return displayNameFromRegistry(slug, fallback);
 }
