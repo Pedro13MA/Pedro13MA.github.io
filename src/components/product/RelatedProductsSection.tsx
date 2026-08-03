@@ -86,7 +86,7 @@ export function RelatedProductsSection({ product }: Props) {
               Também poderá gostar
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Produtos semelhantes da mesma categoria, ordenados pelo Índice Limiar.
+              Produtos semelhantes da mesma categoria, ordenados pela qualidade da decisão de compra.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

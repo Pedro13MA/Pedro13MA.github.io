@@ -285,6 +285,8 @@ export type ApiSmartCoupon = {
   isActive?: boolean;
   status?: string | null;
   brands?: string[] | null;
+  /** Página oficial da campanha (Awin). */
+  url?: string | null;
 };
 
 export type ApiStoreCampaign = {
@@ -516,6 +518,10 @@ export function mapSmartCoupon(c: ApiSmartCoupon): SmartCoupon {
     endDate: c.validUntil || c.endDate,
     isActive: c.isActive,
     status: c.status,
+    url: (() => {
+      const u = (c.url || "").trim();
+      return u.startsWith("http://") || u.startsWith("https://") ? u : null;
+    })(),
   };
 }
 
@@ -548,6 +554,9 @@ export function smartCouponToPromotion(c: SmartCoupon, storeName?: string): Prom
     c.discountValue ??
     (kind === "amount" ? c.discountAmount : c.discountPct) ??
     null;
+  const officialUrl = (c.url || "").trim();
+  const hasOfficial =
+    officialUrl.startsWith("http://") || officialUrl.startsWith("https://");
   return {
     externalId: `coupon-${slug}-${c.code || c.title || "campanha"}`,
     merchantId: slug,
@@ -559,7 +568,7 @@ export function smartCouponToPromotion(c: SmartCoupon, storeName?: string): Prom
     terms: c.terms || c.conditions || null,
     conditions: c.terms || c.conditions || null,
     code: c.code || null,
-    url: `/cupoes/${encodeURIComponent(slug)}/`,
+    url: hasOfficial ? officialUrl : `/cupoes/${encodeURIComponent(slug)}/`,
     promotionType: "voucher",
     discountKind: kind,
     discountValue: value,

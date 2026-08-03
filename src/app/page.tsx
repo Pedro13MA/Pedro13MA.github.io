@@ -1,9 +1,8 @@
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { HomePageBody } from "@/components/home/HomePageBody";
-import { HomeStatsStrip } from "@/components/home/HomeStatsStrip";
 import { LimiarLogo } from "@/components/ui/LimiarLogo";
-import { BRAND_SUBTITLE, BRAND_TAGLINE } from "@/lib/constants";
+import { BRAND_METHOD, BRAND_SUBTITLE, BRAND_TAGLINE } from "@/lib/constants";
 
 export default function HomePage() {
   return (
@@ -17,7 +16,7 @@ export default function HomePage() {
               "linear-gradient(180deg, #ffffff 0%, #f3f8fc 48%, #ffffff 100%)",
           }}
         >
-          <div className="relative mx-auto max-w-6xl overflow-visible px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24">
+          <div className="relative mx-auto max-w-6xl overflow-visible px-4 pb-12 pt-16 sm:px-6 sm:pb-16 sm:pt-24">
             <div className="mb-8 flex items-center gap-3">
               <LimiarLogo size={40} />
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-sky-700">
@@ -33,10 +32,12 @@ export default function HomePage() {
             <div className="mt-10 max-w-xl sm:mt-12 sm:max-w-2xl">
               <SearchBar autoFocus />
             </div>
+            <p className="mt-8 max-w-xl text-sm leading-relaxed text-slate-500">
+              {BRAND_METHOD}
+            </p>
           </div>
         </section>
 
-        <HomeStatsStrip />
         <HomePageBody />
       </main>
       <SiteFooter />

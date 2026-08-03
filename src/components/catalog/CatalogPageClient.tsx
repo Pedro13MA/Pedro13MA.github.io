@@ -503,7 +503,7 @@ export function CatalogPageClient() {
         {loading
           ? "A carregar…"
           : total === 0
-            ? "Nenhum resultado com estes filtros."
+            ? "Ainda não há produtos para estes filtros — tenta limpar filtros ou outra secção."
             : `A mostrar ${shownFrom}–${shownTo} de ${total} ${
                 state.tab === "alerts" ? "alerta" : "produto"
               }${total === 1 ? "" : "s"}`}
@@ -553,7 +553,7 @@ export function CatalogPageClient() {
                 key={product.ean}
                 product={product}
                 showDropToday={state.section === "drops"}
-                compact={state.section === "telegram" || state.tab === "alerts"}
+                compact
                 detectedAt={
                   state.section === "telegram" || state.tab === "alerts"
                     ? product.detectedAt
@@ -565,7 +565,8 @@ export function CatalogPageClient() {
         )
       ) : (
         <p className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">
-          Sem resultados. Ajusta os filtros ou experimenta outra pesquisa.
+          Sem produtos com estes filtros. Ajusta os filtros ou experimenta outra pesquisa —
+          alguns produtos ainda não têm histórico suficiente.
         </p>
       )}
 

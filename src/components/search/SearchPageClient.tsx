@@ -288,7 +288,7 @@ export function SearchPageClient() {
             <>
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
-                  <OpportunityCard key={product.ean} product={product} />
+                  <OpportunityCard key={product.ean} product={product} compact />
                 ))}
               </div>
               {totalPages > 1 ? (
@@ -316,9 +316,10 @@ export function SearchPageClient() {
               ) : null}
             </>
           ) : (
-            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-              Sem produtos para estes filtros. Tenta limpar a sidebar ou outro
-              termo.
+            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm leading-relaxed text-slate-600">
+              Não encontrámos produtos para esta pesquisa com os filtros actuais.
+              Experimenta outro termo, limpa os filtros, ou volta mais tarde — ainda
+              podemos não ter histórico suficiente para alguns produtos.
             </p>
           )}
         </section>

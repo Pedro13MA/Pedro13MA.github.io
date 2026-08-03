@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useId, useState } from "react";
 import type { Promotion } from "@/lib/types";
 import { storeLogoUrl } from "@/lib/coupon-stores";
@@ -16,10 +15,14 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   promotion: Promotion;
-  opportunityCount?: number | null;
 };
 
 const COPIED_MS = 3000;
+
+function isExternalCampaignUrl(url: string | null | undefined): boolean {
+  const u = (url || "").trim();
+  return u.startsWith("http://") || u.startsWith("https://");
+}
 
 function StoreLogo({ slug, name }: { slug: string; name: string }) {
   const [failed, setFailed] = useState(false);
@@ -65,14 +68,8 @@ function resolveTermsText(promotion: Promotion): string | null {
     );
   };
 
-  // Preferir termos Awin explícitos
-  if (terms && !isDup(terms)) {
-    return terms;
-  }
-  // Se não houver terms, usar descrição completa quando for mais do que o título
-  if (description && !isDup(description)) {
-    return description;
-  }
+  if (terms && !isDup(terms)) return terms;
+  if (description && !isDup(description)) return description;
   return null;
 }
 
@@ -81,14 +78,12 @@ function CouponTermsModal({
   onClose,
   title,
   campaignRef,
-  description,
   terms,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   campaignRef?: string | null;
-  description?: string | null;
   terms: string;
 }) {
   const titleId = useId();
@@ -149,32 +144,15 @@ function CouponTermsModal({
           </button>
         </div>
 
-        <div className="space-y-4 overflow-y-auto px-5 py-4">
-          {description && description !== terms ? (
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Descrição
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
-                {description}
-              </p>
-            </div>
-          ) : null}
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              Termos e condições
-            </p>
-            <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
-              {terms}
-            </p>
-          </div>
+        <div className="overflow-y-auto px-5 py-4">
+          <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">{terms}</p>
         </div>
 
         <div className="border-t border-slate-100 px-5 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
           >
             Entendi
           </button>
@@ -184,7 +162,7 @@ function CouponTermsModal({
   );
 }
 
-export function CouponCard({ promotion, opportunityCount }: Props) {
+export function CouponCard({ promotion }: Props) {
   const [copied, setCopied] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
 
@@ -201,17 +179,7 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
   const validity = formatCouponValidity(promotion);
   const code = promotion.code?.trim() || "";
   const termsText = resolveTermsText(promotion);
-  const shortPreview =
-    promotion.description?.trim() &&
-    promotion.description.trim().toLowerCase() !== title.toLowerCase()
-      ? promotion.description.trim()
-      : null;
-  const detailHref =
-    code && storeKey
-      ? `/cupoes/${encodeURIComponent(storeKey)}/${encodeURIComponent(code.toUpperCase())}/`
-      : storeKey
-        ? `/cupoes/${encodeURIComponent(storeKey)}/`
-        : null;
+  const officialUrl = isExternalCampaignUrl(promotion.url) ? promotion.url.trim() : null;
 
   const handleCopy = useCallback(async () => {
     if (!code) return;
@@ -219,23 +187,29 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
     if (ok) setCopied(true);
   }, [code]);
 
-  const ctaLabel =
-    opportunityCount != null && opportunityCount > 0
-      ? `Ver ${opportunityCount} produtos elegíveis`
-      : "Ver produtos elegíveis";
+  const handleConditions = useCallback(() => {
+    if (officialUrl) {
+      window.open(officialUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (termsText) setTermsOpen(true);
+  }, [officialUrl, termsText]);
+
+  const showConditions = Boolean(officialUrl || termsText);
 
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all",
-        "border-slate-200/90 hover:border-sky-300 hover:shadow-md",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white",
+        "border-slate-200/70 shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
+        "transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_6px_20px_rgba(15,23,42,0.06)]",
         badge.ring,
       )}
     >
       <div className={cn("absolute inset-y-3 left-0 w-1 rounded-r-full", badge.bg)} />
 
-      <div className="flex flex-1 flex-col p-4 pl-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="flex flex-1 flex-col p-5 pl-6">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
             <StoreLogo slug={storeKey} name={promotion.storeName} />
             <p className="truncate text-sm font-semibold text-slate-900">
@@ -243,82 +217,60 @@ export function CouponCard({ promotion, opportunityCount }: Props) {
             </p>
           </div>
           {discount ? (
-            <span className="shrink-0 rounded-md bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800 ring-1 ring-teal-200/80">
+            <span className="shrink-0 rounded-lg bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800 ring-1 ring-teal-200/80">
               {discount}
             </span>
           ) : null}
         </div>
 
-        <h3 className="line-clamp-2 text-base font-semibold leading-snug text-slate-900">
+        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-slate-900">
           {title}
         </h3>
 
         {campaignRef ? (
-          <p className="mt-1 text-[11px] font-medium text-slate-400">
-            Ref. {campaignRef}
-          </p>
+          <p className="mt-1.5 text-xs font-medium text-slate-400">Ref. {campaignRef}</p>
         ) : null}
 
-        <p className="mt-1.5 text-xs font-medium text-slate-500">{validity}</p>
-
-        {shortPreview ? (
-          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-500">
-            {shortPreview}
-          </p>
-        ) : null}
+        <p className="mt-2 text-xs font-medium text-slate-500">{validity}</p>
 
         {code ? (
           <button
             type="button"
             onClick={handleCopy}
-            className="mt-4 w-full rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-left transition hover:bg-amber-100/80"
+            className="mt-5 w-full rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-left transition-colors duration-150 hover:bg-amber-100/80"
           >
             <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700/80">
-              {copied ? "Copiado ✓" : "Copiar código"}
+              {copied ? "Copiado ✓" : "Código promocional"}
             </p>
             <p className="mt-0.5 font-mono text-lg font-bold tracking-wide text-amber-900">
               {code}
             </p>
           </button>
         ) : (
-          <p className="mt-4 text-xs text-slate-400">
+          <p className="mt-5 text-xs leading-relaxed text-slate-500">
             Sem código — campanha automática na loja
           </p>
         )}
 
-        <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
-          {detailHref ? (
-            <Link
-              href={detailHref}
-              className={cn(
-                "block w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition-colors",
-                "bg-sky-600 text-white hover:bg-sky-700",
-                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600",
-              )}
-            >
-              {ctaLabel}
-            </Link>
-          ) : null}
-
-          {termsText ? (
+        {showConditions ? (
+          <div className="mt-auto border-t border-slate-100 pt-4">
             <button
               type="button"
-              onClick={() => setTermsOpen(true)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+              onClick={handleConditions}
+              className="flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50"
             >
               Ver condições
             </button>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
 
-      {termsText ? (
+      {termsText && !officialUrl ? (
         <CouponTermsModal
           open={termsOpen}
           onClose={() => setTermsOpen(false)}
           title={title}
           campaignRef={campaignRef}
-          description={promotion.description}
           terms={termsText}
         />
       ) : null}

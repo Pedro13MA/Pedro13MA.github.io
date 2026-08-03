@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     template: "%s | Limiar",
   },
   description:
-    "A plataforma que diz quando vale realmente a pena comprar. Histórico de preços, melhores momentos e comparação multi-loja.",
+    "Comparamos o preço atual com o histórico observado para perceber se vale a pena comprar agora, esperar, ou se ainda não há dados suficientes.",
   keywords: [
     "limiar",
-    "price intelligence portugal",
-    "devo comprar agora",
-    "histórico de preços",
-    "comparador lojas portugal",
+    "quando comprar",
+    "histórico de preços portugal",
+    "comparar lojas",
+    "vale a pena comprar",
   ],
   authors: [{ name: "Pedro Martins" }],
   openGraph: {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: "Limiar",
     title: "Limiar — Quando vale realmente a pena comprar",
     description:
-      "Histórico de preços, melhores momentos para comprar e comparação entre lojas.",
+      "Comparamos o preço atual com o histórico observado. Comprar agora, esperar, ou ainda não sabemos.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://pedro13ma.github.io" },

@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   return {
     title: slug,
-    description: "Detalhe de produto Limiar — Índice Limiar e histórico de preço.",
+    description: "Decisão Limiar, histórico observado e onde comprar.",
   };
 }
 

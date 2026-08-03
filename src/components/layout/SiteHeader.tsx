@@ -22,11 +22,8 @@ export function SiteHeader() {
           <Link href="/catalog/" className="hover:text-slate-900">
             Catálogo
           </Link>
-          <Link href="/#comprar-agora" className="hidden hover:text-slate-900 sm:inline">
-            Oportunidades
-          </Link>
-          <Link href="/#como-funciona" className="hidden hover:text-slate-900 lg:inline">
-            Como funciona
+          <Link href="/#decisoes" className="hidden hover:text-slate-900 sm:inline">
+            Decisões
           </Link>
           <Link href="/#cupoes" className="hidden hover:text-slate-900 sm:inline">
             Cupões
@@ -50,18 +47,16 @@ export function SiteFooter() {
     {
       title: "Produto",
       links: [
-        { href: "/catalog/?section=deals", label: "Oportunidades" },
+        { href: "/#decisoes", label: "Decisões" },
         { href: "/catalog/", label: "Catálogo" },
         { href: "/#cupoes", label: "Cupões" },
-        { href: "/#lojas", label: "Lojas" },
       ],
     },
     {
       title: "Limiar",
       links: [
-        { href: "/#como-funciona", label: "Como funciona" },
-        { href: "/#porque-limiar", label: "Porque confiar" },
-        { href: "/#alertas", label: "Alertas" },
+        { href: "/#comprar-agora", label: "Comprar agora" },
+        { href: "/#esperar", label: "Esperar" },
       ],
     },
     {

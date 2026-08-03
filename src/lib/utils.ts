@@ -23,22 +23,39 @@ export const SEMAPHORE_LABEL: Record<
   { label: string; short: string; emoji: string; className: string }
 > = {
   buy: {
-    label: "Excelente Oportunidade",
-    short: "Excelente",
+    label: "Vale a pena comprar",
+    short: "Comprar",
     emoji: "🟢",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    className: "bg-emerald-50 text-emerald-800 border-emerald-200",
   },
   fair: {
-    label: "Preço Competitivo",
-    short: "Competitivo",
+    label: "Preço razoável",
+    short: "Razoável",
     emoji: "🟡",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
+    className: "bg-amber-50 text-amber-900 border-amber-200",
   },
   wait: {
-    label: "Acima do Habitual",
-    short: "Acima",
-    emoji: "🔴",
-    className: "bg-rose-50 text-rose-700 border-rose-200",
+    label: "Melhor esperar",
+    short: "Esperar",
+    emoji: "🟡",
+    className: "bg-amber-50 text-amber-900 border-amber-200",
+  },
+};
+
+/** Decisão com estado explícito de dados insuficientes (UI). */
+export type DecisionUiKind = DecisionSemaphore | "unknown";
+
+export const DECISION_UI_LABEL: Record<
+  DecisionUiKind,
+  { label: string; emoji: string; className: string }
+> = {
+  buy: SEMAPHORE_LABEL.buy,
+  fair: SEMAPHORE_LABEL.fair,
+  wait: SEMAPHORE_LABEL.wait,
+  unknown: {
+    label: "Dados insuficientes",
+    emoji: "⚪",
+    className: "bg-slate-100 text-slate-700 border-slate-200",
   },
 };
 

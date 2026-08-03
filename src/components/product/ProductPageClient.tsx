@@ -10,27 +10,21 @@ import {
 } from "@/lib/api";
 import type { Product } from "@/lib/types";
 import {
-  buildLimiarInsights,
   computeDataConfidence,
   estimateSeasonality,
   findBetterStorageVariantTip,
   stripCapacityFromName,
 } from "@/lib/product-insights";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
-import { DataConfidenceCard } from "@/components/product/DataConfidenceCard";
 import { DecisionCard } from "@/components/product/DecisionCard";
-import { LimiarIndexCard } from "@/components/product/LimiarIndexCard";
-import { LimiarInsights } from "@/components/product/LimiarInsights";
-import { MarketSummaryPanel } from "@/components/product/MarketSummaryPanel";
-import { PriceAlertForm } from "@/components/product/PriceAlertForm";
-import { ProductHeader } from "@/components/product/ProductHeader";
 import {
   ActiveCampaignBanner,
   StoreCouponsInfoBanner,
 } from "@/components/product/CampaignCouponBlock";
 import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
-import { SeasonalityCard } from "@/components/product/SeasonalityCard";
+import { ProductHeader } from "@/components/product/ProductHeader";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
+import { TELEGRAM_CHANNEL } from "@/lib/constants";
 
 type Props = { slug: string };
 
@@ -114,16 +108,6 @@ export function ProductPageClient({ slug }: Props) {
     });
   }, [product, metrics]);
 
-  const insights = useMemo(() => {
-    if (!product || !confidence || !seasonality) return [];
-    return buildLimiarInsights({
-      product,
-      confidence,
-      seasonality,
-      variantTip,
-    });
-  }, [product, confidence, seasonality, variantTip]);
-
   if (loading) {
     return (
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-6">
@@ -153,29 +137,34 @@ export function ProductPageClient({ slug }: Props) {
     product.originalPrice != null && product.originalPrice > product.currentPrice
       ? product.originalPrice
       : null;
+  const storeCount = metrics?.storeCount ?? product.offers.length;
 
   return (
-    <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
+    <main className="mx-auto max-w-6xl space-y-12 px-4 py-10 sm:px-6">
       <ProductHeader product={product} />
-      <ActiveCampaignBanner product={product} />
-      <StoreCouponsInfoBanner product={product} />
 
-      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <LimiarIndexCard
-          index={product.decision.limiarIndex}
-          currentPrice={product.currentPrice}
-        />
-        <DecisionCard
-          decision={product.decision}
-          currentPrice={product.currentPrice}
-          avg30d={product.avg30d}
-          history={product.history}
-        />
-      </div>
+      <DecisionCard
+        decision={product.decision}
+        currentPrice={product.currentPrice}
+        avg30d={product.avg30d}
+        historicalMin={histMin}
+        history={product.history}
+        storeCount={storeCount}
+        samples30d={metrics?.samples30d}
+        samples90d={metrics?.samples90d}
+      />
 
-      <LimiarInsights insights={insights} />
+      <section id="lojas" className="scroll-mt-20 space-y-4">
+        <div>
+          <h2 className="font-display text-xl font-bold text-slate-900">Onde comprar</h2>
+          <p className="mt-1.5 text-sm text-slate-500">
+            Preço da loja separado de qualquer cupão. Ordenado do mais baixo para o mais alto.
+          </p>
+        </div>
+        <StoreCompareTable offers={product.offers} />
+      </section>
 
-      <div className="space-y-6">
+      <section id="historico" className="scroll-mt-20 space-y-4">
         <PriceHistoryChart
           productId={slug}
           fallbackHistory={product.history}
@@ -185,35 +174,39 @@ export function ProductPageClient({ slug }: Props) {
           referenceSource={product.referenceSource ?? "HISTORY_30D"}
           pvpr={pvpr}
         />
-        <MarketSummaryPanel
-          ean={product.ean}
-          currentPrice={product.currentPrice}
-          avg30d={product.avg30d}
-          metrics={metrics}
-        />
+      </section>
+
+      <div className="space-y-4">
+        <ActiveCampaignBanner product={product} />
+        <StoreCouponsInfoBanner product={product} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SeasonalityCard seasonality={seasonality} />
-        <div className="space-y-6">
-          <DataConfidenceCard confidence={confidence} />
-          <PriceAlertForm
-            productName={product.name}
-            currentPrice={product.currentPrice}
-            historicalMin={histMin}
-            avg30d={product.avg30d}
-            suggestedThreshold={Math.round(histMin * 100) / 100}
-          />
-        </div>
-      </div>
+      {variantTip ? (
+        <p className="rounded-2xl border border-slate-200 bg-[#FAFAFA] px-4 py-3 text-sm text-slate-600">
+          {variantTip.message}{" "}
+          <a
+            href={`/p/?id=${encodeURIComponent(variantTip.siblingSlug)}`}
+            className="font-medium text-sky-700 hover:text-sky-900"
+          >
+            Ver variante
+          </a>
+        </p>
+      ) : null}
 
-      <section className="space-y-4">
-        <h2 className="font-display text-xl font-bold text-slate-900">Comparação multi-loja</h2>
-        {product.offers.length ? (
-          <StoreCompareTable offers={product.offers} />
-        ) : (
-          <p className="text-sm text-slate-500">Sem ofertas multi-loja para este EAN.</p>
-        )}
+      <section className="rounded-2xl border border-sky-100 bg-sky-50/40 px-6 py-8 sm:px-8">
+        <h2 className="font-display text-lg font-bold text-slate-900">Alertas Limiar</h2>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
+          Queres ser avisado quando o preço baixar? Segue o canal Telegram Limiar — alertas
+          pessoais por email só quando estiverem disponíveis de ponta a ponta.
+        </p>
+        <a
+          href={TELEGRAM_CHANNEL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-sky-700 px-6 text-sm font-semibold text-white transition-colors hover:bg-sky-800"
+        >
+          Abrir Telegram
+        </a>
       </section>
 
       <RelatedProductsSection product={product} />

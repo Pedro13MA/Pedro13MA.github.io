@@ -107,6 +107,8 @@ export interface SmartCoupon {
   endDate?: string | null;
   isActive?: boolean;
   status?: string | null;
+  /** Página oficial da campanha (Awin), se existir. */
+  url?: string | null;
 }
 
 export interface StoreCampaign {

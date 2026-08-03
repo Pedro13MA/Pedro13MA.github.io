@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { CouponCard } from "@/components/cupoes/CouponCard";
 import {
   getCoupons,
@@ -18,7 +19,7 @@ function SectionSkeleton({ n = 4 }: { n?: number }) {
       {Array.from({ length: n }).map((_, i) => (
         <div
           key={i}
-          className="h-56 animate-pulse rounded-2xl border border-dashed border-slate-200 bg-slate-100"
+          className="h-64 animate-pulse rounded-2xl border border-dashed border-slate-200 bg-slate-100"
         />
       ))}
     </div>
@@ -34,7 +35,7 @@ function CouponEmptyState() {
       <p className="mt-4 font-display text-lg font-semibold text-slate-900">
         Sem campanhas no momento
       </p>
-      <p className="mt-2 max-w-md text-sm text-slate-500">
+      <p className="mt-2 max-w-md text-[15px] text-slate-500">
         O preço apresentado pelo Limiar continua sempre baseado no preço real
         encontrado.
       </p>
@@ -65,11 +66,11 @@ function StoreLogoChip({ slug, name }: { slug: string; name: string }) {
   );
 }
 
+/** Resumo de campanhas na homepage — detalhe por loja em /cupoes/[store]. */
 export function CouponHubSection() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [storeFilter, setStoreFilter] = useState<string>("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -117,7 +118,6 @@ export function CouponHubSection() {
       if (!slug || fromData.has(slug)) continue;
       fromData.set(slug, resolveStoreLabel(slug, promo.storeName));
     }
-    // Preferir ordem canónica do hub; acrescentar lojas extra da API
     const tabs = COUPON_HUB_STORES.map((s) => ({
       id: s.slug,
       label: s.name,
@@ -131,84 +131,39 @@ export function CouponHubSection() {
     return tabs;
   }, [promotions, countsByStore]);
 
-  useEffect(() => {
-    if (storeFilter === "all") return;
-    if (!storeTabs.some((t) => t.id === storeFilter)) {
-      setStoreFilter("all");
-    }
-  }, [storeFilter, storeTabs]);
-
-  const filtered = useMemo(() => {
-    if (storeFilter === "all") return promotions;
-    return promotions.filter(
-      (p) => normalizeCouponStoreSlug(p.storeSlug) === storeFilter,
-    );
-  }, [promotions, storeFilter]);
+  // Homepage: resumo — no máximo 8 campanhas; o resto nas páginas de loja
+  const summary = useMemo(() => promotions.slice(0, 8), [promotions]);
 
   return (
     <section id="cupoes" className="scroll-mt-16 border-t border-slate-200/60 bg-white">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
         <div className="mb-8">
-          <h2 className="font-display text-2xl font-bold text-slate-900">
-            🎟️ Hub de Cupões
+          <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Cupões
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-            Campanhas e códigos promocionais ativos nas lojas. O preço apresentado
-            pelo Limiar continua sempre baseado no preço real encontrado.
+          <p className="mt-2.5 max-w-2xl text-[15px] leading-relaxed text-slate-500">
+            Campanhas activas nas lojas. O preço Limiar continua baseado no preço observado —
+            o cupão é ajuda à parte, nunca misturado como se já estivesse aplicado.
           </p>
         </div>
 
-        {!loading && (promotions.length > 0 || storeTabs.length > 0) ? (
-          <div className="mb-8 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setStoreFilter("all")}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition-all",
-                storeFilter === "all"
-                  ? "border-sky-600 bg-sky-600 text-white"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
-              )}
-            >
-              Todas
-              <span
+        {!loading && storeTabs.length > 0 ? (
+          <div className="mb-10 flex flex-wrap items-center gap-2">
+            {storeTabs.map((t) => (
+              <Link
+                key={t.id}
+                href={`/cupoes/${encodeURIComponent(t.id)}/`}
                 className={cn(
-                  "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-                  storeFilter === "all" ? "bg-white/20" : "bg-slate-100 text-slate-600",
+                  "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700",
+                  "transition-colors duration-150 hover:border-sky-300 hover:text-sky-900",
                 )}
               >
-                {promotions.length}
-              </span>
-            </button>
-            {storeTabs.map((t, i) => (
-              <div key={t.id} className="flex items-center gap-2">
-                <span className="hidden text-slate-300 sm:inline" aria-hidden>
-                  {i === 0 ? "|" : "|"}
+                <StoreLogoChip slug={t.id} name={t.label} />
+                {t.label}
+                <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">
+                  {t.count}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setStoreFilter(t.id)}
-                  className={cn(
-                    "inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition-all",
-                    storeFilter === t.id
-                      ? "border-sky-600 bg-sky-600 text-white"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300",
-                  )}
-                >
-                  <StoreLogoChip slug={t.id} name={t.label} />
-                  {t.label}
-                  <span
-                    className={cn(
-                      "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-                      storeFilter === t.id
-                        ? "bg-white/20"
-                        : "bg-slate-100 text-slate-600",
-                    )}
-                  >
-                    {t.count}
-                  </span>
-                </button>
-              </div>
+              </Link>
             ))}
           </div>
         ) : null}
@@ -219,17 +174,24 @@ export function CouponHubSection() {
           <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-6 text-sm text-rose-800">
             {error}
           </p>
-        ) : filtered.length === 0 ? (
+        ) : summary.length === 0 ? (
           <CouponEmptyState />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((p) => (
-              <CouponCard
-                key={`${p.storeSlug}-${p.code || p.externalId || p.title}`}
-                promotion={p}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {summary.map((p) => (
+                <CouponCard
+                  key={`${p.storeSlug}-${p.code || p.externalId || p.title}`}
+                  promotion={p}
+                />
+              ))}
+            </div>
+            {promotions.length > summary.length || storeTabs.length > 0 ? (
+              <p className="mt-8 text-center text-sm text-slate-500">
+                Escolhe uma loja acima para ver todas as campanhas disponíveis.
+              </p>
+            ) : null}
+          </>
         )}
       </div>
     </section>

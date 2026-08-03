@@ -87,8 +87,9 @@ export function SearchBar({ className, autoFocus, defaultQuery = "" }: Props) {
                 A procurar produtos…
               </li>
             ) : results.length === 0 ? (
-              <li className="px-4 py-3 text-sm text-slate-500">
-                Sem sugestões. Carrega Enter para ver todos os resultados.
+              <li className="px-4 py-3 text-sm leading-relaxed text-slate-600">
+                Ainda não temos sugestões para este termo. Carrega Enter para ver
+                todos os resultados — ou tenta outro nome de produto.
               </li>
             ) : (
               results.map((p) => (

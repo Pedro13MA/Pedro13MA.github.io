@@ -12,15 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 const PERIODS = [
-  { days: 2, label: "2D" },
-  { days: 7, label: "7D" },
-  { days: 15, label: "15D" },
-  { days: 30, label: "30D" },
-  { days: 60, label: "2M" },
-  { days: 90, label: "3M" },
-  { days: 180, label: "6M" },
-  { days: 365, label: "1A" },
-  { days: 1825, label: "5A" },
+  { days: 30, label: "30 dias" },
+  { days: 90, label: "90 dias" },
+  { days: 365, label: "1 ano" },
 ] as const;
 
 type PeriodDays = (typeof PERIODS)[number]["days"];

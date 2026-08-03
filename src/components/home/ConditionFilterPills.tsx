@@ -40,7 +40,6 @@ export function ConditionFilterPills({ value, onChange, className }: Props) {
                 : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900",
             )}
           >
-            {active ? "🔘 " : ""}
             {opt.label}
           </button>
         );
