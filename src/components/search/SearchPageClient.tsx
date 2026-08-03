@@ -11,7 +11,15 @@ import {
   summaryToProduct,
   type SearchFacets,
   type SearchSortBy,
+  type TaxonomyFacet,
 } from "@/lib/api";
+import {
+  appendSelectionToParams,
+  clearTaxonomySelection,
+  countSelected,
+  selectionFromSearchParams,
+  type TaxonomySelection,
+} from "@/lib/taxonomy-facets";
 import type { Product } from "@/lib/types";
 
 const PAGE_SIZE = 24;
@@ -49,8 +57,8 @@ function readFilters(params: URLSearchParams): Filters {
     socket: params.get("socket") || "",
     capacity: params.get("capacity") || "",
     format: params.get("format") || "",
-    minPrice: params.get("min_price") || "",
-    maxPrice: params.get("max_price") || "",
+    minPrice: params.get("min_price") || params.get("price_min") || "",
+    maxPrice: params.get("max_price") || params.get("price_max") || "",
     inStockOnly: params.get("in_stock") === "true",
     sortBy: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "limiar_desc",
     page: Math.max(1, Number(params.get("page") || "1") || 1),
@@ -77,10 +85,16 @@ export function SearchPageClient() {
   const searchParams = useSearchParams();
   const q = (searchParams.get("q") || "").trim();
   const filters = useMemo(() => readFilters(searchParams), [searchParams]);
+  /** Deep-link: estado reconstruído da URL em cada navegação / refresh */
+  const taxonomySelection = useMemo(
+    () => selectionFromSearchParams(searchParams),
+    [searchParams],
+  );
 
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [facets, setFacets] = useState<SearchFacets>(EMPTY_FACETS);
+  const [taxonomyFacets, setTaxonomyFacets] = useState<TaxonomyFacet[]>([]);
   const [inferred, setInferred] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,16 +113,17 @@ export function SearchPageClient() {
     }
   }, [q]);
 
-  const pushFilters = useCallback(
-    (patch: Partial<Filters> & { q?: string }) => {
+  const buildSearchUrl = useCallback(
+    (
+      patch: Partial<Filters> & { q?: string },
+      selection: TaxonomySelection = taxonomySelection,
+    ) => {
       const next: Filters = { ...filters, ...patch, page: patch.page ?? 1 };
       const params = new URLSearchParams();
       const query = (patch.q ?? q).trim();
       if (query) params.set("q", query);
       if (next.category) params.set("category", next.category);
       if (next.subcategory) params.set("subcategory", next.subcategory);
-      if (next.brand) params.set("brand", next.brand);
-      if (next.store) params.set("store", next.store);
       if (next.type) params.set("type", next.type);
       if (next.model) params.set("model", next.model);
       if (next.vram) params.set("vram", next.vram);
@@ -116,16 +131,43 @@ export function SearchPageClient() {
       if (next.socket) params.set("socket", next.socket);
       if (next.capacity) params.set("capacity", next.capacity);
       if (next.format) params.set("format", next.format);
-      if (next.minPrice) params.set("min_price", next.minPrice);
-      if (next.maxPrice) params.set("max_price", next.maxPrice);
+      // Preço legado só se não houver price_* taxonomy
+      if (!selection.price_min?.length && next.minPrice) {
+        params.set("min_price", next.minPrice);
+      }
+      if (!selection.price_max?.length && next.maxPrice) {
+        params.set("max_price", next.maxPrice);
+      }
       if (next.inStockOnly) params.set("in_stock", "true");
       if (next.sortBy && next.sortBy !== "limiar_desc") {
         params.set("sort_by", next.sortBy);
       }
       if (next.page > 1) params.set("page", String(next.page));
-      router.push(`/search/?${params.toString()}`);
+      appendSelectionToParams(params, selection);
+      // Legado single brand/store (quando taxonomy UI não está a gerir esses keys)
+      if (!selection.brand?.length && next.brand) {
+        params.append("brand", next.brand);
+      }
+      if (!selection.store?.length && next.store) {
+        params.append("store", next.store);
+      }
+      return `/search/?${params.toString()}`;
     },
-    [filters, q, router],
+    [filters, q, taxonomySelection],
+  );
+
+  const pushFilters = useCallback(
+    (patch: Partial<Filters> & { q?: string }) => {
+      router.push(buildSearchUrl(patch, taxonomySelection));
+    },
+    [buildSearchUrl, router, taxonomySelection],
+  );
+
+  const pushTaxonomySelection = useCallback(
+    (nextSelection: TaxonomySelection) => {
+      router.push(buildSearchUrl({ page: 1 }, nextSelection));
+    },
+    [buildSearchUrl, router],
   );
 
   useEffect(() => {
@@ -133,18 +175,19 @@ export function SearchPageClient() {
       setProducts([]);
       setTotal(0);
       setError(null);
+      setTaxonomyFacets([]);
       return;
     }
     let cancelled = false;
     setLoading(true);
     setError(null);
     const offset = (filters.page - 1) * PAGE_SIZE;
+    const tax = taxonomySelection;
     searchProducts(q, {
       limit: PAGE_SIZE,
       offset,
       category: filters.category || undefined,
-      brand: filters.brand || undefined,
-      store: filters.store || undefined,
+      // brand/store via taxonomyFilters (multi)
       type: filters.type || undefined,
       model: filters.model || undefined,
       vram: filters.vram || undefined,
@@ -152,17 +195,25 @@ export function SearchPageClient() {
       socket: filters.socket || undefined,
       capacity: filters.capacity || undefined,
       format: filters.format || undefined,
-      minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-      maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+      minPrice:
+        !tax.price_min?.length && filters.minPrice
+          ? Number(filters.minPrice)
+          : undefined,
+      maxPrice:
+        !tax.price_max?.length && filters.maxPrice
+          ? Number(filters.maxPrice)
+          : undefined,
       sortBy: filters.sortBy,
       inStockOnly: filters.inStockOnly || undefined,
       subcategory: filters.subcategory || undefined,
+      taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
     })
       .then((res) => {
         if (cancelled) return;
         setProducts(res.results.map(summaryToProduct));
         setTotal(res.total);
         setFacets(res.facets || EMPTY_FACETS);
+        setTaxonomyFacets(res.taxonomyFacets ?? []);
         setInferred(res.inferredCategory || null);
       })
       .catch((err) => {
@@ -170,6 +221,7 @@ export function SearchPageClient() {
           setError(err instanceof Error ? err.message : "Falha na pesquisa");
           setProducts([]);
           setTotal(0);
+          setTaxonomyFacets([]);
         }
       })
       .finally(() => {
@@ -178,7 +230,7 @@ export function SearchPageClient() {
     return () => {
       cancelled = true;
     };
-  }, [q, filters]);
+  }, [q, filters, taxonomySelection]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -240,6 +292,9 @@ export function SearchPageClient() {
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <FilterSidebar
           facets={facets}
+          taxonomyFacets={taxonomyFacets}
+          taxonomySelection={taxonomySelection}
+          onTaxonomySelectionChange={pushTaxonomySelection}
           filters={filters}
           inferredCategory={inferred}
           minDraft={minDraft}
@@ -247,25 +302,30 @@ export function SearchPageClient() {
           onMinDraft={setMinDraft}
           onMaxDraft={setMaxDraft}
           onSelect={(patch) => pushFilters(patch)}
-          onClear={() =>
-            pushFilters({
-              category: "",
-              subcategory: "",
-              brand: "",
-              store: "",
-              type: "",
-              model: "",
-              vram: "",
-              series: "",
-              socket: "",
-              capacity: "",
-              format: "",
-              minPrice: "",
-              maxPrice: "",
-              inStockOnly: false,
-              page: 1,
-            })
-          }
+          onClear={() => {
+            router.push(
+              buildSearchUrl(
+                {
+                  category: "",
+                  subcategory: "",
+                  brand: "",
+                  store: "",
+                  type: "",
+                  model: "",
+                  vram: "",
+                  series: "",
+                  socket: "",
+                  capacity: "",
+                  format: "",
+                  minPrice: "",
+                  maxPrice: "",
+                  inStockOnly: false,
+                  page: 1,
+                },
+                clearTaxonomySelection(),
+              ),
+            );
+          }}
           onApplyPrice={() =>
             pushFilters({
               minPrice: minDraft.trim(),

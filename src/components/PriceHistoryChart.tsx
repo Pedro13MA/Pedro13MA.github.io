@@ -15,6 +15,7 @@ const PERIODS = [
   { days: 30, label: "30 dias" },
   { days: 90, label: "90 dias" },
   { days: 365, label: "1 ano" },
+  { days: 1825, label: "Tudo" },
 ] as const;
 
 type PeriodDays = (typeof PERIODS)[number]["days"];
@@ -27,6 +28,10 @@ type Props = {
   referencePrice?: number | null;
   referenceSource?: string | null;
   pvpr?: number | null;
+  /** FASE 7.8 — eventos informativos (dados já existentes). */
+  highlightNewMin?: boolean;
+  hasPromotions?: boolean;
+  hasCoupons?: boolean;
 };
 
 function ChartSkeleton() {
@@ -50,6 +55,9 @@ export function PriceHistoryChart({
   referencePrice,
   referenceSource,
   pvpr,
+  highlightNewMin,
+  hasPromotions,
+  hasCoupons,
 }: Props) {
   const [days, setDays] = useState<PeriodDays>(30);
   const [data, setData] = useState<PriceHistoryOut | null>(null);
@@ -154,6 +162,26 @@ export function PriceHistoryChart({
           <p className="mt-2 text-xs text-amber-600">
             A mostrar histórico embutido (série temporal indisponível para este período).
           </p>
+        ) : null}
+
+        {!loading ? (
+          <ul className="mt-4 flex flex-wrap gap-2 text-xs">
+            {highlightNewMin ? (
+              <li className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800">
+                Novo mínimo observado
+              </li>
+            ) : null}
+            {hasPromotions ? (
+              <li className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 font-medium text-amber-900">
+                Promoções activas
+              </li>
+            ) : null}
+            {hasCoupons ? (
+              <li className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 font-medium text-sky-800">
+                Cupões disponíveis
+              </li>
+            ) : null}
+          </ul>
         ) : null}
       </CardContent>
     </Card>

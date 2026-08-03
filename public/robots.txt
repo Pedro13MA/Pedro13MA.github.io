@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://pedro13ma.github.io/sitemap.xml
+Sitemap: https://pedro13ma.github.io/sitemap-categorias.xml
+Sitemap: https://pedro13ma.github.io/sitemap-landing.xml

@@ -117,6 +117,25 @@ export type SearchFacets = {
   in_stock?: FacetBucket[];
 };
 
+/** FASE 7.2/7.3 — facet dinâmico Taxonomy v2 (aditivo; legado `facets` intacto). */
+export type TaxonomyFacetValue = {
+  value: string;
+  label: string;
+  count: number;
+  selected?: boolean;
+};
+
+export type TaxonomyFacetType = "enum" | "number" | "boolean" | "range";
+
+export type TaxonomyFacet = {
+  id: string;
+  label: string;
+  type: TaxonomyFacetType | string;
+  values: TaxonomyFacetValue[];
+  count: number;
+  selected?: boolean;
+};
+
 export type SearchResponse = {
   query: string;
   total: number;
@@ -126,6 +145,108 @@ export type SearchResponse = {
   inferredCategory?: string | null;
   results: ApiProductSummary[];
   facets: SearchFacets;
+  /** FASE 7.2 — opcional; ausente/vazio → UI legado */
+  taxonomyFacets?: TaxonomyFacet[];
+};
+
+export type CategorySeo = {
+  slug: string;
+  title: string;
+  description: string;
+  canonical_url: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  robots?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image?: string | null;
+  twitter_card?: string | null;
+};
+
+export type CategoryFaqItem = {
+  question: string;
+  answer: string;
+};
+
+export type CategorySeoFull = {
+  slug: string;
+  title: string;
+  meta_title: string;
+  meta_description: string;
+  description: string;
+  canonical_url: string;
+  canonical_path: string;
+  breadcrumbs: CategoryBreadcrumb[];
+  robots: string;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image?: string | null;
+  og_url?: string | null;
+  twitter_card?: string | null;
+  faq: CategoryFaqItem[];
+  json_ld: Record<string, unknown>[];
+  level?: number | null;
+  display_name?: string | null;
+  updated_hint?: string | null;
+};
+
+export type CategoryBreadcrumb = {
+  slug: string;
+  display_name: string;
+  path?: string | null;
+};
+
+export type CategoryChild = {
+  slug: string;
+  display_name: string;
+  level: number;
+  parent?: string | null;
+  is_active?: boolean;
+  children_count?: number;
+};
+
+export type CategorySummary = {
+  slug: string;
+  display_name: string;
+  level: number;
+  children_count: number;
+  seo: CategorySeo;
+};
+
+export type CategoriesListResponse = {
+  count: number;
+  categories: CategorySummary[];
+};
+
+export type CategoryDetail = {
+  slug: string;
+  display_name: string;
+  parent?: string | null;
+  level: number;
+  is_active: boolean;
+  taxonomy_path: string[];
+  breadcrumbs: CategoryBreadcrumb[];
+  children: CategoryChild[];
+  seo: CategorySeo;
+  faq?: CategoryFaqItem[];
+  json_ld?: Record<string, unknown>[];
+  updated_hint?: string | null;
+};
+
+export type CategoryProductsResponse = {
+  slug: string;
+  display_name: string;
+  level: number;
+  breadcrumbs: CategoryBreadcrumb[];
+  seo: CategorySeo;
+  query?: string | null;
+  total: number;
+  limit: number;
+  offset: number;
+  sortBy: string;
+  results: ApiProductSummary[];
+  facets: SearchFacets;
+  taxonomyFacets?: TaxonomyFacet[];
 };
 
 export type SearchSortBy =
@@ -152,6 +273,8 @@ export type SearchParams = {
   sortBy?: SearchSortBy;
   inStockOnly?: boolean;
   subcategory?: string;
+  /** FASE 7.4 — filtros taxonomy (multi-value por chave) */
+  taxonomyFilters?: Record<string, string[]>;
 };
 
 export type ApiPaymentMethod = {
@@ -260,6 +383,13 @@ export type ApiProductDetail = {
   dailySummary?: Array<Record<string, unknown>> | null;
   chipsetModel?: string | null;
   vramSpec?: string | null;
+  leaf_id?: string | null;
+  product_kind_v2?: string | null;
+  taxonomy_path?: string | null;
+  brand_normalized?: string | null;
+  taxonomy_version?: string | null;
+  typed_attributes?: Record<string, unknown> | null;
+  imageUrls?: string[] | null;
 };
 
 export type ApiSmartCoupon = {
@@ -638,6 +768,11 @@ export function detailToProduct(d: ApiProductDetail): Product {
     condition: normalizeCondition(d.condition),
     chipsetModel: d.chipsetModel ?? undefined,
     vramSpec: d.vramSpec ?? undefined,
+    leafId: d.leaf_id ?? undefined,
+    taxonomyPath: d.taxonomy_path ?? undefined,
+    brandNormalized: d.brand_normalized ?? undefined,
+    typedAttributes: d.typed_attributes ?? undefined,
+    imageUrls: Array.isArray(d.imageUrls) ? d.imageUrls.filter(Boolean) : undefined,
     activeCoupon,
     activeCampaign,
     smartBasketOpportunity: null,
@@ -749,7 +884,62 @@ export async function searchProducts(
   }
   if (opts?.inStockOnly) params.set("in_stock", "true");
   if (opts?.subcategory) params.set("subcategory", opts.subcategory);
+  // FASE 7.4 — taxonomy multi-params (brand=asus&brand=msi&vram_gb=16)
+  if (opts?.taxonomyFilters) {
+    for (const [key, values] of Object.entries(opts.taxonomyFilters)) {
+      for (const v of values) {
+        if (v) params.append(key, v);
+      }
+    }
+  }
   return apiGet<SearchResponse>(`/api/v1/search?${params}`);
+}
+
+/** FASE 7.5 — categorias L1 */
+export async function getCategories(): Promise<CategoriesListResponse> {
+  return apiGet<CategoriesListResponse>("/api/v1/categorias");
+}
+
+export async function getCategory(slug: string): Promise<CategoryDetail> {
+  return apiGet<CategoryDetail>(
+    `/api/v1/categorias/${encodeURIComponent(slug)}`,
+  );
+}
+
+export async function getCategorySeo(slug: string): Promise<CategorySeoFull> {
+  return apiGet<CategorySeoFull>(
+    `/api/v1/categorias/${encodeURIComponent(slug)}/seo`,
+  );
+}
+
+export type CategoryProductsParams = {
+  q?: string;
+  limit?: number;
+  offset?: number;
+  sortBy?: SearchSortBy;
+  taxonomyFilters?: Record<string, string[]>;
+};
+
+export async function getCategoryProducts(
+  slug: string,
+  opts?: CategoryProductsParams,
+): Promise<CategoryProductsResponse> {
+  const params = new URLSearchParams({
+    limit: String(opts?.limit ?? 24),
+    offset: String(opts?.offset ?? 0),
+    sort_by: opts?.sortBy || "limiar_desc",
+  });
+  if (opts?.q?.trim()) params.set("q", opts.q.trim());
+  if (opts?.taxonomyFilters) {
+    for (const [key, values] of Object.entries(opts.taxonomyFilters)) {
+      for (const v of values) {
+        if (v) params.append(key, v);
+      }
+    }
+  }
+  return apiGet<CategoryProductsResponse>(
+    `/api/v1/categorias/${encodeURIComponent(slug)}/produtos?${params}`,
+  );
 }
 
 export async function getDealsNow(limit = 24): Promise<DealsResponse> {

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <rect x="80" y="180" width="16" height="120" rx="4" fill="#0284c7"/>
+  <text x="120" y="250" font-family="Georgia, serif" font-size="72" fill="#0f172a">Limiar</text>
+  <text x="120" y="320" font-family="Arial, sans-serif" font-size="32" fill="#475569">Quando vale realmente a pena comprar</text>
+</svg>

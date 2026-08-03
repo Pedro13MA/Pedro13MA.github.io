@@ -262,6 +262,14 @@ export interface Product {
   condition?: ProductCondition;
   chipsetModel?: string | null;
   vramSpec?: string | null;
+  /** Taxonomy v2 — leaf activo (opcional). */
+  leafId?: string | null;
+  taxonomyPath?: string | null;
+  brandNormalized?: string | null;
+  /** Atributos tipados do catálogo (FASE 7.8). */
+  typedAttributes?: Record<string, unknown> | null;
+  /** Galeria — URLs únicas das ofertas. */
+  imageUrls?: string[];
   /** True só se o bot publicou este produto no canal Telegram. */
   sentToTelegram?: boolean;
   /** ISO timestamp — quando a oportunidade foi detetada / publicada. */

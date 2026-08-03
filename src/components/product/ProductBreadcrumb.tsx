@@ -13,7 +13,7 @@ export function ProductBreadcrumb({ crumbs }: Props) {
       <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
         <li>
           <Link href="/" className="hover:text-slate-800">
-            Limiar
+            Início
           </Link>
         </li>
         {crumbs.map((crumb, i) => {

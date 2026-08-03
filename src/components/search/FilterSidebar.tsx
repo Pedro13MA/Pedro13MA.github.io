@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { FacetBucket, SearchFacets } from "@/lib/api";
+import { TaxonomyFilters } from "@/components/search/TaxonomyFilters";
+import type { FacetBucket, SearchFacets, TaxonomyFacet } from "@/lib/api";
+import {
+  clearTaxonomySelection,
+  hasTaxonomyFacets,
+  type TaxonomySelection,
+} from "@/lib/taxonomy-facets";
 import { cn } from "@/lib/utils";
 
 const BRAND_PREVIEW = 5;
@@ -78,6 +84,10 @@ function resolveActiveCategoryKey(
 
 type Props = {
   facets: SearchFacets;
+  /** FASE 7.3 — se presente e não vazio, substitui blocos hardcoded por UI dinâmica */
+  taxonomyFacets?: TaxonomyFacet[];
+  taxonomySelection?: TaxonomySelection;
+  onTaxonomySelectionChange?: (next: TaxonomySelection) => void;
   filters: FilterValues;
   inferredCategory?: string | null;
   minDraft: string;
@@ -203,18 +213,17 @@ function SubcategoryBlock({
   );
 }
 
-export function FilterSidebar({
+function LegacyCategoryFacets({
   facets,
   filters,
   inferredCategory,
-  minDraft,
-  maxDraft,
-  onMinDraft,
-  onMaxDraft,
   onSelect,
-  onClear,
-  onApplyPrice,
-}: Props) {
+}: {
+  facets: SearchFacets;
+  filters: FilterValues;
+  inferredCategory?: string | null;
+  onSelect: (patch: Partial<FilterValues>) => void;
+}) {
   const cat = resolveActiveCategoryKey(filters.subcategory, inferredCategory);
   const isGpu = cat === "gpu";
   const isCpu = cat === "cpu";
@@ -222,55 +231,9 @@ export function FilterSidebar({
   const isRam = cat === "ram";
   const isAirFryer = cat === "air_fryer";
   const isSmartphone = cat === "smartphone";
-  const subcategories = facets.subcategories ?? [];
 
   return (
-    <aside
-      className={cn(
-        "limiar-sidebar space-y-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
-        "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
-        "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-sm font-semibold text-slate-900">Filtros</h2>
-        <button
-          type="button"
-          className="text-xs text-sky-700 hover:underline"
-          onClick={onClear}
-        >
-          Limpar
-        </button>
-      </div>
-
-      <SubcategoryBlock
-        items={subcategories}
-        active={filters.subcategory}
-        onSelect={(value) =>
-          onSelect({
-            subcategory: value,
-            brand: "",
-            model: "",
-            vram: "",
-            series: "",
-            socket: "",
-            capacity: "",
-            format: "",
-            type: "",
-          })
-        }
-      />
-
-      <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
-        <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
-        <input
-          type="checkbox"
-          checked={filters.inStockOnly}
-          onChange={(e) => onSelect({ inStockOnly: e.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-        />
-      </label>
-
+    <>
       {isGpu ? (
         <>
           <FacetList
@@ -306,7 +269,7 @@ export function FilterSidebar({
         </>
       ) : null}
 
-      {(isSsd || isRam) ? (
+      {isSsd || isRam ? (
         <>
           <FacetList
             title="Capacidade"
@@ -378,7 +341,99 @@ export function FilterSidebar({
         onSelect={(value) => onSelect({ store: value })}
         itemKey={(item) => `store-${item.value}`}
       />
-      {subcategories.length === 0 ? (
+    </>
+  );
+}
+
+export function FilterSidebar({
+  facets,
+  taxonomyFacets,
+  taxonomySelection = {},
+  onTaxonomySelectionChange,
+  filters,
+  inferredCategory,
+  minDraft,
+  maxDraft,
+  onMinDraft,
+  onMaxDraft,
+  onSelect,
+  onClear,
+  onApplyPrice,
+}: Props) {
+  const useTaxonomy = hasTaxonomyFacets(taxonomyFacets);
+  const subcategories = facets.subcategories ?? [];
+
+  const handleClear = () => {
+    onTaxonomySelectionChange?.(clearTaxonomySelection());
+    onClear();
+  };
+
+  return (
+    <aside
+      className={cn(
+        "limiar-sidebar space-y-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
+        "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
+        "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-sm font-semibold text-slate-900">Filtros</h2>
+        <button
+          type="button"
+          className="text-xs text-sky-700 hover:underline"
+          onClick={handleClear}
+        >
+          Limpar
+        </button>
+      </div>
+
+      <SubcategoryBlock
+        items={subcategories}
+        active={filters.subcategory}
+        onSelect={(value) =>
+          onSelect({
+            subcategory: value,
+            brand: "",
+            model: "",
+            vram: "",
+            series: "",
+            socket: "",
+            capacity: "",
+            format: "",
+            type: "",
+          })
+        }
+      />
+
+      <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
+        <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
+        <input
+          type="checkbox"
+          checked={filters.inStockOnly}
+          onChange={(e) => onSelect({ inStockOnly: e.target.checked })}
+          className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+        />
+      </label>
+
+      {useTaxonomy && taxonomyFacets && onTaxonomySelectionChange ? (
+        <TaxonomyFilters
+          facets={taxonomyFacets}
+          selection={taxonomySelection}
+          onChange={onTaxonomySelectionChange}
+          onClearSelection={() =>
+            onTaxonomySelectionChange(clearTaxonomySelection())
+          }
+        />
+      ) : (
+        <LegacyCategoryFacets
+          facets={facets}
+          filters={filters}
+          inferredCategory={inferredCategory}
+          onSelect={onSelect}
+        />
+      )}
+
+      {!useTaxonomy && subcategories.length === 0 ? (
         <FacetList
           title="Categoria"
           items={facets.categories}

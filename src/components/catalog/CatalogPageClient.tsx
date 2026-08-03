@@ -2,24 +2,43 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search } from "lucide-react";
-import {
-  ConditionFilterPills,
-  matchesHomeCondition,
-  type HomeConditionFilter,
-} from "@/components/home/ConditionFilterPills";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Breadcrumbs } from "@/components/categoria/Breadcrumbs";
+import { CatalogActiveChips } from "@/components/catalog/CatalogActiveChips";
+import { CatalogEmptyState } from "@/components/catalog/CatalogEmptyState";
+import { CatalogSidebar } from "@/components/catalog/CatalogSidebar";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  getCategory,
+  getCategoryProducts,
   getDealsNow,
   getDealsWait,
   getTelegramDeals,
   searchProducts,
   summaryToProduct,
+  type CategoryBreadcrumb,
   type SearchSortBy,
+  type TaxonomyFacet,
 } from "@/lib/api";
+import {
+  CATALOG_CONDITIONS,
+  LEGACY_CATALOG_CATEGORY,
+  matchesCatalogConditions,
+  parseCatalogConditions,
+  type CatalogChip,
+  type CatalogConditionId,
+} from "@/lib/catalog-ui";
 import { TELEGRAM_CHANNEL } from "@/lib/constants";
+import {
+  appendSelectionToParams,
+  clearTaxonomySelection,
+  countSelected,
+  formatFacetValueLabel,
+  selectionFromSearchParams,
+  type TaxonomySelection,
+} from "@/lib/taxonomy-facets";
 import type { Product } from "@/lib/types";
 import { cn, formatEUR } from "@/lib/utils";
 
@@ -35,59 +54,24 @@ const SORT_OPTIONS: { value: CatalogSort; label: string; api?: SearchSortBy }[] 
   { value: "price_asc", label: "Menor Preço", api: "price_asc" },
 ];
 
-const CATEGORY_PILLS: {
-  id: string;
-  label: string;
-  /** Query enviada à API /search quando selecionada. */
-  searchQ?: string;
-  /** Keywords para filtragem client-side sobre deals. */
-  keywords?: string[];
-}[] = [
-  { id: "", label: "Todos" },
-  {
-    id: "gaming",
-    label: "Gaming",
-    searchQ: "gaming",
-    keywords: ["gaming", "rtx", "radeon", "console", "playstation", "xbox", "nintendo", "gpu"],
-  },
-  {
-    id: "eletrodomesticos",
-    label: "Eletrodomésticos",
-    searchQ: "eletrodomésticos",
-    keywords: ["air fryer", "aspirador", "máquina", "frigorífico", "lavar", "microondas"],
-  },
-  {
-    id: "audio",
-    label: "Áudio & Imagem",
-    searchQ: "auscultadores",
-    keywords: ["auscultador", "headphone", "earbuds", "monitor", "tv ", "soundbar", "colunas"],
-  },
-  {
-    id: "informatica",
-    label: "Informática",
-    searchQ: "informática",
-    keywords: ["ssd", "nvme", "cpu", "ram", "portátil", "laptop", "motherboard", "processador"],
-  },
-];
-
 const SECTION_META: Record<
   Exclude<CatalogSection, "">,
   { title: string; subtitle: string }
 > = {
   deals: {
-    title: "🔥 Super Oportunidades",
+    title: "Super Oportunidades",
     subtitle: "Produtos em mínimo histórico e melhores preços do momento.",
   },
   overpriced: {
-    title: "⏳ Vale a Pena Esperar",
+    title: "Vale a Pena Esperar",
     subtitle: "Produtos atualmente acima do valor habitual de mercado.",
   },
   drops: {
-    title: "📉 Maiores Quedas",
+    title: "Maiores Quedas",
     subtitle: "Maiores descidas de preço face a ontem.",
   },
   telegram: {
-    title: "⚡ Últimas oportunidades detetadas",
+    title: "Últimas oportunidades detetadas",
     subtitle: "Produtos enviados automaticamente para o canal Telegram do Limiar.",
   },
 };
@@ -103,18 +87,6 @@ function dedupeByEan(products: Product[]): Product[] {
   return out;
 }
 
-function matchesCategory(product: Product, categoryId: string): boolean {
-  if (!categoryId) return true;
-  const pill = CATEGORY_PILLS.find((c) => c.id === categoryId);
-  if (!pill?.keywords?.length) return true;
-  const hay = `${product.name} ${product.category} ${product.brand ?? ""}`.toLowerCase();
-  return pill.keywords.some((kw) => hay.includes(kw.toLowerCase()));
-}
-
-function matchesCondition(product: Product, mode: HomeConditionFilter): boolean {
-  return matchesHomeCondition(product.condition, mode);
-}
-
 function matchesQuery(product: Product, q: string): boolean {
   const term = q.trim().toLowerCase();
   if (!term) return true;
@@ -123,6 +95,18 @@ function matchesQuery(product: Product, q: string): boolean {
     product.ean.includes(term) ||
     (product.brand ?? "").toLowerCase().includes(term)
   );
+}
+
+function matchesPrice(
+  product: Product,
+  minPrice: string,
+  maxPrice: string,
+): boolean {
+  const min = minPrice ? Number(minPrice) : NaN;
+  const max = maxPrice ? Number(maxPrice) : NaN;
+  if (Number.isFinite(min) && product.currentPrice < min) return false;
+  if (Number.isFinite(max) && product.currentPrice > max) return false;
+  return true;
 }
 
 function sortProducts(products: Product[], sort: CatalogSort): Product[] {
@@ -152,10 +136,11 @@ function readCatalogState(params: URLSearchParams) {
     sectionRaw === "telegram"
       ? sectionRaw
       : "";
-  const category = params.get("category") || "";
-  const conditionRaw = (params.get("condition") || "all").toLowerCase();
-  const condition: HomeConditionFilter =
-    conditionRaw === "new" || conditionRaw === "outlet" ? conditionRaw : "all";
+
+  const rawCat = (params.get("cat") || params.get("category") || "").trim();
+  const cat = LEGACY_CATALOG_CATEGORY[rawCat] || rawCat;
+
+  const conditions = parseCatalogConditions(params);
   const sortRaw = (params.get("sort") || "limiar_desc") as CatalogSort;
   const sort = SORT_OPTIONS.some((o) => o.value === sortRaw)
     ? sortRaw
@@ -163,45 +148,97 @@ function readCatalogState(params: URLSearchParams) {
   const q = (params.get("q") || "").trim();
   const page = Math.max(1, Number(params.get("page") || "1") || 1);
   const tab: CatalogTab = params.get("tab") === "alerts" ? "alerts" : "products";
-  return { section, category, condition, sort, q, page, tab };
+  const minPrice = params.get("min_price") || params.get("price_min") || "";
+  const maxPrice = params.get("max_price") || params.get("price_max") || "";
+  return {
+    section,
+    cat,
+    conditions,
+    sort,
+    q,
+    page,
+    tab,
+    minPrice,
+    maxPrice,
+  };
 }
+
+type CatalogState = ReturnType<typeof readCatalogState>;
 
 export function CatalogPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const state = useMemo(() => readCatalogState(searchParams), [searchParams]);
+  const taxonomySelection = useMemo(
+    () => selectionFromSearchParams(searchParams),
+    [searchParams],
+  );
 
   const [pool, setPool] = useState<Product[]>([]);
   const [searchResults, setSearchResults] = useState<Product[] | null>(null);
   const [searchTotal, setSearchTotal] = useState(0);
+  const [taxonomyFacets, setTaxonomyFacets] = useState<TaxonomyFacet[]>([]);
+  const [categoryCrumbs, setCategoryCrumbs] = useState<CategoryBreadcrumb[]>([]);
+  const [categoryLabel, setCategoryLabel] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [queryDraft, setQueryDraft] = useState(state.q);
+  const [minDraft, setMinDraft] = useState(state.minPrice);
+  const [maxDraft, setMaxDraft] = useState(state.maxPrice);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     setQueryDraft(state.q);
   }, [state.q]);
 
-  const pushState = useCallback(
-    (patch: Partial<ReturnType<typeof readCatalogState>>) => {
-      const next = { ...state, ...patch, page: patch.page ?? 1 };
+  useEffect(() => {
+    setMinDraft(state.minPrice);
+    setMaxDraft(state.maxPrice);
+  }, [state.minPrice, state.maxPrice]);
+
+  const buildUrl = useCallback(
+    (
+      patch: Partial<CatalogState> & {
+        taxonomy?: TaxonomySelection;
+        clearTaxonomy?: boolean;
+      },
+    ) => {
+      const next: CatalogState = {
+        ...state,
+        ...patch,
+        page: patch.page ?? 1,
+      };
       const params = new URLSearchParams();
       if (next.tab === "alerts") params.set("tab", "alerts");
       if (next.section) params.set("section", next.section);
-      if (next.category) params.set("category", next.category);
-      if (next.condition && next.condition !== "all") {
-        params.set("condition", next.condition);
-      }
+      if (next.cat) params.set("cat", next.cat);
+      for (const c of next.conditions) params.append("condition", c);
       if (next.sort && next.sort !== "limiar_desc") params.set("sort", next.sort);
       if (next.q) params.set("q", next.q);
+      if (next.minPrice) params.set("min_price", next.minPrice);
+      if (next.maxPrice) params.set("max_price", next.maxPrice);
       if (next.page > 1) params.set("page", String(next.page));
+
+      const tax = patch.clearTaxonomy
+        ? clearTaxonomySelection()
+        : (patch.taxonomy ?? taxonomySelection);
+      appendSelectionToParams(params, tax);
+
       const qs = params.toString();
-      router.push(qs ? `/catalog/?${qs}` : "/catalog/");
+      return qs ? `/catalog/?${qs}` : "/catalog/";
     },
-    [router, state],
+    [state, taxonomySelection],
   );
 
-  // Debounce search box → URL (não depende de pushState para evitar loops)
+  const pushState = useCallback(
+    (patch: Parameters<typeof buildUrl>[0]) => {
+      router.push(buildUrl(patch));
+      setDrawerOpen(false);
+    },
+    [buildUrl, router],
+  );
+
+  // Debounce search box → URL
   useEffect(() => {
     const handle = window.setTimeout(() => {
       const trimmed = queryDraft.trim();
@@ -217,20 +254,57 @@ export function CatalogPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- só reage ao draft
   }, [queryDraft]);
 
-  const pill = CATEGORY_PILLS.find((c) => c.id === state.category);
+  const useCategoryApi =
+    state.tab === "products" && !state.section && Boolean(state.cat);
   const useApiSearch =
     state.tab === "products" &&
     !state.section &&
-    (state.q.length >= 2 || Boolean(pill?.searchQ));
+    !state.cat &&
+    state.q.length >= 2;
 
-  // Secções deals / catálogo base / alertas Telegram (pool local)
+  // Breadcrumbs da categoria seleccionada (endpoint já existente)
   useEffect(() => {
-    if (useApiSearch) return;
+    if (!state.cat) {
+      setCategoryCrumbs([]);
+      setCategoryLabel("");
+      return;
+    }
+    let cancelled = false;
+    getCategory(state.cat)
+      .then((d) => {
+        if (cancelled) return;
+        setCategoryLabel(d.display_name);
+        setCategoryCrumbs([
+          { slug: "", display_name: "Catálogo", path: "/catalog/" },
+          ...(d.breadcrumbs || []).map((b) => ({
+            ...b,
+            path: `/catalog/?cat=${encodeURIComponent(b.slug)}`,
+          })),
+        ]);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCategoryLabel(state.cat);
+          setCategoryCrumbs([
+            { slug: "", display_name: "Catálogo", path: "/catalog/" },
+            { slug: state.cat, display_name: state.cat },
+          ]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [state.cat]);
+
+  // Secções deals / pool local / alertas
+  useEffect(() => {
+    if (useCategoryApi || useApiSearch) return;
     let cancelled = false;
     setLoading(true);
     setError(null);
     setSearchResults(null);
     setSearchTotal(0);
+    setTaxonomyFacets([]);
 
     (async () => {
       try {
@@ -298,39 +372,113 @@ export function CatalogPageClient() {
     return () => {
       cancelled = true;
     };
-  }, [state.section, state.tab, useApiSearch]);
+  }, [state.section, state.tab, useCategoryApi, useApiSearch]);
 
-  // Pesquisa API (query ou pill de categoria, fora das secções deals)
+  // Categoria taxonomy → produtos (endpoint FASE 7.5, sem alterar backend)
   useEffect(() => {
-    if (!useApiSearch) return;
-
-    const q = state.q.length >= 2 ? state.q : (pill?.searchQ as string);
+    if (!useCategoryApi) return;
     let cancelled = false;
     setLoading(true);
     setError(null);
     const offset = (state.page - 1) * PAGE_SIZE;
     const sortOpt = SORT_OPTIONS.find((o) => o.value === state.sort);
+    const tax = { ...taxonomySelection };
+    if (state.conditions.length) tax.condition = state.conditions;
+    if (state.minPrice) tax.price_min = [state.minPrice];
+    if (state.maxPrice) tax.price_max = [state.maxPrice];
 
-    searchProducts(q, {
+    getCategoryProducts(state.cat, {
+      q: state.q.length >= 2 ? state.q : undefined,
       limit: PAGE_SIZE,
       offset,
       sortBy: sortOpt?.api || "limiar_desc",
+      taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
     })
       .then((res) => {
         if (cancelled) return;
         let products = res.results.map(summaryToProduct);
-        products = products.filter((p) => matchesCondition(p, state.condition));
-        if (state.category && state.q.length >= 2) {
-          products = products.filter((p) => matchesCategory(p, state.category));
-        }
+        products = products.filter((p) =>
+          matchesCatalogConditions(p.condition, state.conditions),
+        );
         setSearchResults(products);
         setSearchTotal(res.total);
+        setTaxonomyFacets(res.taxonomyFacets ?? []);
+        if (res.breadcrumbs?.length) {
+          setCategoryCrumbs([
+            { slug: "", display_name: "Catálogo", path: "/catalog/" },
+            ...res.breadcrumbs.map((b) => ({
+              ...b,
+              path: `/catalog/?cat=${encodeURIComponent(b.slug)}`,
+            })),
+          ]);
+        }
+        if (res.display_name) setCategoryLabel(res.display_name);
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Falha a carregar categoria");
+          setSearchResults([]);
+          setSearchTotal(0);
+          setTaxonomyFacets([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    useCategoryApi,
+    state.cat,
+    state.q,
+    state.sort,
+    state.page,
+    state.conditions,
+    state.minPrice,
+    state.maxPrice,
+    taxonomySelection,
+  ]);
+
+  // Pesquisa API (query sem categoria)
+  useEffect(() => {
+    if (!useApiSearch) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const offset = (state.page - 1) * PAGE_SIZE;
+    const sortOpt = SORT_OPTIONS.find((o) => o.value === state.sort);
+    const tax = { ...taxonomySelection };
+    if (state.conditions.length) tax.condition = state.conditions;
+    if (state.minPrice) tax.price_min = [state.minPrice];
+    if (state.maxPrice) tax.price_max = [state.maxPrice];
+
+    searchProducts(state.q, {
+      limit: PAGE_SIZE,
+      offset,
+      sortBy: sortOpt?.api || "limiar_desc",
+      taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
+      minPrice: state.minPrice ? Number(state.minPrice) : undefined,
+      maxPrice: state.maxPrice ? Number(state.maxPrice) : undefined,
+    })
+      .then((res) => {
+        if (cancelled) return;
+        let products = res.results.map(summaryToProduct);
+        products = products.filter((p) =>
+          matchesCatalogConditions(p.condition, state.conditions),
+        );
+        setSearchResults(products);
+        setSearchTotal(res.total);
+        setTaxonomyFacets(res.taxonomyFacets ?? []);
       })
       .catch((err) => {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Falha na pesquisa");
           setSearchResults([]);
           setSearchTotal(0);
+          setTaxonomyFacets([]);
         }
       })
       .finally(() => {
@@ -343,61 +491,227 @@ export function CatalogPageClient() {
   }, [
     useApiSearch,
     state.q,
-    state.category,
     state.sort,
     state.page,
-    state.condition,
-    pill?.searchQ,
+    state.conditions,
+    state.minPrice,
+    state.maxPrice,
+    taxonomySelection,
   ]);
 
   const filteredPool = useMemo(() => {
     let list = pool.filter(
       (p) =>
-        matchesCondition(p, state.condition) &&
-        matchesCategory(p, state.category) &&
-        matchesQuery(p, state.q),
+        matchesCatalogConditions(p.condition, state.conditions) &&
+        matchesQuery(p, state.q) &&
+        matchesPrice(p, state.minPrice, state.maxPrice),
     );
     list = sortProducts(list, state.sort);
     return list;
-  }, [pool, state.condition, state.category, state.q, state.sort]);
+  }, [
+    pool,
+    state.conditions,
+    state.q,
+    state.sort,
+    state.minPrice,
+    state.maxPrice,
+  ]);
 
-  const usingApiSearch = searchResults !== null && state.tab === "products" && !state.section;
-  const total = usingApiSearch ? searchTotal : filteredPool.length;
+  const usingRemote =
+    (searchResults !== null && state.tab === "products" && !state.section) ||
+    useCategoryApi ||
+    useApiSearch;
+  const total = usingRemote ? searchTotal : filteredPool.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const page = Math.min(state.page, totalPages);
 
   const pageItems = useMemo(() => {
-    if (usingApiSearch) return searchResults || [];
+    if (usingRemote) return searchResults || [];
     const start = (page - 1) * PAGE_SIZE;
     return filteredPool.slice(start, start + PAGE_SIZE);
-  }, [usingApiSearch, searchResults, filteredPool, page]);
+  }, [usingRemote, searchResults, filteredPool, page]);
 
   const shownFrom = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const shownTo = Math.min(page * PAGE_SIZE, total);
 
+  const breadcrumbItems: CategoryBreadcrumb[] = useMemo(() => {
+    if (state.tab === "alerts") {
+      return [
+        { slug: "", display_name: "Catálogo", path: "/catalog/" },
+        { slug: "alerts", display_name: "Histórico de Alertas" },
+      ];
+    }
+    if (categoryCrumbs.length) {
+      const lastFacet = Object.entries(taxonomySelection)[0];
+      if (lastFacet?.[1]?.[0]) {
+        const [fid, vals] = lastFacet;
+        const facet = taxonomyFacets.find((f) => f.id === fid);
+        const val = facet?.values.find(
+          (v) => v.value.toLowerCase() === vals[0].toLowerCase(),
+        );
+        const label =
+          (val && formatFacetValueLabel(facet?.type, val)) || vals[0];
+        return [
+          ...categoryCrumbs,
+          { slug: `${fid}-${vals[0]}`, display_name: label },
+        ];
+      }
+      return categoryCrumbs;
+    }
+    if (state.q) {
+      return [
+        { slug: "", display_name: "Catálogo", path: "/catalog/" },
+        { slug: "q", display_name: `«${state.q}»` },
+      ];
+    }
+    if (state.section && SECTION_META[state.section]) {
+      return [
+        { slug: "", display_name: "Catálogo", path: "/catalog/" },
+        { slug: state.section, display_name: SECTION_META[state.section].title },
+      ];
+    }
+    return [{ slug: "", display_name: "Catálogo", path: "/catalog/" }];
+  }, [
+    state.tab,
+    state.q,
+    state.section,
+    categoryCrumbs,
+    taxonomySelection,
+    taxonomyFacets,
+  ]);
+
+  const chips: CatalogChip[] = useMemo(() => {
+    const list: CatalogChip[] = [];
+    if (state.cat) {
+      list.push({
+        key: `cat:${state.cat}`,
+        label: categoryLabel || state.cat,
+        onRemove: () => pushState({ cat: "", page: 1 }),
+      });
+    }
+    for (const c of state.conditions) {
+      const label =
+        CATALOG_CONDITIONS.find((x) => x.id === c)?.label || c;
+      list.push({
+        key: `cond:${c}`,
+        label,
+        onRemove: () =>
+          pushState({
+            conditions: state.conditions.filter((x) => x !== c),
+            page: 1,
+          }),
+      });
+    }
+    if (state.minPrice) {
+      list.push({
+        key: "min",
+        label: `≥ ${state.minPrice} €`,
+        onRemove: () => pushState({ minPrice: "", page: 1 }),
+      });
+    }
+    if (state.maxPrice) {
+      list.push({
+        key: "max",
+        label: `≤ ${state.maxPrice} €`,
+        onRemove: () => pushState({ maxPrice: "", page: 1 }),
+      });
+    }
+    for (const [fid, values] of Object.entries(taxonomySelection)) {
+      const facet = taxonomyFacets.find((f) => f.id === fid);
+      for (const v of values) {
+        const match = facet?.values.find(
+          (x) => x.value.toLowerCase() === v.toLowerCase(),
+        );
+        const label =
+          (match && formatFacetValueLabel(facet?.type, match)) || v;
+        list.push({
+          key: `${fid}:${v}`,
+          label,
+          onRemove: () => {
+            const next = { ...taxonomySelection };
+            next[fid] = (next[fid] || []).filter(
+              (x) => x.toLowerCase() !== v.toLowerCase(),
+            );
+            if (!next[fid]?.length) delete next[fid];
+            pushState({ taxonomy: next, page: 1 });
+          },
+        });
+      }
+    }
+    return list;
+  }, [
+    state.cat,
+    state.conditions,
+    state.minPrice,
+    state.maxPrice,
+    categoryLabel,
+    taxonomySelection,
+    taxonomyFacets,
+    pushState,
+  ]);
+
+  const clearFilters = useCallback(() => {
+    pushState({
+      cat: "",
+      conditions: [],
+      minPrice: "",
+      maxPrice: "",
+      q: "",
+      page: 1,
+      clearTaxonomy: true,
+    });
+    setQueryDraft("");
+  }, [pushState]);
+
   const meta =
     state.tab === "alerts"
       ? {
-          title: "📢 Histórico de Alertas do Bot",
-          subtitle: "Oportunidades com perfil de publicação no canal Telegram Limiar.",
+          title: "Histórico de Alertas do Bot",
+          subtitle:
+            "Oportunidades com perfil de publicação no canal Telegram Limiar.",
         }
       : state.section
         ? SECTION_META[state.section]
         : {
             title: "Catálogo Limiar",
-            subtitle: "Explora oportunidades com filtros por categoria, condição e preço.",
+            subtitle:
+              "Navega a taxonomy, filtra por estado e facets, e encontra o melhor momento para comprar.",
           };
+
+  const sidebar = (
+    <CatalogSidebar
+      activeCategory={state.cat}
+      onSelectCategory={(slug) =>
+        pushState({ cat: slug, section: "", page: 1 })
+      }
+      conditions={state.conditions}
+      onConditionsChange={(conditions) => pushState({ conditions, page: 1 })}
+      minDraft={minDraft}
+      maxDraft={maxDraft}
+      onMinDraft={setMinDraft}
+      onMaxDraft={setMaxDraft}
+      onApplyPrice={() =>
+        pushState({ minPrice: minDraft, maxPrice: maxDraft, page: 1 })
+      }
+      taxonomyFacets={taxonomyFacets}
+      taxonomySelection={taxonomySelection}
+      onTaxonomySelectionChange={(taxonomy) =>
+        pushState({ taxonomy, page: 1 })
+      }
+      onClearAll={clearFilters}
+    />
+  );
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <div className="mb-6">
+      <div className="mb-4">
+        <Breadcrumbs items={breadcrumbItems} className="mb-3" />
         <h1 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
           {meta.title}
         </h1>
         <p className="mt-1 text-sm text-slate-500">{meta.subtitle}</p>
       </div>
 
-      {/* Tabs */}
       <div className="mb-6 flex gap-2 border-b border-slate-200 pb-3">
         <button
           type="button"
@@ -413,7 +727,9 @@ export function CatalogPageClient() {
         </button>
         <button
           type="button"
-          onClick={() => pushState({ tab: "alerts", section: "", page: 1 })}
+          onClick={() =>
+            pushState({ tab: "alerts", section: "", cat: "", page: 1 })
+          }
           className={cn(
             "rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
             state.tab === "alerts"
@@ -436,74 +752,64 @@ export function CatalogPageClient() {
             rel="noopener noreferrer"
             className="inline-flex min-h-9 items-center rounded-xl bg-sky-700 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-800"
           >
-            📢 Entrar no Telegram
+            Entrar no Telegram
           </a>
         </div>
       ) : (
-        <>
-          <div className="relative mb-5">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              value={queryDraft}
-              onChange={(e) => setQueryDraft(e.target.value)}
-              placeholder="Filtrar por título ou EAN…"
-              className="h-12 rounded-xl pl-10"
-              aria-label="Filtrar catálogo"
-            />
-          </div>
-
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CATEGORY_PILLS.map((cat) => {
-              const active = state.category === cat.id;
-              return (
-                <button
-                  key={cat.id || "all"}
-                  type="button"
-                  onClick={() => pushState({ category: cat.id, page: 1 })}
-                  className={cn(
-                    "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-                    active
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900",
-                  )}
-                >
-                  {cat.label}
-                </button>
-              );
-            })}
-          </div>
-        </>
+        <div className="relative mb-5">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Input
+            value={queryDraft}
+            onChange={(e) => setQueryDraft(e.target.value)}
+            placeholder="Pesquisar no catálogo…"
+            className="h-12 rounded-xl pl-10"
+            aria-label="Pesquisar catálogo"
+          />
+        </div>
       )}
 
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <ConditionFilterPills
-          value={state.condition}
-          onChange={(value) => pushState({ condition: value, page: 1 })}
-        />
-
-        <label className="flex items-center gap-2 text-sm text-slate-600">
-          <span className="shrink-0">Ordenar</span>
-          <select
-            value={state.sort}
-            onChange={(e) =>
-              pushState({ sort: e.target.value as CatalogSort, page: 1 })
-            }
-            className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {state.tab === "products" ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <CatalogActiveChips chips={chips} onClearAll={clearFilters} />
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm lg:hidden"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros
+              {chips.length ? (
+                <span className="rounded-full bg-sky-100 px-1.5 text-[10px] font-bold text-sky-800">
+                  {chips.length}
+                </span>
+              ) : null}
+            </button>
+            <label className="flex items-center gap-2 text-sm text-slate-600">
+              <span className="shrink-0">Ordenar</span>
+              <select
+                value={state.sort}
+                onChange={(e) =>
+                  pushState({ sort: e.target.value as CatalogSort, page: 1 })
+                }
+                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+      ) : null}
 
       <p className="mb-5 text-sm text-slate-500">
         {loading
           ? "A carregar…"
           : total === 0
-            ? "Ainda não há produtos para estes filtros — tenta limpar filtros ou outra secção."
+            ? "Nenhum produto com estes filtros."
             : `A mostrar ${shownFrom}–${shownTo} de ${total} ${
                 state.tab === "alerts" ? "alerta" : "produto"
               }${total === 1 ? "" : "s"}`}
@@ -515,84 +821,133 @@ export function CatalogPageClient() {
         </p>
       ) : null}
 
-      {loading ? (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-72 animate-pulse rounded-xl border border-slate-200/80 bg-slate-100"
-            />
-          ))}
-        </div>
-      ) : pageItems.length ? (
-        state.tab === "alerts" ? (
-          <div className="space-y-3">
-            {pageItems.map((product) => (
-              <a
-                key={product.ean}
-                href={`/p/?id=${encodeURIComponent(product.slug)}`}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-white to-sky-50/50 px-4 py-3 shadow-sm transition-colors hover:border-sky-300"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-slate-900">{product.name}</p>
-                  <p className="mt-0.5 text-xs text-sky-700">
-                    Índice {product.decision.limiarIndex.value}/100
-                    {product.decision.isHistoricalMin ? " · Mín. histórico" : ""}
-                  </p>
-                </div>
-                <span className="shrink-0 font-display text-lg font-bold text-slate-900">
-                  {formatEUR(product.currentPrice)}
-                </span>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {pageItems.map((product) => (
-              <OpportunityCard
-                key={product.ean}
-                product={product}
-                showDropToday={state.section === "drops"}
-                compact
-                detectedAt={
-                  state.section === "telegram" || state.tab === "alerts"
-                    ? product.detectedAt
-                    : undefined
-                }
-              />
-            ))}
-          </div>
-        )
-      ) : (
-        <p className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">
-          Sem produtos com estes filtros. Ajusta os filtros ou experimenta outra pesquisa —
-          alguns produtos ainda não têm histórico suficiente.
-        </p>
-      )}
+      <div
+        className={cn(
+          state.tab === "products"
+            ? "grid gap-8 lg:grid-cols-[260px_1fr]"
+            : "",
+        )}
+      >
+        {state.tab === "products" ? (
+          <div className="hidden lg:block">{sidebar}</div>
+        ) : null}
 
-      {totalPages > 1 ? (
-        <div className="mt-10 flex items-center justify-center gap-3">
-          <Button
+        <section>
+          {loading ? (
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-72 animate-pulse rounded-xl border border-slate-200/80 bg-slate-100"
+                />
+              ))}
+            </div>
+          ) : pageItems.length ? (
+            state.tab === "alerts" ? (
+              <div className="space-y-3">
+                {pageItems.map((product) => (
+                  <a
+                    key={product.ean}
+                    href={`/p/?id=${encodeURIComponent(product.slug)}`}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-sky-200/80 bg-gradient-to-r from-white to-sky-50/50 px-4 py-3 shadow-sm transition-colors hover:border-sky-300"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-slate-900">
+                        {product.name}
+                      </p>
+                      <p className="mt-0.5 text-xs text-sky-700">
+                        Índice {product.decision.limiarIndex.value}/100
+                        {product.decision.isHistoricalMin
+                          ? " · Mín. histórico"
+                          : ""}
+                      </p>
+                    </div>
+                    <span className="shrink-0 font-display text-lg font-bold text-slate-900">
+                      {formatEUR(product.currentPrice)}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {pageItems.map((product) => (
+                  <OpportunityCard
+                    key={product.ean}
+                    product={product}
+                    showDropToday={state.section === "drops"}
+                    compact
+                    detectedAt={
+                      state.section === "telegram" || state.tab === "alerts"
+                        ? product.detectedAt
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )
+          ) : (
+            <CatalogEmptyState
+              onClearFilters={clearFilters}
+              onBackToCatalog={() => {
+                clearFilters();
+                pushState({ section: "", tab: "products", page: 1 });
+              }}
+            />
+          )}
+
+          {totalPages > 1 ? (
+            <div className="mt-10 flex items-center justify-center gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => pushState({ page: page - 1 })}
+              >
+                Anterior
+              </Button>
+              <span className="text-sm text-slate-600">
+                Página {page} de {totalPages}
+              </span>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => pushState({ page: page + 1 })}
+              >
+                Seguinte
+              </Button>
+            </div>
+          ) : null}
+        </section>
+      </div>
+
+      {/* Mobile drawer */}
+      {drawerOpen ? (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal>
+          <button
             type="button"
-            variant="secondary"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => pushState({ page: page - 1 })}
-          >
-            Anterior
-          </Button>
-          <span className="text-sm text-slate-600">
-            Página {page} de {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => pushState({ page: page + 1 })}
-          >
-            Seguinte
-          </Button>
+            className="absolute inset-0 bg-slate-900/40"
+            aria-label="Fechar filtros"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <div className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-slate-50 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+              <p className="font-display text-sm font-semibold text-slate-900">
+                Filtros
+              </p>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                aria-label="Fechar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">{sidebar}</div>
+          </div>
         </div>
       ) : null}
     </main>

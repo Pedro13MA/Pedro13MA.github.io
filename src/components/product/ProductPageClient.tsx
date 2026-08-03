@@ -21,12 +21,19 @@ import {
   ActiveCampaignBanner,
   StoreCouponsInfoBanner,
 } from "@/components/product/CampaignCouponBlock";
-import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
-import { ProductHeader } from "@/components/product/ProductHeader";
+import { CompareDrawer } from "@/components/product/CompareDrawer";
 import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
+import { ProductDescription } from "@/components/product/ProductDescription";
+import { ProductFaq } from "@/components/product/ProductFaq";
+import { ProductHero } from "@/components/product/ProductHero";
+import { ProductKpis } from "@/components/product/ProductKpis";
+import { ProductShareActions } from "@/components/product/ProductShareActions";
+import { ProductSpecs } from "@/components/product/ProductSpecs";
+import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
 import { TELEGRAM_CHANNEL } from "@/lib/constants";
-import { buildProductBreadcrumbs } from "@/lib/product-breadcrumb";
+import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
+import { readCompareList } from "@/lib/compare";
 
 type Props = { slug: string };
 
@@ -38,6 +45,7 @@ export function ProductPageClient({ slug }: Props) {
   >>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -143,16 +151,29 @@ export function ProductPageClient({ slug }: Props) {
       ? product.originalPrice
       : null;
   const storeCount = metrics?.storeCount ?? product.offers.length;
-  const breadcrumbs = buildProductBreadcrumbs({
+  const breadcrumbs = buildPremiumProductBreadcrumbs({
     category: product.category,
     subcategory: product.subcategory,
     subcategoryLabel: product.subcategoryLabel,
+    leafId: product.leafId,
+    taxonomyPath: product.taxonomyPath,
+    brand: product.brand,
+    productName: product.name,
+    chipsetModel: product.chipsetModel,
   });
 
   return (
     <main className="mx-auto max-w-6xl space-y-12 px-4 py-10 sm:px-6">
       <ProductBreadcrumb crumbs={breadcrumbs} />
-      <ProductHeader product={product} />
+
+      <ProductHero
+        product={product}
+        onOpenCompareDrawer={() => {
+          if (readCompareList().length >= 1) setCompareOpen(true);
+        }}
+      />
+
+      <ProductKpis product={product} metrics={metrics} />
 
       <DecisionCard
         decision={product.decision}
@@ -165,11 +186,17 @@ export function ProductPageClient({ slug }: Props) {
         samples90d={metrics?.samples90d}
       />
 
+      <ProductDescription product={product} />
+      <ProductSpecs product={product} />
+
       <section id="lojas" className="scroll-mt-20 space-y-4">
         <div>
-          <h2 className="font-display text-xl font-bold text-slate-900">Onde comprar</h2>
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Onde comprar
+          </h2>
           <p className="mt-1.5 text-sm text-slate-500">
-            Preço da loja separado de qualquer cupão. Ordenado do mais baixo para o mais alto.
+            Ordenado do melhor preço. Cupões são informativos e não alteram o preço
+            mostrado.
           </p>
         </div>
         <StoreCompareTable offers={product.offers} />
@@ -184,6 +211,9 @@ export function ProductPageClient({ slug }: Props) {
           referencePrice={product.referencePrice ?? product.avg30d}
           referenceSource={product.referenceSource ?? "HISTORY_30D"}
           pvpr={pvpr}
+          highlightNewMin={product.decision.isHistoricalMin}
+          hasPromotions={Boolean(product.activeCampaign || product.activePromotion)}
+          hasCoupons={Boolean(product.storeCouponsAvailable)}
         />
       </section>
 
@@ -204,11 +234,16 @@ export function ProductPageClient({ slug }: Props) {
         </p>
       ) : null}
 
+      <ProductShareActions product={product} />
+      <ProductFaq product={product} />
+
       <section className="rounded-2xl border border-sky-100 bg-sky-50/40 px-6 py-8 sm:px-8">
-        <h2 className="font-display text-lg font-bold text-slate-900">Alertas Limiar</h2>
+        <h2 className="font-display text-lg font-bold text-slate-900">
+          Alertas Limiar
+        </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
-          Queres ser avisado quando o preço baixar? Segue o canal Telegram Limiar — alertas
-          pessoais por email só quando estiverem disponíveis de ponta a ponta.
+          Queres ser avisado quando o preço baixar? Segue o canal Telegram Limiar —
+          alertas pessoais por email só quando estiverem disponíveis de ponta a ponta.
         </p>
         <a
           href={TELEGRAM_CHANNEL}
@@ -221,6 +256,8 @@ export function ProductPageClient({ slug }: Props) {
       </section>
 
       <RelatedProductsSection product={product} />
+
+      <CompareDrawer open={compareOpen} onClose={() => setCompareOpen(false)} />
     </main>
   );
 }

@@ -1,14 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { TELEGRAM_CHANNEL, BRAND_TAGLINE } from "@/lib/constants";
+import { CATEGORY_MENU_L1 } from "@/lib/category-slugs";
 import { LimiarLogo } from "@/components/ui/LimiarLogo";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-slate-900"
+          className="flex shrink-0 items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-slate-900"
         >
           <LimiarLogo size={28} />
           <span>
@@ -18,21 +21,27 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm text-slate-500">
-          <Link href="/catalog/" className="hover:text-slate-900">
+        <nav className="flex items-center gap-3 overflow-x-auto text-sm text-slate-500 sm:gap-4">
+          <Link href="/categorias/" className="shrink-0 hover:text-slate-900">
+            Categorias
+          </Link>
+          {CATEGORY_MENU_L1.slice(0, 4).map((c) => (
+            <Link
+              key={c.slug}
+              href={`/categoria/${c.slug}/`}
+              className="hidden shrink-0 hover:text-slate-900 md:inline"
+            >
+              {c.label}
+            </Link>
+          ))}
+          <Link href="/catalog/" className="hidden shrink-0 hover:text-slate-900 lg:inline">
             Catálogo
-          </Link>
-          <Link href="/#decisoes" className="hidden hover:text-slate-900 sm:inline">
-            Decisões
-          </Link>
-          <Link href="/#cupoes" className="hidden hover:text-slate-900 sm:inline">
-            Cupões
           </Link>
           <a
             href={TELEGRAM_CHANNEL}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md"
+            className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md"
           >
             Telegram
           </a>
@@ -47,17 +56,18 @@ export function SiteFooter() {
     {
       title: "Produto",
       links: [
+        { href: "/categorias/", label: "Categorias" },
         { href: "/#decisoes", label: "Decisões" },
         { href: "/catalog/", label: "Catálogo" },
         { href: "/#cupoes", label: "Cupões" },
       ],
     },
     {
-      title: "Limiar",
-      links: [
-        { href: "/#comprar-agora", label: "Comprar agora" },
-        { href: "/#esperar", label: "Esperar" },
-      ],
+      title: "Categorias",
+      links: CATEGORY_MENU_L1.slice(0, 4).map((c) => ({
+        href: `/categoria/${c.slug}/`,
+        label: c.label,
+      })),
     },
     {
       title: "Canal",
