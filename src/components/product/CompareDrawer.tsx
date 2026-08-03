@@ -5,7 +5,9 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  buildCompareShareUrl,
   clearCompare,
+  COMPARE_MAX,
   readCompareList,
   removeFromCompare,
   type CompareItem,
@@ -30,8 +32,21 @@ export function CompareDrawer({ open, onClose }: Props) {
 
   if (!open) return null;
 
+  const compareHref =
+    items.length >= 2
+      ? buildCompareShareUrl(items.map((i) => i.slug)).replace(
+          /^https?:\/\/[^/]+/,
+          "",
+        )
+      : "/comparar/";
+
   return (
-    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal aria-label="Comparação">
+    <div
+      className="fixed inset-0 z-[70]"
+      role="dialog"
+      aria-modal
+      aria-label="Comparação"
+    >
       <button
         type="button"
         className="absolute inset-0 bg-slate-900/40"
@@ -41,7 +56,7 @@ export function CompareDrawer({ open, onClose }: Props) {
       <aside className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
           <h2 className="font-display text-sm font-semibold text-slate-900">
-            Comparar ({items.length}/4)
+            Comparar ({items.length}/{COMPARE_MAX})
           </h2>
           <button
             type="button"
@@ -49,14 +64,15 @@ export function CompareDrawer({ open, onClose }: Props) {
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
             aria-label="Fechar"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" aria-hidden />
           </button>
         </div>
 
         <div className="flex-1 space-y-3 overflow-y-auto p-4">
           {!items.length ? (
             <p className="text-sm text-slate-500">
-              Ainda não há produtos. Use «VS Comparar» nas fichas.
+              Ainda não há produtos. Use «VS» nas fichas ou «Adicionar ao
+              comparador» nos cards.
             </p>
           ) : (
             items.map((item) => (
@@ -84,7 +100,7 @@ export function CompareDrawer({ open, onClose }: Props) {
                   </p>
                   <button
                     type="button"
-                    className="mt-1 text-xs text-rose-700 hover:underline"
+                    className="mt-1 text-xs text-slate-500 hover:text-slate-800 hover:underline"
                     onClick={() => setItems(removeFromCompare(item.slug))}
                   >
                     Remover
@@ -98,15 +114,16 @@ export function CompareDrawer({ open, onClose }: Props) {
         <div className="space-y-2 border-t border-slate-200 p-4">
           {items.length >= 2 ? (
             <Link
-              href="/comparar/"
+              href={compareHref.startsWith("/") ? compareHref : `/comparar/?ids=${encodeURIComponent(items.map((i) => i.slug).join(","))}`}
               className="flex h-11 w-full items-center justify-center rounded-xl bg-sky-700 text-sm font-semibold text-white hover:bg-sky-800"
               onClick={onClose}
             >
-              Abrir comparação
+              Abrir comparação ({items.length})
             </Link>
           ) : (
             <p className="text-center text-xs text-slate-400">
               Adicione pelo menos 2 produtos para comparar.
+              {items.length === 1 ? ` (${items.length}/${COMPARE_MAX})` : ""}
             </p>
           )}
           {items.length ? (

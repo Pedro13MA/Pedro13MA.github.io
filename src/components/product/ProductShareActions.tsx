@@ -5,6 +5,7 @@ import { Copy, FileDown, QrCode, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@/lib/types";
 import { formatEUR } from "@/lib/utils";
+import { displayCategoryLabel } from "@/lib/product-display";
 
 type Props = { product: Product };
 
@@ -61,7 +62,11 @@ td,th{border-bottom:1px solid #e2e8f0;padding:.5rem;text-align:left}
 </style></head><body>
 <h1>${escapeHtml(product.name)}</h1>
 <p class="meta">${escapeHtml(product.brand || "")} · ${escapeHtml(
-      product.subcategoryLabel || product.category || "",
+      displayCategoryLabel(
+        product.subcategoryLabel,
+        product.leafId,
+        product.category,
+      ) || product.brand || "",
     )} · ${new Date().toLocaleString("pt-PT")}</p>
 <p><strong>Preço:</strong> ${formatEUR(product.currentPrice)} · 
 <strong>Índice Limiar:</strong> ${product.decision.limiarIndex.value}/100 · 

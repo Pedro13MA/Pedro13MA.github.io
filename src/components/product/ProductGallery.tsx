@@ -20,7 +20,7 @@ export function ProductGallery({ product, className }: Props) {
     return (
       <div
         className={cn(
-          "flex h-72 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 md:h-[28rem]",
+          "flex h-56 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 sm:h-72 md:h-[28rem]",
           className,
         )}
       >
@@ -36,7 +36,7 @@ export function ProductGallery({ product, className }: Props) {
       <button
         type="button"
         onClick={() => setLightbox(true)}
-        className="relative flex h-72 w-full items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 md:h-[28rem]"
+        className="relative flex h-56 w-full items-center justify-center overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 sm:h-72 sm:p-6 md:h-[28rem]"
         aria-label="Abrir imagem em ecrã completo"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}

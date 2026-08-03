@@ -233,7 +233,7 @@ export interface Product {
   avg30d: number;
   historicalMin: number;
   historicalMax: number;
-  /** Queda percentual face a ontem (mock “maiores quedas”). */
+  /** Queda percentual face a ontem (quando observável). */
   dropTodayPct?: number;
   history: PricePoint[];
   offers: Offer[];
@@ -268,6 +268,63 @@ export interface Product {
   brandNormalized?: string | null;
   /** Atributos tipados do catálogo (FASE 7.8). */
   typedAttributes?: Record<string, unknown> | null;
+  /** FASE 7.15 — knowledge factual (opcional, da API detail). */
+  knowledge?: {
+    leaf?: string | null;
+    attributes?: Record<string, unknown>;
+    groups?: Array<{
+      id: string;
+      label: string;
+      items: Array<{
+        key: string;
+        label: string;
+        value: string;
+        source?: string;
+      }>;
+    }>;
+    sources?: Record<string, string>;
+    completeness?: number;
+  } | null;
+  knowledgeCompleteness?: number | null;
+  /** FASE 7.16 — insights factuais (opcional). */
+  insights?: {
+    currentPosition?: string;
+    currentPositionLabel?: string;
+    priceTrend?: string;
+    priceTrendLabel?: string;
+    availability?: string;
+    availabilityLabel?: string;
+    priceVolatility?: string;
+    priceVolatilityLabel?: string;
+    recommendation?: string;
+    recommendationLabel?: string;
+    confidence?: number;
+    dataQuality?: number;
+    cards?: Array<{ id: string; tone: string; label: string }>;
+    summary?: string[];
+    pros?: string[];
+    cons?: string[];
+    timeline?: Array<{
+      id: string;
+      date: string;
+      label: string;
+      detail: string;
+    }>;
+    [key: string]: unknown;
+  } | null;
+  recommendation?: string | null;
+  recommendationConfidence?: number | null;
+  /** FASE 7.17 — descoberta (opcional). */
+  recommendations?: {
+    alternatives?: Array<Record<string, unknown>> | null;
+    upgrades?: Array<Record<string, unknown>> | null;
+    savings?: Array<Record<string, unknown>> | null;
+    similar?: Array<Record<string, unknown>> | null;
+    alsoSearched?: Array<Record<string, unknown>> | null;
+    popular?: Array<Record<string, unknown>> | null;
+    recommended?: Array<Record<string, unknown>> | null;
+    meta?: Record<string, unknown>;
+  } | null;
   /** Galeria — URLs únicas das ofertas. */
   imageUrls?: string[];
   /** True só se o bot publicou este produto no canal Telegram. */

@@ -1,5 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /timeline/
+Disallow: /minha-area/
+Disallow: /favoritos/
+Disallow: /alertas/
+Disallow: /listas/
+Disallow: /carrinho/
+Disallow: /projetos/
+Disallow: /perfil/
+Disallow: /entrar/
+Disallow: /notificacoes/
 
 Sitemap: https://pedro13ma.github.io/sitemap.xml
 Sitemap: https://pedro13ma.github.io/sitemap-categorias.xml

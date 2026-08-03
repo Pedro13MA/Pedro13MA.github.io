@@ -147,6 +147,9 @@ export function PriceHistoryChart({
             referencePrice={refPrice}
             referenceSource={refSource}
             pvpr={pvpr}
+            highlightNewMin={highlightNewMin}
+            hasPromotions={hasPromotions}
+            hasCoupons={hasCoupons}
           />
         ) : null}
 

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { ProductPageClient } from "@/components/product/ProductPageClient";
-import { getDealsNow, getDealsWait } from "@/lib/api";
+import { detailToProduct, getDealsNow, getDealsWait, getProductBySlug } from "@/lib/api";
+import { displayCategoryLabel, isOtherLabel } from "@/lib/product-display";
+import { buildUsefulDescription } from "@/lib/product-content";
 import { MOCK_PRODUCTS } from "@/lib/mocks";
+import { formatEUR } from "@/lib/utils";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -28,10 +31,65 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  return {
-    title: slug,
-    description: "Decisão Limiar, histórico observado e onde comprar.",
-  };
+  try {
+    const detail = await getProductBySlug(slug);
+    const product = detailToProduct(detail);
+    const cat =
+      displayCategoryLabel(
+        product.subcategoryLabel,
+        product.leafId?.replace(/_/g, " "),
+        isOtherLabel(product.category) ? null : product.category,
+      ) || "";
+    const titleParts = [
+      product.name,
+      product.brand && !product.name.toLowerCase().includes(product.brand.toLowerCase())
+        ? product.brand
+        : null,
+      formatEUR(product.currentPrice),
+      "Limiar",
+    ].filter(Boolean);
+    const title = titleParts.join(" · ");
+    const useful = buildUsefulDescription(product);
+    const description =
+      useful ||
+      [
+        product.name,
+        cat || null,
+        `desde ${formatEUR(product.currentPrice)}`,
+        "histórico observado e comparação de lojas no Limiar.",
+      ]
+        .filter(Boolean)
+        .join(" — ");
+
+    const images = product.imageUrls?.length
+      ? product.imageUrls.slice(0, 3)
+      : product.imageUrl
+        ? [product.imageUrl]
+        : [];
+
+    return {
+      title,
+      description: description.slice(0, 160),
+      openGraph: {
+        title,
+        description: description.slice(0, 160),
+        type: "website",
+        ...(images.length
+          ? { images: images.map((url) => ({ url })) }
+          : {}),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description: description.slice(0, 160),
+      },
+    };
+  } catch {
+    return {
+      title: `${slug} · Limiar`,
+      description: "Decisão Limiar, histórico observado e onde comprar.",
+    };
+  }
 }
 
 export default async function ProductSlugPage({ params }: PageProps) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
 import { FilterSidebar, type FilterValues } from "@/components/search/FilterSidebar";
@@ -9,10 +10,12 @@ import { Button } from "@/components/ui/button";
 import {
   searchProducts,
   summaryToProduct,
+  type CanonicalHighlight,
   type SearchFacets,
   type SearchSortBy,
   type TaxonomyFacet,
 } from "@/lib/api";
+import { formatEUR } from "@/lib/utils";
 import {
   appendSelectionToParams,
   clearTaxonomySelection,
@@ -96,6 +99,8 @@ export function SearchPageClient() {
   const [facets, setFacets] = useState<SearchFacets>(EMPTY_FACETS);
   const [taxonomyFacets, setTaxonomyFacets] = useState<TaxonomyFacet[]>([]);
   const [inferred, setInferred] = useState<string | null>(null);
+  const [canonicalHighlight, setCanonicalHighlight] =
+    useState<CanonicalHighlight | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [minDraft, setMinDraft] = useState(filters.minPrice);
@@ -215,6 +220,7 @@ export function SearchPageClient() {
         setFacets(res.facets || EMPTY_FACETS);
         setTaxonomyFacets(res.taxonomyFacets ?? []);
         setInferred(res.inferredCategory || null);
+        setCanonicalHighlight(res.canonicalHighlight ?? null);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -222,6 +228,7 @@ export function SearchPageClient() {
           setProducts([]);
           setTotal(0);
           setTaxonomyFacets([]);
+          setCanonicalHighlight(null);
         }
       })
       .finally(() => {
@@ -335,6 +342,33 @@ export function SearchPageClient() {
         />
 
         <section>
+          {canonicalHighlight ? (
+            <Link
+              href={
+                canonicalHighlight.href ||
+                `/catalogo/grupo/?id=${encodeURIComponent(canonicalHighlight.slug)}`
+              }
+              className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/70 px-5 py-4 hover:border-sky-300"
+            >
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-sky-700">
+                  Produto canónico
+                </p>
+                <p className="font-display text-lg font-bold text-slate-900">
+                  {canonicalHighlight.title}
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  {canonicalHighlight.variantCount} variantes
+                  {canonicalHighlight.minPrice != null
+                    ? ` · desde ${formatEUR(canonicalHighlight.minPrice)}`
+                    : ""}
+                </p>
+              </div>
+              <span className="text-sm font-semibold text-sky-800">
+                Escolher variante →
+              </span>
+            </Link>
+          ) : null}
           {loading ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (

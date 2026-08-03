@@ -1,0 +1,14 @@
+import type { Metadata } from "next";
+import { MinhaAreaPageClient } from "@/components/watchlists/MinhaAreaPageClient";
+
+export const metadata: Metadata = {
+  title: "Minha Área · Limiar",
+  description:
+    "Resumo dos favoritos, alertas, projetos, carrinho, timeline e watchlists.",
+  robots: { index: false, follow: false },
+  alternates: { canonical: "/minha-area/" },
+};
+
+export default function MinhaAreaPage() {
+  return <MinhaAreaPageClient />;
+}

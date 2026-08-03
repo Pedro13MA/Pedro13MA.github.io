@@ -2,6 +2,7 @@
 
 import {
   Area,
+  Brush,
   CartesianGrid,
   ComposedChart,
   Line,
@@ -23,8 +24,11 @@ type Props = {
   historicalMax: number;
   referencePrice?: number | null;
   referenceSource?: string | null;
-  /** PVPR / preço de lista, quando existir e for superior ao actual. */
   pvpr?: number | null;
+  /** Eventos informativos (FASE 7.10). */
+  highlightNewMin?: boolean;
+  hasPromotions?: boolean;
+  hasCoupons?: boolean;
 };
 
 const PRICE_STROKE = "#0284c7";
@@ -37,12 +41,20 @@ function CustomTooltip({
   label,
   avgFallback,
   pvpr,
+  historicalMin,
+  historicalMax,
+  hasCoupons,
+  hasPromotions,
 }: {
   active?: boolean;
   payload?: Array<{ value?: number; dataKey?: string; payload?: ChartRow }>;
   label?: string;
   avgFallback?: number | null;
   pvpr?: number | null;
+  historicalMin?: number;
+  historicalMax?: number;
+  hasCoupons?: boolean;
+  hasPromotions?: boolean;
 }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload;
@@ -57,8 +69,17 @@ function CustomTooltip({
       })
     : "";
 
+  const nearMin =
+    historicalMin != null &&
+    historicalMin > 0 &&
+    Math.abs(price - historicalMin) / historicalMin < 0.01;
+  const nearMax =
+    historicalMax != null &&
+    historicalMax > 0 &&
+    Math.abs(price - historicalMax) / historicalMax < 0.01;
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs shadow-lg">
+    <div className="max-w-[14rem] rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs shadow-lg">
       <p className="font-medium text-slate-500">{dateLabel}</p>
       <p className="mt-1.5 font-display text-sm font-bold tabular-nums text-slate-900">
         {formatEUR(price)}
@@ -83,6 +104,18 @@ function CustomTooltip({
           </span>
         </p>
       ) : null}
+      {nearMin ? (
+        <p className="mt-1 font-medium text-emerald-700">Mínimo no período</p>
+      ) : null}
+      {nearMax ? (
+        <p className="mt-1 font-medium text-rose-700">Máximo no período</p>
+      ) : null}
+      {hasCoupons ? (
+        <p className="mt-1 text-sky-700">Cupões informativos activos</p>
+      ) : null}
+      {hasPromotions ? (
+        <p className="mt-0.5 text-amber-800">Promoções de loja activas</p>
+      ) : null}
     </div>
   );
 }
@@ -93,6 +126,9 @@ export function PriceHistoryChart({
   historicalMax,
   referencePrice,
   pvpr,
+  highlightNewMin,
+  hasPromotions,
+  hasCoupons,
 }: Props) {
   const minPoint = history.reduce((best, p) => (p.price < best.price ? p : best), history[0]);
   const maxPoint = history.reduce((best, p) => (p.price > best.price ? p : best), history[0]);
@@ -120,10 +156,12 @@ export function PriceHistoryChart({
       1.02,
   );
 
+  const showBrush = history.length >= 14;
+
   return (
     <div className="h-72 w-full sm:h-80">
       <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+        <ComposedChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: showBrush ? 8 : 0 }}>
           <defs>
             <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={PRICE_STROKE} stopOpacity={0.2} />
@@ -151,7 +189,14 @@ export function PriceHistoryChart({
           />
           <Tooltip
             content={
-              <CustomTooltip avgFallback={avgFallback} pvpr={showPvpr ? pvpr : null} />
+              <CustomTooltip
+                avgFallback={avgFallback}
+                pvpr={showPvpr ? pvpr : null}
+                historicalMin={historicalMin}
+                historicalMax={historicalMax}
+                hasCoupons={hasCoupons}
+                hasPromotions={hasPromotions}
+              />
             }
           />
           <Area
@@ -161,7 +206,7 @@ export function PriceHistoryChart({
             strokeWidth={2.5}
             fill="url(#priceFill)"
             dot={false}
-            activeDot={{ r: 4, fill: PRICE_STROKE }}
+            activeDot={{ r: 5, fill: PRICE_STROKE, stroke: "#fff", strokeWidth: 2 }}
             name="Preço"
           />
           <Line
@@ -232,6 +277,20 @@ export function PriceHistoryChart({
               strokeWidth={2}
             />
           ) : null}
+          {showBrush ? (
+            <Brush
+              dataKey="date"
+              height={22}
+              stroke="#94a3b8"
+              travellerWidth={8}
+              tickFormatter={(v: string) =>
+                new Date(v).toLocaleDateString("pt-PT", {
+                  day: "2-digit",
+                  month: "short",
+                })
+              }
+            />
+          ) : null}
         </ComposedChart>
       </ResponsiveContainer>
       <div className="mt-2 flex flex-wrap gap-3 text-[10px] font-medium uppercase tracking-wide text-slate-500">
@@ -248,6 +307,14 @@ export function PriceHistoryChart({
         ) : null}
         <span className="inline-flex items-center gap-1.5 text-emerald-700">● Mín. histórico</span>
         <span className="inline-flex items-center gap-1.5 text-rose-600">● Máx. histórico</span>
+        {highlightNewMin ? (
+          <span className="inline-flex items-center gap-1.5 text-emerald-800">
+            Novo mínimo
+          </span>
+        ) : null}
+        {showBrush ? (
+          <span className="text-slate-400 normal-case">Arraste a barra para zoom</span>
+        ) : null}
       </div>
     </div>
   );

@@ -79,7 +79,12 @@ export function stripVariantNoise(name: string): string {
 export function buildProductSummary(product: Product): string {
   const parts: string[] = [];
   if (product.brand) parts.push(product.brand);
-  if (product.category && product.category !== "Other") parts.push(product.category);
+  if (
+    product.category &&
+    !/^(other|others|outro|outros)$/i.test(product.category.trim())
+  ) {
+    parts.push(product.category);
+  }
   if (product.chipsetModel) parts.push(product.chipsetModel);
   if (product.vramSpec) parts.push(product.vramSpec);
   const storage = parseStorageGb(product.name);
@@ -688,7 +693,6 @@ export function isLikelyVariantOf(current: Product, candidate: Product): boolean
     stripVariantNoise(candidate.name),
   );
   if (overlap < 0.5) return false;
-  // Deve diferir em capacidade ou cor (variante), não ser cópia exacta
   const curGb = parseStorageGb(current.name);
   const candGb = parseStorageGb(candidate.name);
   const sameCapacity =
@@ -697,7 +701,8 @@ export function isLikelyVariantOf(current: Product, candidate: Product): boolean
   const candColor = (candidate.name.match(COLOR_RE) || []).join(" ").toLowerCase();
   const colorDiff = Boolean(curColor && candColor && curColor !== candColor);
   const capacityDiff = curGb != null && candGb != null && !sameCapacity;
-  return capacityDiff || colorDiff || overlap >= 0.75;
+  // Só variantes reais (capacidade/cor). Evita listar o mesmo produto 5×.
+  return capacityDiff || colorDiff;
 }
 
 export function isSimilarProduct(current: Product, candidate: Product): boolean {

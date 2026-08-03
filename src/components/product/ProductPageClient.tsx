@@ -26,10 +26,13 @@ import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
 import { ProductDescription } from "@/components/product/ProductDescription";
 import { ProductFaq } from "@/components/product/ProductFaq";
 import { ProductHero } from "@/components/product/ProductHero";
+import { ProductJsonLd } from "@/components/product/ProductJsonLd";
 import { ProductKpis } from "@/components/product/ProductKpis";
 import { ProductShareActions } from "@/components/product/ProductShareActions";
-import { ProductSpecs } from "@/components/product/ProductSpecs";
-import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
+import { ProductTechSheet } from "@/components/product/ProductTechSheet";
+import { ProductInsightsSection } from "@/components/product/ProductInsightsSection";
+import { ProductDiscoverySection } from "@/components/product/ProductDiscoverySection";
+import { ProductActivityTimeline } from "@/components/watchlists/ProductActivityTimeline";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
 import { TELEGRAM_CHANNEL } from "@/lib/constants";
 import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
@@ -120,11 +123,15 @@ export function ProductPageClient({ slug }: Props) {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-6">
-        <div className="h-48 animate-pulse rounded-2xl bg-slate-100" />
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="h-64 animate-pulse rounded-xl bg-slate-100" />
-          <div className="h-64 animate-pulse rounded-xl bg-slate-100" />
+      <main className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-10">
+        <div className="h-6 w-48 animate-pulse rounded bg-slate-100" />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="h-56 animate-pulse rounded-xl bg-slate-100 sm:h-72" />
+          <div className="space-y-3">
+            <div className="h-8 w-3/4 animate-pulse rounded bg-slate-100" />
+            <div className="h-10 w-32 animate-pulse rounded bg-slate-100" />
+            <div className="h-24 animate-pulse rounded-xl bg-slate-100" />
+          </div>
         </div>
       </main>
     );
@@ -163,9 +170,11 @@ export function ProductPageClient({ slug }: Props) {
   });
 
   return (
-    <main className="mx-auto max-w-6xl space-y-12 px-4 py-10 sm:px-6">
+    <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:space-y-10 sm:px-6 sm:py-10">
+      <ProductJsonLd product={product} />
       <ProductBreadcrumb crumbs={breadcrumbs} />
 
+      {/* 1. Hero: imagem → preço → decisão → comprar */}
       <ProductHero
         product={product}
         onOpenCompareDrawer={() => {
@@ -175,34 +184,42 @@ export function ProductPageClient({ slug }: Props) {
 
       <ProductKpis product={product} metrics={metrics} />
 
-      <DecisionCard
-        decision={product.decision}
-        currentPrice={product.currentPrice}
-        avg30d={product.avg30d}
-        historicalMin={histMin}
-        history={product.history}
-        storeCount={storeCount}
-        samples30d={metrics?.samples30d}
-        samples90d={metrics?.samples90d}
-      />
+      {/* 2. Lojas — cedo no fluxo mobile */}
+      {product.offers?.length ? (
+        <section id="lojas" className="scroll-mt-20 space-y-3">
+          <div>
+            <h2 className="font-display text-xl font-bold text-slate-900">
+              Onde comprar
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Ordenado do melhor preço. Cupões são informativos.
+            </p>
+          </div>
+          <StoreCompareTable offers={product.offers} />
+        </section>
+      ) : null}
 
+      <div className="hidden sm:block">
+        <DecisionCard
+          decision={product.decision}
+          currentPrice={product.currentPrice}
+          avg30d={product.avg30d}
+          historicalMin={histMin}
+          history={product.history}
+          storeCount={storeCount}
+          samples30d={metrics?.samples30d}
+          samples90d={metrics?.samples90d}
+        />
+      </div>
+
+      {/* 3. Descrição + specs */}
       <ProductDescription product={product} />
-      <ProductSpecs product={product} />
+      <ProductInsightsSection product={product} />
+      <ProductTechSheet product={product} />
+      <ProductActivityTimeline product={product} />
 
-      <section id="lojas" className="scroll-mt-20 space-y-4">
-        <div>
-          <h2 className="font-display text-xl font-bold text-slate-900">
-            Onde comprar
-          </h2>
-          <p className="mt-1.5 text-sm text-slate-500">
-            Ordenado do melhor preço. Cupões são informativos e não alteram o preço
-            mostrado.
-          </p>
-        </div>
-        <StoreCompareTable offers={product.offers} />
-      </section>
-
-      <section id="historico" className="scroll-mt-20 space-y-4">
+      {/* 4. Histórico */}
+      <section id="historico" className="scroll-mt-20 space-y-3">
         <PriceHistoryChart
           productId={slug}
           fallbackHistory={product.history}
@@ -217,13 +234,13 @@ export function ProductPageClient({ slug }: Props) {
         />
       </section>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <ActiveCampaignBanner product={product} />
         <StoreCouponsInfoBanner product={product} />
       </div>
 
       {variantTip ? (
-        <p className="rounded-2xl border border-slate-200 bg-[#FAFAFA] px-4 py-3 text-sm text-slate-600">
+        <p className="rounded-xl border border-slate-200 bg-[#FAFAFA] px-4 py-3 text-sm text-slate-600">
           {variantTip.message}{" "}
           <a
             href={`/p/?id=${encodeURIComponent(variantTip.siblingSlug)}`}
@@ -237,25 +254,25 @@ export function ProductPageClient({ slug }: Props) {
       <ProductShareActions product={product} />
       <ProductFaq product={product} />
 
-      <section className="rounded-2xl border border-sky-100 bg-sky-50/40 px-6 py-8 sm:px-8">
+      <section className="rounded-xl border border-sky-100 bg-sky-50/40 px-5 py-6 sm:px-8 sm:py-8">
         <h2 className="font-display text-lg font-bold text-slate-900">
           Alertas Limiar
         </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
-          Queres ser avisado quando o preço baixar? Segue o canal Telegram Limiar —
-          alertas pessoais por email só quando estiverem disponíveis de ponta a ponta.
+          Queres ser avisado quando o preço baixar? Segue o canal Telegram Limiar.
         </p>
         <a
           href={TELEGRAM_CHANNEL}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-sky-700 px-6 text-sm font-semibold text-white transition-colors hover:bg-sky-800"
+          className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-sky-700 px-5 text-sm font-semibold text-white transition-colors hover:bg-sky-800"
         >
           Abrir Telegram
         </a>
       </section>
 
-      <RelatedProductsSection product={product} />
+      {/* 5. Descoberta */}
+      <ProductDiscoverySection product={product} />
 
       <CompareDrawer open={compareOpen} onClose={() => setCompareOpen(false)} />
     </main>

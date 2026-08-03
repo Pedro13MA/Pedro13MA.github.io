@@ -4,6 +4,8 @@ import Link from "next/link";
 import { TELEGRAM_CHANNEL, BRAND_TAGLINE } from "@/lib/constants";
 import { CATEGORY_MENU_L1 } from "@/lib/category-slugs";
 import { LimiarLogo } from "@/components/ui/LimiarLogo";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export function SiteHeader() {
   return (
@@ -25,7 +27,13 @@ export function SiteHeader() {
           <Link href="/categorias/" className="shrink-0 hover:text-slate-900">
             Categorias
           </Link>
-          {CATEGORY_MENU_L1.slice(0, 4).map((c) => (
+          <Link href="/mercado/" className="shrink-0 hover:text-slate-900">
+            Mercado
+          </Link>
+          <Link href="/catalogo/" className="shrink-0 hover:text-slate-900">
+            Catálogo
+          </Link>
+          {CATEGORY_MENU_L1.slice(0, 3).map((c) => (
             <Link
               key={c.slug}
               href={`/categoria/${c.slug}/`}
@@ -34,9 +42,16 @@ export function SiteHeader() {
               {c.label}
             </Link>
           ))}
-          <Link href="/catalog/" className="hidden shrink-0 hover:text-slate-900 lg:inline">
+          <Link
+            href="/catalog/"
+            className="hidden shrink-0 hover:text-slate-900 lg:inline"
+          >
             Catálogo
           </Link>
+
+          <NotificationBell />
+          <UserMenu />
+
           <a
             href={TELEGRAM_CHANNEL}
             target="_blank"
@@ -50,16 +65,33 @@ export function SiteHeader() {
     </header>
   );
 }
-
 export function SiteFooter() {
   const columns = [
     {
       title: "Produto",
       links: [
         { href: "/categorias/", label: "Categorias" },
+        { href: "/mercado/", label: "Mercado" },
+        { href: "/catalogo/", label: "Catálogo" },
         { href: "/#decisoes", label: "Decisões" },
         { href: "/catalog/", label: "Catálogo" },
         { href: "/#cupoes", label: "Cupões" },
+      ],
+    },
+    {
+      title: "Minha Área",
+      links: [
+        { href: "/entrar/", label: "Entrar" },
+        { href: "/perfil/", label: "Perfil" },
+        { href: "/notificacoes/", label: "Notificações" },
+        { href: "/minha-area/", label: "Resumo" },
+        { href: "/timeline/", label: "Timeline" },
+        { href: "/favoritos/", label: "Favoritos" },
+        { href: "/listas/", label: "Listas" },
+        { href: "/alertas/", label: "Alertas" },
+        { href: "/projetos/", label: "Projetos" },
+        { href: "/carrinho/", label: "Carrinho" },
+        { href: "/comparar/", label: "Comparador" },
       ],
     },
     {
@@ -89,7 +121,7 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-10 sm:grid-cols-3 sm:gap-12">
+          <div className="grid flex-1 grid-cols-2 gap-10 sm:grid-cols-4 sm:gap-12">
             {columns.map((col) => (
               <div key={col.title}>
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -124,7 +156,8 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-14 border-t border-slate-100 pt-8 text-xs text-slate-400">
-          © {new Date().getFullYear()} Limiar · Preços observados · Sem previsões inventadas
+          © {new Date().getFullYear()} Limiar · Preços observados · Sem previsões
+          inventadas
         </p>
       </div>
     </footer>

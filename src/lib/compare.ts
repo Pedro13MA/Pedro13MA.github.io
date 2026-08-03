@@ -1,6 +1,8 @@
 /**
- * FASE 7.8 — comparação VS (localStorage, até 4 produtos).
+ * FASE 7.11 — comparação VS (localStorage, até 4, deep-link).
  */
+
+import type { Product } from "@/lib/types";
 
 export type CompareItem = {
   slug: string;
@@ -55,7 +57,7 @@ export function addToCompare(item: Omit<CompareItem, "addedAt">): {
   reason?: "full" | "duplicate";
 } {
   const list = readCompareList();
-  if (list.some((i) => i.slug === item.slug || i.ean === item.ean)) {
+  if (list.some((i) => i.slug === item.slug || (item.ean && i.ean === item.ean))) {
     return { ok: false, list, reason: "duplicate" };
   }
   if (list.length >= MAX) {
@@ -74,6 +76,45 @@ export function removeFromCompare(slug: string): CompareItem[] {
 
 export function clearCompare(): void {
   writeCompareList([]);
+}
+
+export function productToCompareItem(product: Product): Omit<CompareItem, "addedAt"> {
+  return {
+    slug: product.slug,
+    ean: product.ean,
+    name: product.name,
+    brand: product.brand,
+    imageUrl: product.imageUrl,
+    currentPrice: product.currentPrice,
+    limiarIndex: product.decision.limiarIndex.value,
+    leafId: product.leafId,
+    chipsetModel: product.chipsetModel,
+    vramSpec: product.vramSpec,
+    category: product.category,
+  };
+}
+
+/** Parse `/comparar?ids=a,b,c` */
+export function parseCompareIdsParam(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(/[,|]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, MAX);
+}
+
+export function compareIdsToParam(slugs: string[]): string {
+  return slugs.filter(Boolean).slice(0, MAX).join(",");
+}
+
+export function buildCompareShareUrl(slugs: string[], origin?: string): string {
+  const base =
+    origin ||
+    (typeof window !== "undefined" ? window.location.origin : "https://pedro13ma.github.io");
+  const ids = compareIdsToParam(slugs);
+  const path = ids ? `/comparar/?ids=${encodeURIComponent(ids)}` : "/comparar/";
+  return `${base.replace(/\/$/, "")}${path}`;
 }
 
 export const COMPARE_MAX = MAX;

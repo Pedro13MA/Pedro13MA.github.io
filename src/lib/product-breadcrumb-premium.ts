@@ -1,9 +1,11 @@
 /**
  * Breadcrumbs de produto — Início + taxonomy path + nome.
+ * Nunca mostra "Other".
  */
 
 import type { BreadcrumbCrumb } from "@/lib/product-breadcrumb";
 import { buildProductBreadcrumbs } from "@/lib/product-breadcrumb";
+import { isOtherLabel } from "@/lib/product-display";
 
 const LEAF_LABEL: Record<string, string> = {
   gpu: "Placas Gráficas",
@@ -14,13 +16,23 @@ const LEAF_LABEL: Record<string, string> = {
   smartphone: "Smartphones",
   monitor: "Monitores",
   motherboard: "Motherboards",
+  informatica: "Informática",
+  componentes: "Componentes",
 };
 
 function slugLabel(slug: string): string {
+  const key = slug.toLowerCase().replace(/\s+/g, "_");
   return (
-    LEAF_LABEL[slug] ||
+    LEAF_LABEL[key] ||
     slug.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
   );
+}
+
+function pushUnique(crumbs: BreadcrumbCrumb[], crumb: BreadcrumbCrumb) {
+  if (isOtherLabel(crumb.label)) return;
+  const last = crumbs[crumbs.length - 1];
+  if (last && last.label.toLowerCase() === crumb.label.toLowerCase()) return;
+  crumbs.push(crumb);
 }
 
 export function buildPremiumProductBreadcrumbs(opts: {
@@ -42,8 +54,9 @@ export function buildPremiumProductBreadcrumbs(opts: {
       .map((p) => p.trim())
       .filter(Boolean);
     for (const part of parts) {
+      if (isOtherLabel(part)) continue;
       const slug = part.toLowerCase().replace(/\s+/g, "_");
-      crumbs.push({
+      pushUnique(crumbs, {
         label: slugLabel(slug),
         href: `/categoria/${encodeURIComponent(slug)}/`,
       });
@@ -55,35 +68,34 @@ export function buildPremiumProductBreadcrumbs(opts: {
       subcategoryLabel: opts.subcategoryLabel,
     });
     for (const c of legacy) {
-      const slugGuess = (opts.subcategory || "").toLowerCase();
-      crumbs.push({
+      if (isOtherLabel(c.label)) continue;
+      const slugGuess = (opts.subcategory || opts.leafId || "").toLowerCase();
+      pushUnique(crumbs, {
         label: c.label,
         href:
-          slugGuess && c.label === (opts.subcategoryLabel || "")
+          slugGuess &&
+          (c.label === (opts.subcategoryLabel || "") ||
+            c.label.toLowerCase().includes("gráfic"))
             ? `/categoria/${encodeURIComponent(slugGuess)}/`
             : c.href,
       });
     }
-    if (opts.leafId && !legacy.length) {
-      crumbs.push({
+    if (opts.leafId && crumbs.length <= 1) {
+      pushUnique(crumbs, {
         label: slugLabel(opts.leafId),
         href: `/categoria/${encodeURIComponent(opts.leafId)}/`,
       });
     }
   }
 
-  if (opts.chipsetModel) {
-    crumbs.push({ label: opts.chipsetModel });
-  }
-
-  if (opts.brand) {
-    crumbs.push({ label: opts.brand });
+  if (opts.chipsetModel && !isOtherLabel(opts.chipsetModel)) {
+    pushUnique(crumbs, { label: opts.chipsetModel });
   } else if (opts.productName) {
     const short =
-      opts.productName.length > 40
-        ? `${opts.productName.slice(0, 37)}…`
+      opts.productName.length > 48
+        ? `${opts.productName.slice(0, 45)}…`
         : opts.productName;
-    crumbs.push({ label: short });
+    pushUnique(crumbs, { label: short });
   }
 
   return crumbs;

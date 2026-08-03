@@ -1,5 +1,5 @@
 /**
- * FASE 7.8 — conteúdo / specs / FAQ a partir de dados existentes.
+ * FASE 7.8 / 7.10 — conteúdo / specs / FAQ a partir de dados existentes.
  */
 
 import { describe, expect, it } from "vitest";
@@ -7,9 +7,16 @@ import {
   buildAutoDescription,
   buildProductFaq,
   buildSpecRows,
+  buildUsefulDescription,
   collectImageUrls,
   parseTypedAttributes,
 } from "@/lib/product-content";
+import {
+  displayCategoryLabel,
+  displayLeafOrBrand,
+  isOtherLabel,
+} from "@/lib/product-display";
+import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
 import type { Product } from "@/lib/types";
 
 function baseProduct(over: Partial<Product> = {}): Product {
@@ -96,14 +103,46 @@ describe("product-content", () => {
     expect(keys).toContain("pcie");
     expect(keys).toContain("chipset");
     expect(rows.find((r) => r.key === "rgb")?.value).toBe("Sim");
+    expect(rows.find((r) => r.key === "vram_gb")?.value).toMatch(/12/);
   });
 
-  it("buildAutoDescription — never invents empty specs", () => {
-    const d = buildAutoDescription(
-      baseProduct({ typedAttributes: {}, chipsetModel: null, vramSpec: null }),
+  it("buildUsefulDescription — GPU from typed attrs, never generic Other", () => {
+    const d = buildUsefulDescription(baseProduct());
+    expect(d).toBeTruthy();
+    expect(d!).toMatch(/RTX 5070/i);
+    expect(d!).toMatch(/12/);
+    expect(d!.toLowerCase()).not.toContain("other");
+    expect(d!.toLowerCase()).not.toContain("consulte preços");
+    expect(d!.toLowerCase()).not.toContain("resumo institucional");
+  });
+
+  it("buildUsefulDescription — null when insufficient data", () => {
+    const d = buildUsefulDescription(
+      baseProduct({
+        leafId: "accessory",
+        subcategory: "accessory",
+        typedAttributes: {},
+        chipsetModel: null,
+        vramSpec: null,
+        brand: null,
+      }),
     );
-    expect(d.summary.length).toBeGreaterThan(20);
-    expect(d.features.length).toBeLessThanOrEqual(1);
+    expect(d).toBeNull();
+  });
+
+  it("buildAutoDescription — summary null hides fluff", () => {
+    const d = buildAutoDescription(
+      baseProduct({
+        leafId: "accessory",
+        subcategory: "accessory",
+        typedAttributes: {},
+        chipsetModel: null,
+        vramSpec: null,
+        brand: null,
+        name: "Cabo USB",
+      }),
+    );
+    expect(d.summary).toBeNull();
   });
 
   it("buildProductFaq — uses real condition and stores", () => {
@@ -112,9 +151,45 @@ describe("product-content", () => {
     expect(faq.some((f) => f.answer.includes("620") || f.answer.includes("mínimo"))).toBe(
       true,
     );
+    expect(faq.every((f) => f.answer.trim().length > 0)).toBe(true);
   });
 
   it("collectImageUrls dedupes", () => {
     expect(collectImageUrls(baseProduct())).toHaveLength(2);
+  });
+});
+
+describe("product-display — never Other", () => {
+  it("isOtherLabel", () => {
+    expect(isOtherLabel("Other")).toBe(true);
+    expect(isOtherLabel("Placas Gráficas")).toBe(false);
+  });
+
+  it("displayCategoryLabel skips Other", () => {
+    expect(displayCategoryLabel("Other", "gpu")).toBe("gpu");
+    expect(displayCategoryLabel("Other")).toBeNull();
+  });
+
+  it("displayLeafOrBrand falls back to brand", () => {
+    expect(
+      displayLeafOrBrand({
+        category: "Other",
+        brand: "ASUS",
+      }),
+    ).toBe("ASUS");
+  });
+
+  it("breadcrumbs never include Other", () => {
+    const crumbs = buildPremiumProductBreadcrumbs({
+      category: "Other",
+      subcategory: "gpu",
+      subcategoryLabel: "Placas Gráficas",
+      leafId: "gpu",
+      chipsetModel: "RTX 5070",
+    });
+    expect(crumbs.every((c) => !isOtherLabel(c.label))).toBe(true);
+    expect(crumbs.some((c) => c.label.includes("Gráficas") || c.label === "gpu" || c.label === "Placas Gráficas")).toBe(
+      true,
+    );
   });
 });

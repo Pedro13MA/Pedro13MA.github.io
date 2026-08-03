@@ -67,7 +67,12 @@ function takeUnique(products: Product[], used: Set<string>, limit: number): Prod
 }
 
 /** Homepage: decisões de compra — não feed de deals. */
-export function HomePageBody() {
+export function HomePageBody({
+  decisionsOnly = false,
+}: {
+  /** FASE 7.20 — omitir Telegram/cupões quando a homepage nova já os mostra. */
+  decisionsOnly?: boolean;
+}) {
   const [buyNow, setBuyNow] = useState<Product[]>([]);
   const [wait, setWait] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -209,31 +214,35 @@ export function HomePageBody() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200/60 bg-[#FAFAFA]">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-          <div className="grid items-center gap-8 rounded-2xl border border-sky-100 bg-white px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-[1.4fr_auto]">
-            <div>
-              <h2 className="font-display text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Acompanhar no Telegram
-              </h2>
-              <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-slate-500">
-                Oportunidades publicadas no canal Limiar — útil se quiseres um ritmo rápido,
-                sem substituir a decisão na página do produto.
-              </p>
+      {decisionsOnly ? null : (
+        <>
+          <section className="border-t border-slate-200/60 bg-[#FAFAFA]">
+            <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+              <div className="grid items-center gap-8 rounded-2xl border border-sky-100 bg-white px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-[1.4fr_auto]">
+                <div>
+                  <h2 className="font-display text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                    Acompanhar no Telegram
+                  </h2>
+                  <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-slate-500">
+                    Oportunidades publicadas no canal Limiar — útil se quiseres um ritmo rápido,
+                    sem substituir a decisão na página do produto.
+                  </p>
+                </div>
+                <a
+                  href={TELEGRAM_CHANNEL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-sky-700 px-8 text-sm font-semibold text-white transition-colors duration-150 hover:bg-sky-800 md:w-auto"
+                >
+                  Abrir Telegram
+                </a>
+              </div>
             </div>
-            <a
-              href={TELEGRAM_CHANNEL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-sky-700 px-8 text-sm font-semibold text-white transition-colors duration-150 hover:bg-sky-800 md:w-auto"
-            >
-              Abrir Telegram
-            </a>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <CouponHubSection />
+          <CouponHubSection />
+        </>
+      )}
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Space_Grotesk, Source_Sans_3, JetBrains_Mono } from "next/font/google";
+import { AppProviders } from "@/components/providers/AppProviders";
 import "./globals.css";
 
 const display = Space_Grotesk({
@@ -64,7 +65,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className="min-h-screen bg-slate-50 font-sans text-slate-500 antialiased">
-        {children}
+        <AppProviders>{children}</AppProviders>
         <GoogleAnalytics gaId="G-DDXSVE4ED7" />
       </body>
     </html>

@@ -136,6 +136,17 @@ export type TaxonomyFacet = {
   selected?: boolean;
 };
 
+/** FASE 7.21 — destaque canónico na pesquisa (aditivo). */
+export type CanonicalHighlight = {
+  slug: string;
+  title: string;
+  variantCount: number;
+  minPrice?: number | null;
+  brandCount?: number;
+  imageUrl?: string | null;
+  href?: string;
+};
+
 export type SearchResponse = {
   query: string;
   total: number;
@@ -147,6 +158,8 @@ export type SearchResponse = {
   facets: SearchFacets;
   /** FASE 7.2 — opcional; ausente/vazio → UI legado */
   taxonomyFacets?: TaxonomyFacet[];
+  /** FASE 7.21 — destaque canónico (não altera results) */
+  canonicalHighlight?: CanonicalHighlight | null;
 };
 
 export type CategorySeo = {
@@ -390,6 +403,29 @@ export type ApiProductDetail = {
   taxonomy_version?: string | null;
   typed_attributes?: Record<string, unknown> | null;
   imageUrls?: string[] | null;
+  /** FASE 7.15 — opcional */
+  knowledge?: {
+    leaf?: string | null;
+    attributes?: Record<string, unknown>;
+    groups?: Array<{
+      id: string;
+      label: string;
+      items: Array<{
+        key: string;
+        label: string;
+        value: string;
+        source?: string;
+      }>;
+    }>;
+    sources?: Record<string, string>;
+    completeness?: number;
+  } | null;
+  knowledgeCompleteness?: number | null;
+  /** FASE 7.16 — opcional */
+  insights?: Record<string, unknown> | null;
+  recommendation?: string | null;
+  recommendationConfidence?: number | null;
+  recommendations?: Product["recommendations"];
 };
 
 export type ApiSmartCoupon = {
@@ -581,7 +617,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     ean: s.ean,
     name: s.name,
     brand: s.brand,
-    category: s.category || "Other",
+    category: s.category || "",
     imageUrl: s.imageUrl,
     currentPrice: s.currentPrice,
     listPrice: s.listPrice ?? undefined,
@@ -749,7 +785,7 @@ export function detailToProduct(d: ApiProductDetail): Product {
     ean: d.ean,
     name: d.name,
     brand: d.brand,
-    category: d.category || "Other",
+    category: d.category || "",
     subcategory: d.subcategory ?? null,
     subcategoryLabel: d.subcategoryLabel ?? null,
     imageUrl: d.imageUrl,
@@ -772,6 +808,22 @@ export function detailToProduct(d: ApiProductDetail): Product {
     taxonomyPath: d.taxonomy_path ?? undefined,
     brandNormalized: d.brand_normalized ?? undefined,
     typedAttributes: d.typed_attributes ?? undefined,
+    knowledge: d.knowledge ?? undefined,
+    knowledgeCompleteness:
+      typeof d.knowledgeCompleteness === "number"
+        ? d.knowledgeCompleteness
+        : d.knowledge && typeof d.knowledge.completeness === "number"
+          ? d.knowledge.completeness
+          : undefined,
+    insights: d.insights
+      ? (d.insights as NonNullable<Product["insights"]>)
+      : undefined,
+    recommendation: d.recommendation ?? undefined,
+    recommendationConfidence:
+      typeof d.recommendationConfidence === "number"
+        ? d.recommendationConfidence
+        : undefined,
+    recommendations: d.recommendations ?? undefined,
     imageUrls: Array.isArray(d.imageUrls) ? d.imageUrls.filter(Boolean) : undefined,
     activeCoupon,
     activeCampaign,
@@ -1071,5 +1123,288 @@ export async function getStorePromotions(
 ): Promise<PromotionsResponse> {
   return apiGet<PromotionsResponse>(
     `/api/v1/promotions/${encodeURIComponent(store)}?limit=${limit}`,
+  );
+}
+
+/* ——— FASE 7.18 — Marketplace Intelligence ——— */
+
+export type MarketplaceProductCard = {
+  ean?: string | null;
+  slug: string;
+  name?: string | null;
+  brand?: string | null;
+  currentPrice?: number | null;
+  imageUrl?: string | null;
+  leafId?: string | null;
+  category?: string | null;
+  storeCount?: number | null;
+  discountPct?: number | null;
+  originalPrice?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+  changeCount?: number | null;
+};
+
+export type MarketplaceOverview = {
+  products: number;
+  brands: number;
+  leaves: number;
+  categories: number;
+  stores: number;
+  offers: number;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  promotionsActive: number;
+  couponsActive: number;
+  lastProductUpdate?: string | null;
+  lastOfferUpdate?: string | null;
+  rankings?: Record<string, MarketplaceProductCard[]>;
+  generatedAt?: string | null;
+  cacheTtlSec?: number | null;
+};
+
+export type MarketplaceBrandListItem = {
+  slug: string;
+  name: string;
+  products: number;
+  avgPrice?: number | null;
+};
+
+export type MarketplaceBrandDetail = {
+  slug: string;
+  name: string;
+  products: number;
+  leaves: number;
+  categories: number;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  categoryBreakdown: Array<{ slug: string; products: number }>;
+  economical: MarketplaceProductCard[];
+  premium: MarketplaceProductCard[];
+  bestOpportunity?: MarketplaceProductCard | null;
+  recommended: MarketplaceProductCard[];
+};
+
+export type MarketplaceStoreListItem = {
+  slug: string;
+  name: string;
+  products: number;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  lastUpdate?: string | null;
+};
+
+export type MarketplaceStoreDetail = {
+  slug: string;
+  name: string;
+  products: number;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  lastUpdate?: string | null;
+  categories: Array<{ slug: string; products: number }>;
+  promotions: number;
+  recentProducts: MarketplaceProductCard[];
+};
+
+export type MarketplaceCategoryStats = {
+  slug: string;
+  displayName: string;
+  products: number;
+  brands: number;
+  stores: number;
+  avgPrice?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  lastUpdate?: string | null;
+  topBrands: Array<{ slug: string; name: string; products: number }>;
+  recommendedProducts: MarketplaceProductCard[];
+  leafCount: number;
+};
+
+export type MarketplaceTrending = {
+  recentlyAdded: MarketplaceProductCard[];
+  mostActivity?: MarketplaceProductCard[] | null;
+  newestUpdates: MarketplaceProductCard[];
+  newPromotions: MarketplaceProductCard[];
+  note?: string | null;
+};
+
+export async function getMercado(): Promise<MarketplaceOverview> {
+  return apiGet<MarketplaceOverview>("/api/v1/mercado");
+}
+
+export async function getMarcas(limit = 100): Promise<{
+  count: number;
+  brands: MarketplaceBrandListItem[];
+}> {
+  return apiGet(`/api/v1/marcas?limit=${limit}`);
+}
+
+export async function getMarca(slug: string): Promise<MarketplaceBrandDetail> {
+  return apiGet(`/api/v1/marca/${encodeURIComponent(slug)}`);
+}
+
+export async function getLojas(limit = 80): Promise<{
+  count: number;
+  stores: MarketplaceStoreListItem[];
+}> {
+  return apiGet(`/api/v1/lojas?limit=${limit}`);
+}
+
+export async function getLoja(slug: string): Promise<MarketplaceStoreDetail> {
+  return apiGet(`/api/v1/loja/${encodeURIComponent(slug)}`);
+}
+
+export async function getCategoryStats(
+  slug: string,
+): Promise<MarketplaceCategoryStats> {
+  return apiGet(
+    `/api/v1/categorias/${encodeURIComponent(slug)}/estatisticas`,
+  );
+}
+
+export async function getMercadoRankings(limit = 10): Promise<{
+  cheapest: MarketplaceProductCard[];
+  biggestDiscount: MarketplaceProductCard[];
+  mostStores: MarketplaceProductCard[];
+  newest: MarketplaceProductCard[];
+}> {
+  return apiGet(`/api/v1/mercado/rankings?limit=${limit}`);
+}
+
+export async function getMercadoTendencias(
+  limit = 12,
+): Promise<MarketplaceTrending> {
+  return apiGet(`/api/v1/mercado/tendencias?limit=${limit}`);
+}
+
+/** FASE 7.20 — homepage agregada (read-only). */
+export type HomepageCategoryCard = {
+  slug: string;
+  displayName: string;
+  products: number;
+  avgPrice?: number | null;
+  brands?: number;
+  stores?: number;
+  imageUrl?: string | null;
+};
+
+export type HomepageMarketSummary = {
+  products: number;
+  brands: number;
+  stores: number;
+  categories: number;
+  leaves?: number;
+  avgPrice?: number | null;
+  promotionsActive: number;
+  couponsActive: number;
+  classifiedPct?: number | null;
+  lastProductUpdate?: string | null;
+  lastOfferUpdate?: string | null;
+};
+
+export type HomepagePayload = {
+  featured: MarketplaceProductCard[];
+  topDeals: MarketplaceProductCard[];
+  recentDrops: MarketplaceProductCard[];
+  popularProducts: MarketplaceProductCard[];
+  recommended: MarketplaceProductCard[];
+  categories: HomepageCategoryCard[];
+  trendingBrands: MarketplaceBrandListItem[];
+  trendingStores: MarketplaceStoreListItem[];
+  marketSummary: HomepageMarketSummary;
+  latestCoupons: ApiSmartCoupon[];
+  latestProducts: MarketplaceProductCard[];
+  generatedAt?: string | null;
+  cacheTtlSec?: number | null;
+  note?: string | null;
+};
+
+export async function getHome(): Promise<HomepagePayload> {
+  return apiGet<HomepagePayload>("/api/v1/home");
+}
+
+/** FASE 7.21 — Catálogo canónico. */
+export type CanonicalGroupListItem = {
+  slug: string;
+  title: string;
+  leafId?: string | null;
+  variantCount: number;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  brandCount?: number;
+  storeCount?: number;
+  imageUrl?: string | null;
+  brands?: string[];
+};
+
+export type CanonicalVariableAttr = {
+  key: string;
+  label: string;
+  options: string[];
+};
+
+export type CanonicalVariantCard = {
+  ean?: string | null;
+  slug: string;
+  name?: string | null;
+  brand?: string | null;
+  currentPrice?: number | null;
+  imageUrl?: string | null;
+  leafId?: string | null;
+  storeCount?: number | null;
+  selection?: Record<string, string>;
+};
+
+export type CanonicalGroupDetail = {
+  slug: string;
+  title: string;
+  leafId?: string | null;
+  variantCount: number;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  brandCount?: number;
+  brands?: string[];
+  storeCount?: number;
+  imageUrl?: string | null;
+  variableAttributes: CanonicalVariableAttr[];
+  variants: CanonicalVariantCard[];
+  href?: string | null;
+};
+
+export async function getCatalogo(opts?: {
+  limit?: number;
+  leaf?: string;
+}): Promise<{ count: number; groups: CanonicalGroupListItem[] }> {
+  const params = new URLSearchParams();
+  if (opts?.limit) params.set("limit", String(opts.limit));
+  if (opts?.leaf) params.set("leaf", opts.leaf);
+  const q = params.toString();
+  return apiGet(`/api/v1/catalogo${q ? `?${q}` : ""}`);
+}
+
+export async function getCatalogoGroup(
+  slug: string,
+): Promise<CanonicalGroupDetail> {
+  return apiGet(`/api/v1/catalogo/${encodeURIComponent(slug)}`);
+}
+
+export async function getCatalogoVariantes(slug: string): Promise<{
+  slug: string;
+  title: string;
+  variableAttributes: CanonicalVariableAttr[];
+  variants: CanonicalVariantCard[];
+}> {
+  return apiGet(`/api/v1/catalogo/${encodeURIComponent(slug)}/variantes`);
+}
+
+export async function getCatalogoSemelhantes(
+  slug: string,
+  limit = 8,
+): Promise<{ slug: string; similares: CanonicalGroupListItem[] }> {
+  return apiGet(
+    `/api/v1/catalogo/${encodeURIComponent(slug)}/semelhantes?limit=${limit}`,
   );
 }

@@ -9,12 +9,18 @@ import { CategorySidebar } from "@/components/categoria/CategorySidebar";
 import { OpportunityCard } from "@/components/product/OpportunityCard";
 import { FilterSidebar, type FilterValues } from "@/components/search/FilterSidebar";
 import { Button } from "@/components/ui/button";
+import { WatchButton } from "@/components/watchlists/WatchButton";
+import { EntityActivityTimeline } from "@/components/watchlists/EntityActivityTimeline";
+import { CategoryFamilies } from "@/components/catalogo/CategoryFamilies";
+import { baselineFromCategoryStats } from "@/lib/watchlists";
 import {
   getCategory,
   getCategoryProducts,
+  getCategoryStats,
   summaryToProduct,
   type CategoryDetail,
   type CategoryFaqItem,
+  type MarketplaceCategoryStats,
   type SearchFacets,
   type SearchSortBy,
   type TaxonomyFacet,
@@ -74,6 +80,7 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [minDraft, setMinDraft] = useState("");
   const [maxDraft, setMaxDraft] = useState("");
+  const [stats, setStats] = useState<MarketplaceCategoryStats | null>(null);
 
   const filters: FilterValues = useMemo(
     () => ({
@@ -152,6 +159,20 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
 
   useEffect(() => {
     let cancelled = false;
+    getCategoryStats(slug)
+      .then((s) => {
+        if (!cancelled) setStats(s);
+      })
+      .catch(() => {
+        if (!cancelled) setStats(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     setError(null);
     const offset = (page - 1) * PAGE_SIZE;
@@ -221,7 +242,7 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold text-slate-900">
-            {category?.display_name || "…"}
+            {category?.display_name || (loading ? "A carregar" : "Categoria")}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
             {loading
@@ -234,7 +255,21 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
             ) : null}
           </p>
         </div>
-        <label className="flex flex-col gap-1 text-sm text-slate-600">
+        <div className="flex flex-wrap items-end gap-3">
+          {category ? (
+            <WatchButton
+              kind="CATEGORY"
+              target={{
+                key: slug,
+                label: category.display_name,
+                href: `/categoria/${encodeURIComponent(slug)}/`,
+              }}
+              baseline={
+                stats ? baselineFromCategoryStats(stats) : null
+              }
+            />
+          ) : null}
+          <label className="flex flex-col gap-1 text-sm text-slate-600">
           Ordenar por
           <select
             value={sortBy}
@@ -251,7 +286,8 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
               </option>
             ))}
           </select>
-        </label>
+          </label>
+        </div>
       </div>
 
       {error ? (
@@ -271,6 +307,46 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
           />
         </div>
       ) : null}
+
+      {stats ? (
+        <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Produtos
+            </p>
+            <p className="mt-1 font-display text-lg font-bold">{stats.products}</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Marcas
+            </p>
+            <p className="mt-1 font-display text-lg font-bold">{stats.brands}</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Lojas
+            </p>
+            <p className="mt-1 font-display text-lg font-bold">{stats.stores}</p>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Preço médio
+            </p>
+            <p className="mt-1 font-display text-lg font-bold tabular-nums">
+              {stats.avgPrice != null
+                ? new Intl.NumberFormat("pt-PT", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(stats.avgPrice)
+                : "—"}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mb-8">
+        <EntityActivityTimeline kind="CATEGORY" targetKey={slug} />
+      </div>
 
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <div className="space-y-6">
@@ -329,6 +405,35 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
         </div>
 
         <section>
+          <CategoryFamilies leafHint={slug} />
+          {!loading && products.length ? (
+            (() => {
+              const recommended = products
+                .filter((p) => p.decision.limiarIndex.value >= 70)
+                .slice(0, 4);
+              if (!recommended.length) return null;
+              return (
+                <div className="mb-8 space-y-3">
+                  <h2 className="font-display text-lg font-bold text-slate-900">
+                    Produtos recomendados
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    Melhor momento observado nesta página — sem alterar a
+                    listagem.
+                  </p>
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    {recommended.map((product) => (
+                      <OpportunityCard
+                        key={`rec-${product.ean}`}
+                        product={product}
+                        compact
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()
+          ) : null}
           {loading ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
