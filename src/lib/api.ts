@@ -198,6 +198,8 @@ export type ApiProductDetail = {
   name: string;
   brand?: string | null;
   category?: string | null;
+  subcategory?: string | null;
+  subcategoryLabel?: string | null;
   imageUrl?: string | null;
   currency?: string;
   currentPrice: number;
@@ -618,6 +620,8 @@ export function detailToProduct(d: ApiProductDetail): Product {
     name: d.name,
     brand: d.brand,
     category: d.category || "Other",
+    subcategory: d.subcategory ?? null,
+    subcategoryLabel: d.subcategoryLabel ?? null,
     imageUrl: d.imageUrl,
     currency: d.currency,
     listPrice,

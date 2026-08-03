@@ -23,8 +23,10 @@ import {
 } from "@/components/product/CampaignCouponBlock";
 import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
 import { ProductHeader } from "@/components/product/ProductHeader";
+import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
 import { TELEGRAM_CHANNEL } from "@/lib/constants";
+import { buildProductBreadcrumbs } from "@/lib/product-breadcrumb";
 
 type Props = { slug: string };
 
@@ -141,9 +143,15 @@ export function ProductPageClient({ slug }: Props) {
       ? product.originalPrice
       : null;
   const storeCount = metrics?.storeCount ?? product.offers.length;
+  const breadcrumbs = buildProductBreadcrumbs({
+    category: product.category,
+    subcategory: product.subcategory,
+    subcategoryLabel: product.subcategoryLabel,
+  });
 
   return (
     <main className="mx-auto max-w-6xl space-y-12 px-4 py-10 sm:px-6">
+      <ProductBreadcrumb crumbs={breadcrumbs} />
       <ProductHeader product={product} />
 
       <DecisionCard

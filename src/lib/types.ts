@@ -224,6 +224,9 @@ export interface Product {
   name: string;
   brand?: string | null;
   category: string;
+  /** Chave de subcategoria do catálogo (gpu, laptop, …) quando disponível. */
+  subcategory?: string | null;
+  subcategoryLabel?: string | null;
   imageUrl?: string | null;
   currency?: string;
   currentPrice: number;
