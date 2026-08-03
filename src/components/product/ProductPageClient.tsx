@@ -123,9 +123,12 @@ export function ProductPageClient({ slug }: Props) {
   if (error || !product || !seasonality || !confidence) {
     return (
       <main className="mx-auto max-w-lg px-4 py-24 text-center">
-        <h1 className="font-display text-2xl font-bold text-slate-900">Produto não encontrado</h1>
+        <h1 className="font-display text-2xl font-bold text-slate-900">
+          Ainda não temos este produto
+        </h1>
         <p className="mt-3 text-slate-500">
-          {error || "Não encontrámos este produto. Tenta outra pesquisa."}
+          Pode ser um link antigo, um erro temporário, ou um produto sem histórico
+          suficiente no Limiar. Experimenta a pesquisa na página inicial.
         </p>
       </main>
     );
