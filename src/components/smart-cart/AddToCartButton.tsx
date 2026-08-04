@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import {
   addToCart,
+  getActiveConfig,
   productToCartDraft,
   subscribeSmartCart,
   cartItemCount,
@@ -16,19 +17,34 @@ type Props = {
   product: Product;
   className?: string;
   compact?: boolean;
+  /** Estilo do hero da página de produto (FASE 8.4.2). */
+  heroTone?: boolean;
 };
 
-export function AddToCartButton({ product, className, compact }: Props) {
+export function AddToCartButton({
+  product,
+  className,
+  compact,
+  heroTone,
+}: Props) {
   const { push } = useSnackbar();
   const [busy, setBusy] = useState(false);
   const [count, setCount] = useState(0);
+  const [inCart, setInCart] = useState(false);
+  const [pulse, setPulse] = useState(false);
+
+  const refresh = useCallback(async () => {
+    const [n, cfg] = await Promise.all([cartItemCount(), getActiveConfig()]);
+    setCount(n);
+    setInCart(cfg.items.some((i) => i.slug === product.slug));
+  }, [product.slug]);
 
   useEffect(() => {
-    void cartItemCount().then(setCount);
+    void refresh();
     return subscribeSmartCart(() => {
-      void cartItemCount().then(setCount);
+      void refresh();
     });
-  }, []);
+  }, [refresh]);
 
   const onClick = useCallback(
     async (e: React.MouseEvent) => {
@@ -38,8 +54,9 @@ export function AddToCartButton({ product, className, compact }: Props) {
       setBusy(true);
       try {
         await addToCart(productToCartDraft(product));
-        const n = await cartItemCount();
-        setCount(n);
+        await refresh();
+        setPulse(true);
+        window.setTimeout(() => setPulse(false), 500);
         push("Adicionado ao carrinho inteligente.", {
           action: {
             label: "Ver",
@@ -52,8 +69,33 @@ export function AddToCartButton({ product, className, compact }: Props) {
         setBusy(false);
       }
     },
-    [busy, product, push],
+    [busy, product, push, refresh],
   );
+
+  if (heroTone) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={busy}
+        aria-label={`Adicionar ${product.name} ao carrinho (${count} itens)`}
+        aria-pressed={inCart}
+        className={cn(
+          "inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-semibold transition-all duration-200",
+          inCart
+            ? "border-sky-300 bg-sky-100 text-sky-900 shadow-sm"
+            : "border-sky-200/80 bg-sky-50 text-sky-800 hover:border-sky-300 hover:bg-sky-100",
+          className,
+        )}
+      >
+        <ShoppingBag
+          className={cn("h-4 w-4 shrink-0", pulse && "limiar-anim-cart")}
+          aria-hidden
+        />
+        {inCart ? "No carrinho" : "Carrinho"}
+      </button>
+    );
+  }
 
   return (
     <button

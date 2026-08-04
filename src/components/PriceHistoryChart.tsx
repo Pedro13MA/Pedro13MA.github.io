@@ -40,6 +40,35 @@ function autoGranularity(days: number): HistoryGranularity {
   return days >= 180 ? "weekly" : "daily";
 }
 
+function SummaryCard({
+  tone,
+  label,
+  value,
+}: {
+  tone: "current" | "min" | "max";
+  label: string;
+  value: number;
+}) {
+  const dot =
+    tone === "current"
+      ? "bg-sky-600"
+      : tone === "min"
+        ? "bg-emerald-600"
+        : "bg-rose-600";
+
+  return (
+    <li className="rounded-2xl border border-slate-200/70 bg-white px-3.5 py-3">
+      <p className="flex items-center gap-2 text-xs font-medium text-slate-600">
+        <span className={cn("h-2.5 w-2.5 rounded-full", dot)} aria-hidden />
+        {label}
+      </p>
+      <p className="mt-1.5 font-display text-lg font-bold tabular-nums text-slate-900">
+        {formatEUR(value)}
+      </p>
+    </li>
+  );
+}
+
 export function PriceHistoryChart({
   productId,
   currentPrice,
@@ -91,7 +120,7 @@ export function PriceHistoryChart({
     (points.length ? Math.max(...points.map((p) => p.price)) : 0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <h2 className="font-display text-xl font-bold text-slate-900">
           Histórico de preço
@@ -124,25 +153,10 @@ export function PriceHistoryChart({
       {!loading && points.length > 1 ? (
         <>
           <Chart history={points} currentPrice={currentPrice} />
-          <ul className="grid gap-3 text-sm sm:grid-cols-3">
-            <li className="space-y-0.5 py-1">
-              <p className="text-xs text-slate-500">Preço actual</p>
-              <p className="font-display text-lg font-bold tabular-nums text-slate-900">
-                {formatEUR(currentPrice)}
-              </p>
-            </li>
-            <li className="space-y-0.5 py-1">
-              <p className="text-xs text-slate-500">Mínimo observado</p>
-              <p className="font-display text-lg font-bold tabular-nums text-slate-900">
-                {formatEUR(histMin)}
-              </p>
-            </li>
-            <li className="space-y-0.5 py-1">
-              <p className="text-xs text-slate-500">Máximo observado</p>
-              <p className="font-display text-lg font-bold tabular-nums text-slate-900">
-                {formatEUR(histMax)}
-              </p>
-            </li>
+          <ul className="grid gap-3 sm:grid-cols-3">
+            <SummaryCard tone="current" label="Preço atual" value={currentPrice} />
+            <SummaryCard tone="min" label="Mínimo observado" value={histMin} />
+            <SummaryCard tone="max" label="Máximo observado" value={histMax} />
           </ul>
         </>
       ) : null}
@@ -157,4 +171,3 @@ export function PriceHistoryChart({
     </div>
   );
 }
-

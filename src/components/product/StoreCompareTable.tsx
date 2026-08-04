@@ -55,12 +55,6 @@ function stockStatus(offer: Offer): { label: string; className: string } {
   return { label: "Consultar loja", className: "text-slate-500" };
 }
 
-function offerScore(price: number, best: number, worst: number): number {
-  if (!(best > 0) || worst <= best) return 100;
-  const t = (worst - price) / (worst - best);
-  return Math.round(Math.max(0, Math.min(100, t * 100)));
-}
-
 function humanOrFallback(
   value: string | null | undefined,
   fallback: string,
@@ -102,9 +96,7 @@ export function StoreCompareTable({ offers }: Props) {
 
   const meta = useMemo(() => {
     if (!sorted.length) return null;
-    const best = sorted[0].price;
-    const worst = sorted[sorted.length - 1].price;
-    return { best, worst };
+    return true;
   }, [sorted]);
 
   if (!sorted.length || !meta) {
@@ -115,15 +107,12 @@ export function StoreCompareTable({ offers }: Props) {
     );
   }
 
-  const { best, worst } = meta;
-
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {sorted.map((offer, idx) => {
         const slug = offer.slug || offer.store || "";
         const name = storeDisplayName(slug || offer.storeName, offer.storeName);
         const stock = stockStatus(offer);
-        const score = offerScore(offer.price, best, worst);
 
         return (
           <li
@@ -147,6 +136,12 @@ export function StoreCompareTable({ offers }: Props) {
                   </p>
                 </div>
 
+                {idx === 0 ? (
+                  <p className="mt-1 text-xs font-semibold text-amber-700">
+                    ⭐ Melhor oferta
+                  </p>
+                ) : null}
+
                 <dl className="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
                   <div>
                     <dt className="inline text-slate-400">Disponibilidade · </dt>
@@ -158,15 +153,9 @@ export function StoreCompareTable({ offers }: Props) {
                     <dt className="inline text-slate-400">Entrega · </dt>
                     <dd className="inline">{deliveryLabel(offer)}</dd>
                   </div>
-                  <div>
+                  <div className="sm:col-span-2">
                     <dt className="inline text-slate-400">Portes · </dt>
                     <dd className="inline">{shippingCostLabel(offer)}</dd>
-                  </div>
-                  <div>
-                    <dt className="inline text-slate-400">Pontuação · </dt>
-                    <dd className="inline tabular-nums font-medium text-slate-800">
-                      {score}
-                    </dd>
                   </div>
                 </dl>
 

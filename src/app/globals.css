@@ -100,8 +100,68 @@ body {
   animation: limiar-flame-pulse 2.4s ease-in-out infinite;
 }
 
+/* FASE 8.4.2 — micro-interações do hero */
+@keyframes limiar-heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes limiar-cart-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  70% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes limiar-bell-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-12deg);
+  }
+  40% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(-6deg);
+  }
+  80% {
+    transform: rotate(4deg);
+  }
+}
+
+.limiar-anim-heart {
+  animation: limiar-heart-pop 0.45s ease;
+}
+
+.limiar-anim-cart {
+  animation: limiar-cart-bounce 0.45s ease;
+}
+
+.limiar-anim-bell {
+  animation: limiar-bell-wiggle 0.55s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .limiar-flame-badge {
+  .limiar-flame-badge,
+  .limiar-anim-heart,
+  .limiar-anim-cart,
+  .limiar-anim-bell {
     animation: none;
   }
 }

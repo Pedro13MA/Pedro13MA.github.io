@@ -61,10 +61,10 @@ function buildVerdictCopy(opts: {
 
   if (thinHistory) {
     return {
-      title: "Ainda recomendamos esperar",
+      title: "O Limiar ainda está a observar este produto",
       lines: [
-        `O Limiar acompanha este produto há apenas ${spanDays} dia${spanDays === 1 ? "" : "s"}.`,
-        "Ainda existe pouco histórico para concluir se este preço é realmente bom.",
+        `Acompanhamos este produto há apenas ${spanDays} dia${spanDays === 1 ? "" : "s"}.`,
+        "Ainda não existe informação suficiente para recomendar a compra.",
         storeCount > 0
           ? `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`
           : "Ainda não há ofertas suficientes para comparar lojas.",
@@ -86,7 +86,7 @@ function buildVerdictCopy(opts: {
       );
     }
     return {
-      title: "Boa altura para comprar",
+      title: "Vale a pena comprar",
       lines,
     };
   }
@@ -104,7 +104,7 @@ function buildVerdictCopy(opts: {
     );
   }
   return {
-    title: "Ainda recomendamos esperar",
+    title: "Recomendamos esperar",
     lines,
   };
 }
