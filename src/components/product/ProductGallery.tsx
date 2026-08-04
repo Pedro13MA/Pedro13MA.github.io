@@ -9,9 +9,15 @@ import { cn } from "@/lib/utils";
 type Props = {
   product: Product;
   className?: string;
+  /** UI: em FASE 8.4 o hero mostra apenas a imagem principal. */
+  showThumbnails?: boolean;
 };
 
-export function ProductGallery({ product, className }: Props) {
+export function ProductGallery({
+  product,
+  className,
+  showThumbnails = true,
+}: Props) {
   const images = collectImageUrls(product);
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
@@ -48,7 +54,7 @@ export function ProductGallery({ product, className }: Props) {
         />
       </button>
 
-      {images.length > 1 ? (
+      {showThumbnails && images.length > 1 ? (
         <ul className="flex gap-2 overflow-x-auto pb-1">
           {images.map((src, i) => (
             <li key={src}>

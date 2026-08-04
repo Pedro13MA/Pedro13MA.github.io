@@ -9,7 +9,7 @@ import {
 import type { PricePoint } from "@/lib/types";
 import { PriceHistoryChart as Chart } from "@/components/charts/PriceHistoryChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, formatEUR } from "@/lib/utils";
 
 const PERIODS = [
   { days: 30, label: "30 dias" },
@@ -22,23 +22,17 @@ type PeriodDays = (typeof PERIODS)[number]["days"];
 
 type Props = {
   productId: string;
+  currentPrice: number;
   fallbackHistory?: PricePoint[];
   fallbackMin?: number;
   fallbackMax?: number;
-  referencePrice?: number | null;
-  referenceSource?: string | null;
-  pvpr?: number | null;
-  /** FASE 7.8 — eventos informativos (dados já existentes). */
-  highlightNewMin?: boolean;
-  hasPromotions?: boolean;
-  hasCoupons?: boolean;
 };
 
 function ChartSkeleton() {
   return (
     <div className="space-y-3" aria-hidden>
       <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-100" />
-      <div className="h-72 w-full animate-pulse rounded-xl bg-slate-100" />
+      <div className="h-96 w-full animate-pulse rounded-xl bg-slate-100" />
     </div>
   );
 }
@@ -49,15 +43,10 @@ function autoGranularity(days: number): HistoryGranularity {
 
 export function PriceHistoryChart({
   productId,
+  currentPrice,
   fallbackHistory = [],
   fallbackMin,
   fallbackMax,
-  referencePrice,
-  referenceSource,
-  pvpr,
-  highlightNewMin,
-  hasPromotions,
-  hasCoupons,
 }: Props) {
   const [days, setDays] = useState<PeriodDays>(30);
   const [data, setData] = useState<PriceHistoryOut | null>(null);
@@ -83,20 +72,15 @@ export function PriceHistoryChart({
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
   }, [productId, days, granularity]);
 
-  const points =
-    data?.points?.map((p) => ({
-      date: p.date,
-      price: p.price,
-      avg: p.avgPrice ?? null,
-    })) ??
-    (error && fallbackHistory.length > 1
-      ? fallbackHistory.map((p) => ({ ...p, avg: null as number | null }))
-      : []);
+  const points: PricePoint[] =
+    data?.points?.map((p) => ({ date: p.date, price: p.price })) ??
+    (error && fallbackHistory.length > 1 ? fallbackHistory : []);
 
   const histMin =
     data?.historicalMin ??
@@ -106,9 +90,6 @@ export function PriceHistoryChart({
     data?.historicalMax ??
     fallbackMax ??
     (points.length ? Math.max(...points.map((p) => p.price)) : 0);
-
-  const refPrice = data?.referencePrice ?? referencePrice;
-  const refSource = data?.referenceSource ?? referenceSource;
 
   return (
     <Card>
@@ -125,7 +106,7 @@ export function PriceHistoryChart({
               type="button"
               onClick={() => setDays(p.days)}
               className={cn(
-                "rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
+                "min-h-11 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors inline-flex items-center justify-center",
                 days === p.days
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-800",
@@ -136,21 +117,40 @@ export function PriceHistoryChart({
           ))}
         </div>
       </CardHeader>
+
       <CardContent>
         {loading ? <ChartSkeleton /> : null}
 
         {!loading && points.length > 1 ? (
-          <Chart
-            history={points}
-            historicalMin={histMin}
-            historicalMax={histMax}
-            referencePrice={refPrice}
-            referenceSource={refSource}
-            pvpr={pvpr}
-            highlightNewMin={highlightNewMin}
-            hasPromotions={hasPromotions}
-            hasCoupons={hasCoupons}
-          />
+          <>
+            <Chart history={points} />
+            <ul className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+              <li className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Preço atual
+                </p>
+                <p className="mt-0.5 font-display text-base font-bold tabular-nums text-slate-900">
+                  {formatEUR(currentPrice)}
+                </p>
+              </li>
+              <li className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Mínimo observado
+                </p>
+                <p className="mt-0.5 font-display text-base font-bold tabular-nums text-slate-900">
+                  {formatEUR(histMin)}
+                </p>
+              </li>
+              <li className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Máximo observado
+                </p>
+                <p className="mt-0.5 font-display text-base font-bold tabular-nums text-slate-900">
+                  {formatEUR(histMax)}
+                </p>
+              </li>
+            </ul>
+          </>
         ) : null}
 
         {!loading && points.length <= 1 ? (
@@ -160,33 +160,8 @@ export function PriceHistoryChart({
               : "Histórico insuficiente para o gráfico."}
           </p>
         ) : null}
-
-        {!loading && error && points.length > 1 ? (
-          <p className="mt-2 text-xs text-amber-600">
-            A mostrar histórico embutido (série temporal indisponível para este período).
-          </p>
-        ) : null}
-
-        {!loading ? (
-          <ul className="mt-4 flex flex-wrap gap-2 text-xs">
-            {highlightNewMin ? (
-              <li className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800">
-                Novo mínimo observado
-              </li>
-            ) : null}
-            {hasPromotions ? (
-              <li className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 font-medium text-amber-900">
-                Promoções activas
-              </li>
-            ) : null}
-            {hasCoupons ? (
-              <li className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 font-medium text-sky-800">
-                Cupões disponíveis
-              </li>
-            ) : null}
-          </ul>
-        ) : null}
       </CardContent>
     </Card>
   );
 }
+

@@ -21,6 +21,8 @@ type Props = {
   onClose: () => void;
   product: ProductSnapshot;
   onSaved?: (rule: AlertRule) => void;
+  /** UI simplificada para a página de produto (FASE 8.4). */
+  variant?: "full" | "product";
 };
 
 const KINDS: AlertKind[] = [
@@ -39,7 +41,13 @@ const CONDITIONS: AlertConditionId[] = [
   "USED",
 ];
 
-export function AlertRuleModal({ open, onClose, product, onSaved }: Props) {
+export function AlertRuleModal({
+  open,
+  onClose,
+  product,
+  onSaved,
+  variant = "full",
+}: Props) {
   const [kind, setKind] = useState<AlertKind>("price_below");
   const [priceTarget, setPriceTarget] = useState("");
   const [percentBelow, setPercentBelow] = useState("10");
@@ -48,6 +56,10 @@ export function AlertRuleModal({ open, onClose, product, onSaved }: Props) {
   const [conditions, setConditions] = useState<AlertConditionId[]>(["NEW"]);
   const [existingId, setExistingId] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
+  // FASE 8.4 — UI simplificada: controla apenas as 2 opções pedidas.
+  const [mode, setMode] = useState<"below_current" | "price_specific">(
+    "below_current",
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -86,7 +98,169 @@ export function AlertRuleModal({ open, onClose, product, onSaved }: Props) {
     };
   }, [open, product.slug, product.currentPrice]);
 
+  useEffect(() => {
+    if (!open) return;
+    if (variant !== "product") return;
+
+    const pt = Number(priceTarget || "");
+    if (kind === "price_below" && pt > 0) {
+      setMode(Math.abs(pt - product.currentPrice) <= 0.01 ? "below_current" : "price_specific");
+      return;
+    }
+
+    setMode("below_current");
+  }, [open, variant, kind, priceTarget, product.currentPrice]);
+
   if (!open) return null;
+
+  // --- FASE 8.4 — UI simplificada para a página de produto ---
+  if (variant === "product") {
+    const saveProduct = async () => {
+      if (saving) return;
+      setSaving(true);
+      try {
+        const target =
+          mode === "below_current"
+            ? product.currentPrice
+            : Number(priceTarget || "");
+
+        if (!(target > 0)) return;
+
+        const rule = await upsertAlert({
+          id: existingId,
+          slug: product.slug,
+          ean: product.ean,
+          productName: product.name,
+          imageUrl: product.imageUrl,
+          kind: "price_below",
+          priceTarget: target,
+          percentBelow: null,
+          referencePrice: product.currentPrice,
+          stores: storesAll ? "all" : stores,
+          conditions,
+          active: true,
+          lastTriggeredAt: null,
+        });
+        onSaved?.(rule);
+        onClose();
+      } finally {
+        setSaving(false);
+      }
+    };
+
+    return (
+      <div
+        className="fixed inset-0 z-[75] flex items-end justify-center sm:items-center"
+        role="dialog"
+        aria-modal
+      >
+        <button
+          type="button"
+          className="absolute inset-0 bg-slate-900/40"
+          aria-label="Fechar"
+          onClick={onClose}
+        />
+
+        <div className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl">
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+            <div>
+              <h2 className="font-display text-sm font-semibold text-slate-900">
+                Como queres ser avisado?
+              </h2>
+              <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">
+                {product.name} · {formatEUR(product.currentPrice)}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+              aria-label="Fechar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="flex-1 space-y-5 overflow-y-auto p-4">
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Opções
+              </legend>
+
+              <label
+                className={cn(
+                  "flex cursor-pointer items-start gap-2 rounded-xl border px-3 py-2.5 text-sm",
+                  mode === "below_current"
+                    ? "border-sky-300 bg-sky-50"
+                    : "border-slate-200 hover:bg-slate-50",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="alert-mode"
+                  checked={mode === "below_current"}
+                  onChange={() => {
+                    setMode("below_current");
+                    setPriceTarget(
+                      product.currentPrice > 0
+                        ? String(product.currentPrice)
+                        : "",
+                    );
+                  }}
+                  className="mt-0.5"
+                />
+                <span>Quando baixar abaixo do preço atual</span>
+              </label>
+
+              <label
+                className={cn(
+                  "flex cursor-pointer items-start gap-2 rounded-xl border px-3 py-2.5 text-sm",
+                  mode === "price_specific"
+                    ? "border-sky-300 bg-sky-50"
+                    : "border-slate-200 hover:bg-slate-50",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="alert-mode"
+                  checked={mode === "price_specific"}
+                  onChange={() => setMode("price_specific")}
+                  className="mt-0.5"
+                />
+                <span>Quando atingir um preço específico</span>
+              </label>
+            </fieldset>
+
+            {mode === "price_specific" ? (
+              <label className="block space-y-1 text-sm">
+                <span className="text-slate-600">Preço alvo</span>
+                <Input
+                  inputMode="decimal"
+                  value={priceTarget}
+                  onChange={(e) => setPriceTarget(e.target.value)}
+                  className="h-10"
+                />
+              </label>
+            ) : null}
+          </div>
+
+          <div className="border-t border-slate-200 p-4">
+            <Button
+              type="button"
+              className="w-full"
+              disabled={saving}
+              onClick={() => void saveProduct()}
+            >
+              Guardar
+            </Button>
+            <p className="mt-2 text-center text-[11px] text-slate-400">
+              Guardado neste dispositivo. Sync entre contas na FASE 8.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const toggleCondition = (id: AlertConditionId) => {
     setConditions((prev) =>

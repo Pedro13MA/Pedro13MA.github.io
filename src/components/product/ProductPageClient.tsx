@@ -5,57 +5,50 @@ import {
   detailToProduct,
   fetchProductMetrics,
   getProductBySlug,
-  searchProducts,
   type ProductMetricsOut,
 } from "@/lib/api";
 import type { Product } from "@/lib/types";
 import {
   computeDataConfidence,
   estimateSeasonality,
-  findBetterStorageVariantTip,
-  stripCapacityFromName,
+  historySpanDays,
+  isAbsoluteHistoricalMin,
 } from "@/lib/product-insights";
+import { recommendationsFromApi, type DiscoveryCard } from "@/lib/product-discovery";
+import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
-import { DecisionCard } from "@/components/product/DecisionCard";
-import {
-  ActiveCampaignBanner,
-  StoreCouponsInfoBanner,
-} from "@/components/product/CampaignCouponBlock";
-import { CompareDrawer } from "@/components/product/CompareDrawer";
 import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
-import { ProductDescription } from "@/components/product/ProductDescription";
-import { ProductFaq } from "@/components/product/ProductFaq";
 import { ProductHero } from "@/components/product/ProductHero";
 import { ProductJsonLd } from "@/components/product/ProductJsonLd";
-import { ProductKpis } from "@/components/product/ProductKpis";
-import { ProductShareActions } from "@/components/product/ProductShareActions";
-import { ProductTechSheet } from "@/components/product/ProductTechSheet";
-import { ProductInsightsSection } from "@/components/product/ProductInsightsSection";
-import { ProductDiscoverySection } from "@/components/product/ProductDiscoverySection";
-import { ProductActivityTimeline } from "@/components/watchlists/ProductActivityTimeline";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
-import { TELEGRAM_CHANNEL } from "@/lib/constants";
-import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
-import { readCompareList } from "@/lib/compare";
+import { storeDisplayName } from "@/lib/storeLogos";
+import { formatEUR } from "@/lib/utils";
+import Link from "next/link";
 
 type Props = { slug: string };
+
+function Stars({ stars }: { stars: number }) {
+  const s = Math.max(0, Math.min(5, Math.round(stars)));
+  return (
+    <span aria-hidden>
+      {"★".repeat(s)}
+      {"☆".repeat(Math.max(0, 5 - s))}
+    </span>
+  );
+}
 
 export function ProductPageClient({ slug }: Props) {
   const [product, setProduct] = useState<Product | null>(null);
   const [metrics, setMetrics] = useState<ProductMetricsOut | null>(null);
-  const [variantTip, setVariantTip] = useState<ReturnType<
-    typeof findBetterStorageVariantTip
-  >>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [compareOpen, setCompareOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setProduct(null);
     setMetrics(null);
-    setVariantTip(null);
 
     getProductBySlug(slug)
       .then(async (detail) => {
@@ -63,28 +56,9 @@ export function ProductPageClient({ slug }: Props) {
         const mapped = detailToProduct(detail);
         setProduct(mapped);
 
-        const [metricsRes, searchRes] = await Promise.all([
-          fetchProductMetrics(mapped.ean).catch(() => null),
-          searchProducts(stripCapacityFromName(mapped.name) || mapped.name, {
-            brand: mapped.brand || undefined,
-            limit: 16,
-            sortBy: "price_asc",
-          }).catch(() => null),
-        ]);
+        const metricsRes = await fetchProductMetrics(mapped.ean).catch(() => null);
         if (cancelled) return;
         setMetrics(metricsRes);
-        setVariantTip(
-          findBetterStorageVariantTip({
-            currentName: mapped.name,
-            currentSlug: mapped.slug,
-            currentPrice: mapped.currentPrice,
-            siblings: (searchRes?.results || []).map((r) => ({
-              slug: r.slug,
-              name: r.name,
-              currentPrice: r.currentPrice,
-            })),
-          }),
-        );
       })
       .catch((err) => {
         if (!cancelled) {
@@ -144,8 +118,8 @@ export function ProductPageClient({ slug }: Props) {
           Ainda não temos este produto
         </h1>
         <p className="mt-3 text-slate-500">
-          Pode ser um link antigo, um erro temporário, ou um produto sem histórico
-          suficiente no Limiar. Experimenta a pesquisa na página inicial.
+          Pode ser um link antigo, um erro temporário, ou um produto sem histórico suficiente no Limiar.
+          Experimenta a pesquisa na página inicial.
         </p>
       </main>
     );
@@ -153,11 +127,33 @@ export function ProductPageClient({ slug }: Props) {
 
   const histMin = product.historicalMin;
   const histMax = product.historicalMax;
-  const pvpr =
-    product.originalPrice != null && product.originalPrice > product.currentPrice
-      ? product.originalPrice
-      : null;
+
   const storeCount = metrics?.storeCount ?? product.offers.length;
+  const spanDays = historySpanDays(product.history);
+  const observations = Math.max(
+    product.history.length,
+    metrics?.samples90d ?? 0,
+    metrics?.samples30d ?? 0,
+  );
+
+  const avgObserved = metrics?.avg30d ?? product.avg30d;
+  const currentIsMin = isAbsoluteHistoricalMin(product.currentPrice, product.historicalMin);
+  const aboveAvg = product.currentPrice > avgObserved;
+
+  const sortedOffers = [...product.offers].sort((a, b) => a.price - b.price);
+  const bestOffer = sortedOffers[0] ?? null;
+  const bestStore = bestOffer?.storeName || bestOffer?.store || null;
+
+  // FASE 8.4 — recomendação apresentada ao utilizador deve ser explicada apenas
+  // com dados observados (histórico) + confiança (e posição vs média observada).
+  const verdict = currentIsMin || (confidence.score >= 50 && !aboveAvg);
+  const recommendationLine = verdict
+    ? "Recomendamos comprar."
+    : "Recomendamos esperar.";
+
+  const similar: DiscoveryCard[] =
+    recommendationsFromApi(product.recommendations)?.similar?.slice(0, 6) ?? [];
+
   const breadcrumbs = buildPremiumProductBreadcrumbs({
     category: product.category,
     subcategory: product.subcategory,
@@ -174,107 +170,159 @@ export function ProductPageClient({ slug }: Props) {
       <ProductJsonLd product={product} />
       <ProductBreadcrumb crumbs={breadcrumbs} />
 
-      {/* 1. Hero: imagem → preço → decisão → comprar */}
-      <ProductHero
-        product={product}
-        onOpenCompareDrawer={() => {
-          if (readCompareList().length >= 1) setCompareOpen(true);
-        }}
-      />
+      {/* Hero (imagem + essenciais + Comprar + ❤️/🛒/🔔) */}
+      <ProductHero product={product} />
 
-      <ProductKpis product={product} metrics={metrics} />
+      {/* Análise Limiar — decisão em primeiro */}
+      <section
+        aria-label="Análise Limiar"
+        className="rounded-2xl border border-slate-200/70 bg-white px-4 py-6 sm:px-6"
+      >
+        <h2 className="font-display text-xl font-bold text-slate-900">
+          Vale a pena comprar?
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-700">
+          {recommendationLine}
+        </p>
 
-      {/* 2. Lojas — cedo no fluxo mobile */}
+        <ul className="mt-4 space-y-2 text-sm text-slate-600">
+          <li>
+            Observamos este produto há{" "}
+            <span className="font-semibold text-slate-900">{spanDays}</span>{" "}
+            dias.
+          </li>
+          <li>
+            Existem atualmente{" "}
+            <span className="font-semibold text-slate-900">{storeCount}</span>{" "}
+            lojas com oferta.
+          </li>
+          <li>
+            O preço atual encontra-se{" "}
+            <span className="font-semibold text-slate-900">
+              {aboveAvg ? "acima" : "abaixo"}
+            </span>{" "}
+            da média observada.
+          </li>
+          {seasonality?.sufficient && seasonality.lowPricePeriods.length > 0 ? (
+            <li>
+              Existem períodos no histórico em que o preço costuma ficar abaixo do atual.
+            </li>
+          ) : null}
+          {bestStore ? (
+            <li>
+              Onde comprar mais barato:{" "}
+              <span className="font-semibold text-slate-900">
+                {storeDisplayName(bestStore, bestStore)}
+              </span>
+              .
+            </li>
+          ) : null}
+        </ul>
+      </section>
+
+      {/* Confiança (apenas base estatística + estrelas) */}
+      <section
+        aria-label="Confiança"
+        className="rounded-2xl border border-slate-200/70 bg-slate-50 px-4 py-6 sm:px-6"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-slate-700">
+              Confidence:{" "}
+              <span className="font-display tabular-nums">{confidence.score}%</span>{" "}
+              <span className="inline-flex items-center align-middle">
+                (<Stars stars={confidence.stars} />)
+              </span>
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="sr-only">Confiança por estrelas</span>
+          </div>
+        </div>
+        <p className="mt-3 text-sm text-slate-600">
+          Based on:{" "}
+          <span className="font-semibold text-slate-900">{spanDays}</span> days
+          observed, <span className="font-semibold text-slate-900">{storeCount}</span>{" "}
+          stores,{" "}
+          <span className="font-semibold text-slate-900">{observations}</span>{" "}
+          price changes.
+        </p>
+      </section>
+
+      {/* Histórico — 1 gráfico grande */}
+      <section id="historico" className="space-y-3">
+        <PriceHistoryChart
+          productId={slug}
+          currentPrice={product.currentPrice}
+          fallbackHistory={product.history}
+          fallbackMin={histMin}
+          fallbackMax={histMax}
+        />
+      </section>
+
+      {/* Onde comprar — cartões por loja (sem tabela) */}
       {product.offers?.length ? (
         <section id="lojas" className="scroll-mt-20 space-y-3">
           <div>
             <h2 className="font-display text-xl font-bold text-slate-900">
               Onde comprar
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Ordenado do melhor preço. Cupões são informativos.
-            </p>
           </div>
           <StoreCompareTable offers={product.offers} />
         </section>
       ) : null}
 
-      <div className="hidden sm:block">
-        <DecisionCard
-          decision={product.decision}
-          currentPrice={product.currentPrice}
-          avg30d={product.avg30d}
-          historicalMin={histMin}
-          history={product.history}
-          storeCount={storeCount}
-          samples30d={metrics?.samples30d}
-          samples90d={metrics?.samples90d}
-        />
-      </div>
+      {/* Alternativas — 1 lista, max 6 */}
+      {similar.length ? (
+        <section id="alternativas" className="scroll-mt-20 space-y-3">
+          <div>
+            <h2 className="font-display text-xl font-bold text-slate-900">
+              Alternativas semelhantes
+            </h2>
+          </div>
 
-      {/* 3. Descrição + specs */}
-      <ProductDescription product={product} />
-      <ProductInsightsSection product={product} />
-      <ProductTechSheet product={product} />
-      <ProductActivityTimeline product={product} />
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {similar.map((p) => (
+              <li
+                key={`alt-${p.slug}`}
+                className="rounded-xl border border-slate-200 bg-white p-3"
+              >
+                <Link
+                  href={`/p/?id=${encodeURIComponent(p.slug)}`}
+                  className="block"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
+                      {p.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.imageUrl}
+                          alt={p.name}
+                          className="h-10 w-10 object-contain"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-xs font-bold text-slate-600">
+                          ?
+                        </span>
+                      )}
+                    </div>
 
-      {/* 4. Histórico */}
-      <section id="historico" className="scroll-mt-20 space-y-3">
-        <PriceHistoryChart
-          productId={slug}
-          fallbackHistory={product.history}
-          fallbackMin={histMin}
-          fallbackMax={histMax}
-          referencePrice={product.referencePrice ?? product.avg30d}
-          referenceSource={product.referenceSource ?? "HISTORY_30D"}
-          pvpr={pvpr}
-          highlightNewMin={product.decision.isHistoricalMin}
-          hasPromotions={Boolean(product.activeCampaign || product.activePromotion)}
-          hasCoupons={Boolean(product.storeCouponsAvailable)}
-        />
-      </section>
-
-      <div className="space-y-3">
-        <ActiveCampaignBanner product={product} />
-        <StoreCouponsInfoBanner product={product} />
-      </div>
-
-      {variantTip ? (
-        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          {variantTip.message}{" "}
-          <a
-            href={`/p/?id=${encodeURIComponent(variantTip.siblingSlug)}`}
-            className="font-medium text-sky-700 hover:text-sky-900"
-          >
-            Ver variante
-          </a>
-        </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-2 text-sm font-medium text-slate-900">
+                        {p.name}
+                      </p>
+                      <p className="mt-1 text-sm font-bold tabular-nums text-slate-900">
+                        {formatEUR(p.currentPrice)}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
-
-      <ProductShareActions product={product} />
-      <ProductFaq product={product} />
-
-      <section className="rounded-xl border border-sky-100 bg-sky-50/40 px-5 py-6 sm:px-8 sm:py-8">
-        <h2 className="font-display text-lg font-bold text-slate-900">
-          Alertas Limiar
-        </h2>
-        <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
-          Queres ser avisado quando o preço baixar? Segue o canal Telegram Limiar.
-        </p>
-        <a
-          href={TELEGRAM_CHANNEL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-sky-700 px-5 text-sm font-semibold text-white transition-colors hover:bg-sky-800"
-        >
-          Abrir Telegram
-        </a>
-      </section>
-
-      {/* 5. Descoberta */}
-      <ProductDiscoverySection product={product} />
-
-      <CompareDrawer open={compareOpen} onClose={() => setCompareOpen(false)} />
     </main>
   );
 }
