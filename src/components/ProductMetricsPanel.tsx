@@ -191,7 +191,7 @@ export function ProductMetricsPanel({ ean, currentPrice }: Props) {
             <div className="rounded-xl border border-slate-100 bg-white p-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                  <Activity className="h-4 w-4 shrink-0 text-violet-600" aria-hidden />
+                  <Activity className="h-4 w-4 shrink-0 text-sky-600" aria-hidden />
                   Volatilidade
                 </div>
                 <span className="text-xs font-medium text-slate-500">{vol.label}</span>

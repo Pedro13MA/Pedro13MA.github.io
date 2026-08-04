@@ -147,7 +147,7 @@ export function HomePageClient() {
 
       <CouponHubSection />
 
-      <section className="border-t border-slate-200/60 bg-[#FAFAFA]">
+      <section className="border-t border-slate-200/60 bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-sky-100 bg-white px-6 py-8 sm:flex-row sm:items-center sm:px-10">
             <div>

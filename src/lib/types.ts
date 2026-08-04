@@ -8,7 +8,12 @@ export type DealQuality =
   | "FAIR_DEAL"
   | "NORMAL";
 
-export type OpportunityType = "NEW_LOW" | "RETURNED_DEAL" | "NOISE";
+// Tipos alinhados com eventos observados no frontend (inclui PRICE_DROP usado em testes).
+export type OpportunityType =
+  | "NEW_LOW"
+  | "RETURNED_DEAL"
+  | "NOISE"
+  | "PRICE_DROP";
 
 /** UI semaphore mapped from opportunity + deal quality. */
 export type DecisionSemaphore = "buy" | "fair" | "wait";

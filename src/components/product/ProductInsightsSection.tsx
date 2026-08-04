@@ -81,7 +81,7 @@ export function ProductInsightsSection({ product }: Props) {
       </ul>
 
       {insights.summary.length ? (
-        <div className="space-y-1.5 rounded-xl border border-slate-200 bg-[#FAFAFA] px-4 py-3">
+        <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
           {insights.summary.map((line) => (
             <p key={line} className="text-sm text-slate-700">
               {line}

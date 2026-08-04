@@ -23,43 +23,50 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
-        <nav className="flex items-center gap-3 overflow-x-auto text-sm text-slate-500 sm:gap-4">
-          <Link href="/categorias/" className="shrink-0 hover:text-slate-900">
-            Categorias
-          </Link>
-          <Link href="/mercado/" className="shrink-0 hover:text-slate-900">
-            Mercado
-          </Link>
-          <Link href="/catalogo/" className="shrink-0 hover:text-slate-900">
-            Catálogo
-          </Link>
-          {CATEGORY_MENU_L1.slice(0, 3).map((c) => (
-            <Link
-              key={c.slug}
-              href={`/categoria/${c.slug}/`}
-              className="hidden shrink-0 hover:text-slate-900 md:inline"
-            >
-              {c.label}
+        <nav
+          className="flex min-w-0 items-center gap-3 text-sm text-slate-500 sm:gap-4"
+          aria-label="Principal"
+        >
+          {/* Scroll only the links — keep account menus outside overflow to avoid clipping */}
+          <div className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto sm:gap-4">
+            <Link href="/categorias/" className="shrink-0 hover:text-slate-900">
+              Categorias
             </Link>
-          ))}
-          <Link
-            href="/catalog/"
-            className="hidden shrink-0 hover:text-slate-900 lg:inline"
-          >
-            Catálogo
-          </Link>
+            <Link href="/mercado/" className="shrink-0 hover:text-slate-900">
+              Mercado
+            </Link>
+            <Link href="/catalogo/" className="shrink-0 hover:text-slate-900">
+              Catálogo
+            </Link>
+            {CATEGORY_MENU_L1.slice(0, 3).map((c) => (
+              <Link
+                key={c.slug}
+                href={`/categoria/${c.slug}/`}
+                className="hidden shrink-0 hover:text-slate-900 md:inline"
+              >
+                {c.label}
+              </Link>
+            ))}
+            <Link
+              href="/catalog/"
+              className="hidden shrink-0 hover:text-slate-900 lg:inline"
+            >
+              Explorar
+            </Link>
+          </div>
 
-          <NotificationBell />
-          <UserMenu />
-
-          <a
-            href={TELEGRAM_CHANNEL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md"
-          >
-            Telegram
-          </a>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <NotificationBell />
+            <UserMenu />
+            <a
+              href={TELEGRAM_CHANNEL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md sm:inline-flex"
+            >
+              Telegram
+            </a>
+          </div>
         </nav>
       </div>
     </header>
@@ -74,7 +81,7 @@ export function SiteFooter() {
         { href: "/mercado/", label: "Mercado" },
         { href: "/catalogo/", label: "Catálogo" },
         { href: "/#decisoes", label: "Decisões" },
-        { href: "/catalog/", label: "Catálogo" },
+        { href: "/catalog/", label: "Explorar" },
         { href: "/#cupoes", label: "Cupões" },
       ],
     },
@@ -129,7 +136,7 @@ export function SiteFooter() {
                 </p>
                 <ul className="mt-4 space-y-3">
                   {col.links.map((link) => (
-                    <li key={link.label}>
+                    <li key={link.href}>
                       {"external" in link && link.external ? (
                         <a
                           href={link.href}

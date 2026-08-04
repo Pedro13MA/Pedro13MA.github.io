@@ -14,13 +14,7 @@ const SHORTCUTS = [
 
 export function HomeHero() {
   return (
-    <section
-      className="relative overflow-visible border-b border-slate-200/60"
-      style={{
-        background:
-          "linear-gradient(180deg, #ffffff 0%, #f3f8fc 48%, #ffffff 100%)",
-      }}
-    >
+    <section className="relative overflow-visible border-b border-slate-200/60 bg-gradient-to-b from-white via-sky-50/60 to-white">
       <div className="relative mx-auto max-w-6xl overflow-visible px-4 pb-10 pt-14 sm:px-6 sm:pb-14 sm:pt-20">
         <div className="mb-6 flex items-center gap-3">
           <LimiarLogo size={40} />

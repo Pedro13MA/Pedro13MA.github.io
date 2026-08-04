@@ -200,7 +200,7 @@ export function HomePageBody({
               title="Sem dados suficientes"
               subtitle="Quando o histórico é curto, o Limiar não inventa uma recomendação."
             />
-            <div className="rounded-2xl border border-slate-200/80 bg-[#FAFAFA] px-6 py-8 sm:px-8">
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-6 py-8 sm:px-8">
               <p className="max-w-2xl text-[15px] leading-relaxed text-slate-600">
                 Ainda não sabemos se o preço é bom no tempo. Em vez de forçar um veredicto,
                 dizemos-te quando a amostra observada é insuficiente — e convidamos-te a
@@ -216,7 +216,7 @@ export function HomePageBody({
 
       {decisionsOnly ? null : (
         <>
-          <section className="border-t border-slate-200/60 bg-[#FAFAFA]">
+          <section className="border-t border-slate-200/60 bg-slate-50">
             <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
               <div className="grid items-center gap-8 rounded-2xl border border-sky-100 bg-white px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-[1.4fr_auto]">
                 <div>

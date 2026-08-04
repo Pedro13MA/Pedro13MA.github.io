@@ -108,7 +108,7 @@ export function AddToProjectButton({
         disabled={busy}
         aria-label={`Adicionar ${product.name} ao projeto`}
         className={cn(
-          "inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 transition-colors hover:border-violet-300 hover:bg-violet-50 hover:text-violet-900",
+          "inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 transition-colors hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900",
           compact ? "h-8 px-2" : "h-9 px-3",
           className,
         )}

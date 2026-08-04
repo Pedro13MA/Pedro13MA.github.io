@@ -101,7 +101,7 @@ function PaymentBadges({ methods }: { methods: PaymentMethod[] }) {
             className={cn(
               "inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium tracking-wide",
               installment
-                ? "border-violet-200 bg-violet-50 text-violet-800"
+                ? "border-sky-200 bg-sky-50 text-sky-800"
                 : "border-slate-200 bg-slate-50 text-slate-700",
             )}
           >

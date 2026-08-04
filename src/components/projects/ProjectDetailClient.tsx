@@ -710,7 +710,7 @@ td,th{border:1px solid #e2e8f0;padding:6px;text-align:left}@media print{body{mar
         </p>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden print:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-[45] border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden print:hidden">
         <div className="flex gap-2">
           <Button
             type="button"

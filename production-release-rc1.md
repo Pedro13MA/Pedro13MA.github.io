@@ -192,7 +192,7 @@ Health: API read-only + identity lifespan init.
 - [x] RELEASE_NOTES.md
 - [x] production-release-rc1.md
 - [x] Versão `1.0.0-rc1`
-- [ ] Push `main` + tag `v1.0.0-rc1` (git)
+- [x] Push `main` + tag `v1.0.0-rc1` (git)
 - [ ] Restart serviços VPS
 - [ ] Smoke produção pós-deploy
 - [ ] OAuth secrets verificados em prod

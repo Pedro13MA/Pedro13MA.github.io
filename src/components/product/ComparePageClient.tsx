@@ -268,7 +268,7 @@ h1{font-size:1.25rem}
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-[90rem] px-3 py-6 sm:px-6 sm:py-10 print:max-w-none">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 print:max-w-none">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3 print:hidden">
           <div>
             <h1 className="font-display text-2xl font-bold text-slate-900">

@@ -100,7 +100,7 @@ export function DecisionCard({
 
       <div
         id="confiança"
-        className="scroll-mt-20 rounded-2xl border border-slate-200/80 bg-[#FAFAFA] px-5 py-5"
+        className="scroll-mt-20 rounded-2xl border border-slate-200/80 bg-slate-50 px-5 py-5"
       >
         <h3 className="font-display text-base font-semibold text-slate-900">
           Sobre esta decisão

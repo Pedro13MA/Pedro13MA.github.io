@@ -50,9 +50,9 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
     const reason = buildDecisionReason(product);
     const habitual = product.referencePrice ?? product.avg30d;
     return (
-      <Card className="flex h-full flex-col overflow-hidden">
+      <Card interactive className="flex h-full flex-col overflow-hidden">
         <Link href={href} className="group block flex-1">
-          <div className="relative flex h-40 w-full items-center justify-center border-b border-slate-100 bg-[#FAFAFA] p-5 sm:h-44">
+          <div className="relative flex h-40 w-full items-center justify-center border-b border-slate-100 bg-slate-50 p-5 sm:h-44">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -126,8 +126,8 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
   return (
     <div className="group relative flex h-full flex-col">
       <Link href={href} className="block flex-1">
-        <Card className="h-full overflow-hidden">
-          <div className="relative flex h-52 w-full items-center justify-center rounded-t-2xl border-b border-slate-100 bg-[#FAFAFA] p-4">
+        <Card interactive className="h-full overflow-hidden">
+          <div className="relative flex h-52 w-full items-center justify-center rounded-t-2xl border-b border-slate-100 bg-slate-50 p-4">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}

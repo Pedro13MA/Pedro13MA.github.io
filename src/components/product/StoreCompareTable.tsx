@@ -211,7 +211,7 @@ export function StoreCompareTable({ offers }: Props) {
       <div className="hidden overflow-x-auto rounded-2xl border border-slate-200/80 md:block">
         <table className="w-full min-w-[48rem] border-collapse text-left text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-[#FAFAFA] text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
               <th className="px-4 py-3 font-semibold">Loja</th>
               <th className="px-4 py-3 font-semibold">Preço</th>
               <th className="px-4 py-3 font-semibold">Stock</th>

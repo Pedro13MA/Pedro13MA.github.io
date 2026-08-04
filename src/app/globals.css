@@ -13,6 +13,7 @@
 
 :root {
   color-scheme: light;
+  /* Semantic aliases (mirror @theme — prefer Tailwind slate/sky in components) */
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-elevated: #ffffff;
@@ -21,6 +22,15 @@
   --text-muted: #94a3b8;
   --accent-primary: #0284c7;
   --border-subtle: rgba(226, 232, 240, 0.9);
+
+  /* Overlay z-index scale (FASE 8.3 visual audit)
+     header 40 · sticky-chrome 45 · dropdown/search 50 · drawer 60–70 · modal 75–80 · toast 90 */
+  --z-header: 40;
+  --z-sticky-chrome: 45;
+  --z-dropdown: 50;
+  --z-drawer: 70;
+  --z-modal: 80;
+  --z-toast: 90;
 }
 
 html {
@@ -95,5 +105,3 @@ body {
     animation: none;
   }
 }
-
-

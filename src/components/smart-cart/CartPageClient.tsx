@@ -712,7 +712,7 @@ ${optHtml}
       </main>
 
       {/* Sticky optimize — mobile */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden print:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-[45] border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden print:hidden">
         <Button
           type="button"
           className="h-11 w-full font-semibold"
