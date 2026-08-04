@@ -24,7 +24,7 @@ function StoreCellLogo({
   if (failed || !src) {
     return (
       <span
-        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600"
+        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-600"
         aria-hidden
       >
         {initial}
@@ -37,9 +37,9 @@ function StoreCellLogo({
     <img
       src={src}
       alt={`Logo ${name}`}
-      width={36}
-      height={36}
-      className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 bg-white object-contain p-1"
+      width={44}
+      height={44}
+      className="h-11 w-11 shrink-0 rounded-xl border border-slate-200 bg-white object-contain p-1.5"
       onError={() => setFailed(true)}
     />
   );
@@ -52,7 +52,7 @@ function stockStatus(offer: Offer): { label: string; className: string } {
   if (offer.inStock === true || offer.stockStatus === "in_stock") {
     return { label: "Disponível", className: "text-emerald-700" };
   }
-  return { label: "Stock n/d", className: "text-slate-500" };
+  return { label: "Consultar loja", className: "text-slate-500" };
 }
 
 function offerScore(price: number, best: number, worst: number): number {
@@ -61,34 +61,39 @@ function offerScore(price: number, best: number, worst: number): number {
   return Math.round(Math.max(0, Math.min(100, t * 100)));
 }
 
-function shippingDays(offer: Offer): number | null {
-  const d = offer.shippingDetails;
-  if (d?.estimatedDaysMin != null) return d.estimatedDaysMin;
-  const info = offer.shippingInfo || "";
-  const m = info.match(/(\d+)\s*[–-]\s*(\d+)/);
-  if (m) return Number(m[1]);
-  const single = info.match(/(\d+)\s*dias?/i);
-  return single ? Number(single[1]) : null;
+function humanOrFallback(
+  value: string | null | undefined,
+  fallback: string,
+): string {
+  const v = value?.trim();
+  if (!v) return fallback;
+  if (/varies|n\/a|unknown|tbd|null|undefined/i.test(v)) return fallback;
+  return v;
 }
 
 function deliveryLabel(offer: Offer): string {
-  return (
-    offer.shippingInfo?.trim() ||
-    (offer.shippingDetails
-      ? `${offer.shippingDetails.estimatedDaysMin}–${offer.shippingDetails.estimatedDaysMax} dias${
-          offer.shippingDetails.supportsPickup ? " · levantamento" : ""
-        }`
-      : "—")
-  );
+  const fromInfo = humanOrFallback(offer.shippingInfo, "");
+  if (fromInfo) return fromInfo;
+  if (offer.shippingDetails) {
+    const min = offer.shippingDetails.estimatedDaysMin;
+    const max = offer.shippingDetails.estimatedDaysMax;
+    if (min != null && max != null) {
+      return `${min}–${max} dias${
+        offer.shippingDetails.supportsPickup ? " · levantamento" : ""
+      }`;
+    }
+  }
+  return "Consultar loja";
 }
 
 function shippingCostLabel(offer: Offer): string {
-  return offer.shippingDetails?.shippingCost?.trim() || "—";
+  return humanOrFallback(
+    offer.shippingDetails?.shippingCost,
+    "Depende da encomenda",
+  );
 }
 
-/**
- * Tabela Onde comprar — desktop tabela; mobile cards compactos.
- */
+/** Cartões “Onde comprar” — visual tipo marketplace. */
 export function StoreCompareTable({ offers }: Props) {
   const sorted = useMemo(
     () => [...offers].sort((a, b) => a.price - b.price),
@@ -99,30 +104,7 @@ export function StoreCompareTable({ offers }: Props) {
     if (!sorted.length) return null;
     const best = sorted[0].price;
     const worst = sorted[sorted.length - 1].price;
-    let fastestIdx = -1;
-    let fastestDays = Infinity;
-    sorted.forEach((o, i) => {
-      const d = shippingDays(o);
-      if (d != null && d < fastestDays) {
-        fastestDays = d;
-        fastestIdx = i;
-      }
-    });
-    // Maior confiança: stock + score preço (melhor preço com stock)
-    let trustIdx = 0;
-    let trustScore = -1;
-    sorted.forEach((o, i) => {
-      const stock = stockStatus(o);
-      const score =
-        offerScore(o.price, best, worst) +
-        (stock.label === "Disponível" ? 25 : 0) +
-        (o.couponCode || o.couponLabel ? 5 : 0);
-      if (score > trustScore) {
-        trustScore = score;
-        trustIdx = i;
-      }
-    });
-    return { best, worst, fastestIdx, trustIdx };
+    return { best, worst };
   }, [sorted]);
 
   if (!sorted.length || !meta) {
@@ -147,8 +129,8 @@ export function StoreCompareTable({ offers }: Props) {
           <li
             key={`${offer.store}-${offer.url}`}
             className={cn(
-              "rounded-xl border border-slate-200/80 bg-white p-3",
-              idx === 0 && "border-emerald-200 bg-emerald-50/30",
+              "rounded-2xl border border-slate-200/80 bg-white p-4",
+              idx === 0 && "border-emerald-200 bg-emerald-50/40",
             )}
           >
             <div className="flex items-start gap-3">
@@ -159,20 +141,34 @@ export function StoreCompareTable({ offers }: Props) {
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-medium text-slate-900">{name}</p>
-                  </div>
+                  <p className="font-medium text-slate-900">{name}</p>
                   <p className="font-display text-lg font-bold tabular-nums text-slate-900">
                     {formatEUR(offer.price)}
                   </p>
                 </div>
 
-                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
-                  <span className={stock.className}>{stock.label}</span>
-                  <span>Entrega: {deliveryLabel(offer)}</span>
-                  <span>Portes: {shippingCostLabel(offer)}</span>
-                  <span>Score {score}</span>
-                </div>
+                <dl className="mt-2 grid gap-1 text-xs text-slate-600 sm:grid-cols-2">
+                  <div>
+                    <dt className="inline text-slate-400">Disponibilidade · </dt>
+                    <dd className={cn("inline font-medium", stock.className)}>
+                      {stock.label}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-slate-400">Entrega · </dt>
+                    <dd className="inline">{deliveryLabel(offer)}</dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-slate-400">Portes · </dt>
+                    <dd className="inline">{shippingCostLabel(offer)}</dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-slate-400">Pontuação · </dt>
+                    <dd className="inline tabular-nums font-medium text-slate-800">
+                      {score}
+                    </dd>
+                  </div>
+                </dl>
 
                 <a
                   href={offer.url}
@@ -180,7 +176,7 @@ export function StoreCompareTable({ offers }: Props) {
                   rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "default", size: "default" }),
-                    "mt-3 w-full justify-center font-semibold",
+                    "mt-4 w-full justify-center font-semibold",
                   )}
                 >
                   Comprar

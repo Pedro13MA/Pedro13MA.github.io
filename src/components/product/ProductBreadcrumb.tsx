@@ -10,19 +10,16 @@ export function ProductBreadcrumb({ crumbs }: Props) {
 
   return (
     <nav aria-label="Breadcrumb" className="text-sm text-slate-500">
-      <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-        <li>
-          <Link href="/" className="hover:text-slate-800">
-            Início
-          </Link>
-        </li>
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {crumbs.map((crumb, i) => {
           const last = i === crumbs.length - 1;
           return (
-            <li key={`${crumb.label}-${i}`} className="flex items-center gap-1.5">
-              <span aria-hidden className="text-slate-300">
-                /
-              </span>
+            <li key={`${crumb.label}-${i}`} className="flex items-center gap-2">
+              {i > 0 ? (
+                <span aria-hidden className="text-slate-300">
+                  ›
+                </span>
+              ) : null}
               {crumb.href && !last ? (
                 <Link href={crumb.href} className="hover:text-slate-800">
                   {crumb.label}

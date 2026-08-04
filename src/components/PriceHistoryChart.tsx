@@ -8,7 +8,6 @@ import {
 } from "@/lib/api";
 import type { PricePoint } from "@/lib/types";
 import { PriceHistoryChart as Chart } from "@/components/charts/PriceHistoryChart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, formatEUR } from "@/lib/utils";
 
 const PERIODS = [
@@ -92,11 +91,13 @@ export function PriceHistoryChart({
     (points.length ? Math.max(...points.map((p) => p.price)) : 0);
 
   return (
-    <Card>
-      <CardHeader className="gap-4">
-        <CardTitle>Histórico de preço</CardTitle>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <h2 className="font-display text-xl font-bold text-slate-900">
+          Histórico de preço
+        </h2>
         <div
-          className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1"
+          className="flex flex-wrap gap-1 rounded-xl bg-slate-100/80 p-1"
           role="group"
           aria-label="Período do gráfico"
         >
@@ -106,7 +107,7 @@ export function PriceHistoryChart({
               type="button"
               onClick={() => setDays(p.days)}
               className={cn(
-                "min-h-11 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors inline-flex items-center justify-center",
+                "inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-xs font-medium transition-colors",
                 days === p.days
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-800",
@@ -116,52 +117,44 @@ export function PriceHistoryChart({
             </button>
           ))}
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent>
-        {loading ? <ChartSkeleton /> : null}
+      {loading ? <ChartSkeleton /> : null}
 
-        {!loading && points.length > 1 ? (
-          <>
-            <Chart history={points} />
-            <ul className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-              <li className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Preço atual
-                </p>
-                <p className="mt-0.5 font-display text-base font-bold tabular-nums text-slate-900">
-                  {formatEUR(currentPrice)}
-                </p>
-              </li>
-              <li className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Mínimo observado
-                </p>
-                <p className="mt-0.5 font-display text-base font-bold tabular-nums text-slate-900">
-                  {formatEUR(histMin)}
-                </p>
-              </li>
-              <li className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Máximo observado
-                </p>
-                <p className="mt-0.5 font-display text-base font-bold tabular-nums text-slate-900">
-                  {formatEUR(histMax)}
-                </p>
-              </li>
-            </ul>
-          </>
-        ) : null}
+      {!loading && points.length > 1 ? (
+        <>
+          <Chart history={points} currentPrice={currentPrice} />
+          <ul className="grid gap-3 text-sm sm:grid-cols-3">
+            <li className="space-y-0.5 py-1">
+              <p className="text-xs text-slate-500">Preço actual</p>
+              <p className="font-display text-lg font-bold tabular-nums text-slate-900">
+                {formatEUR(currentPrice)}
+              </p>
+            </li>
+            <li className="space-y-0.5 py-1">
+              <p className="text-xs text-slate-500">Mínimo observado</p>
+              <p className="font-display text-lg font-bold tabular-nums text-slate-900">
+                {formatEUR(histMin)}
+              </p>
+            </li>
+            <li className="space-y-0.5 py-1">
+              <p className="text-xs text-slate-500">Máximo observado</p>
+              <p className="font-display text-lg font-bold tabular-nums text-slate-900">
+                {formatEUR(histMax)}
+              </p>
+            </li>
+          </ul>
+        </>
+      ) : null}
 
-        {!loading && points.length <= 1 ? (
-          <p className="py-12 text-center text-sm text-slate-500">
-            {error
-              ? "Não foi possível carregar o histórico para este período."
-              : "Histórico insuficiente para o gráfico."}
-          </p>
-        ) : null}
-      </CardContent>
-    </Card>
+      {!loading && points.length <= 1 ? (
+        <p className="py-12 text-center text-sm text-slate-500">
+          {error
+            ? "Não foi possível carregar o histórico para este período."
+            : "Histórico insuficiente para o gráfico."}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

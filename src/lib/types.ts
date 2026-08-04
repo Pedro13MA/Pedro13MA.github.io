@@ -269,7 +269,7 @@ export interface Product {
   vramSpec?: string | null;
   /** Taxonomy v2 — leaf activo (opcional). */
   leafId?: string | null;
-  taxonomyPath?: string | null;
+  taxonomyPath?: string | string[] | null;
   brandNormalized?: string | null;
   /** Atributos tipados do catálogo (FASE 7.8). */
   typedAttributes?: Record<string, unknown> | null;

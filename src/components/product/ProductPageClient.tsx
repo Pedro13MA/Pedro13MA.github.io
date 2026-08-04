@@ -13,8 +13,10 @@ import {
   estimateSeasonality,
   historySpanDays,
   isAbsoluteHistoricalMin,
+  MIN_HISTORY_SPAN_DAYS,
 } from "@/lib/product-insights";
-import { recommendationsFromApi, type DiscoveryCard } from "@/lib/product-discovery";
+import { recommendationsFromApi } from "@/lib/product-discovery";
+import { pickSimilarAlternatives } from "@/lib/product-similar-alternatives";
 import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
@@ -30,11 +32,81 @@ type Props = { slug: string };
 function Stars({ stars }: { stars: number }) {
   const s = Math.max(0, Math.min(5, Math.round(stars)));
   return (
-    <span aria-hidden>
+    <span className="tracking-tight text-amber-500" aria-hidden>
       {"★".repeat(s)}
-      {"☆".repeat(Math.max(0, 5 - s))}
+      <span className="text-slate-300">{"☆".repeat(Math.max(0, 5 - s))}</span>
     </span>
   );
+}
+
+function buildVerdictCopy(opts: {
+  spanDays: number;
+  storeCount: number;
+  aboveAvg: boolean;
+  currentIsMin: boolean;
+  confidenceScore: number;
+  bestStoreLabel: string | null;
+}): { title: string; lines: string[] } {
+  const {
+    spanDays,
+    storeCount,
+    aboveAvg,
+    currentIsMin,
+    confidenceScore,
+    bestStoreLabel,
+  } = opts;
+
+  const thinHistory =
+    spanDays < Math.min(14, MIN_HISTORY_SPAN_DAYS / 2) || confidenceScore < 35;
+
+  if (thinHistory) {
+    return {
+      title: "Ainda recomendamos esperar",
+      lines: [
+        `O Limiar acompanha este produto há apenas ${spanDays} dia${spanDays === 1 ? "" : "s"}.`,
+        "Ainda existe pouco histórico para concluir se este preço é realmente bom.",
+        storeCount > 0
+          ? `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`
+          : "Ainda não há ofertas suficientes para comparar lojas.",
+      ],
+    };
+  }
+
+  if (currentIsMin || (!aboveAvg && confidenceScore >= 50)) {
+    const lines = [
+      `O Limiar acompanha este produto há ${spanDays} dias.`,
+      `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`,
+      currentIsMin
+        ? "O preço actual corresponde ao mínimo observado."
+        : "O preço encontra-se abaixo da média observada.",
+    ];
+    if (bestStoreLabel) {
+      lines.push(
+        `A ${bestStoreLabel} apresenta actualmente o melhor preço.`,
+      );
+    }
+    return {
+      title: "Boa altura para comprar",
+      lines,
+    };
+  }
+
+  const lines = [
+    `O Limiar acompanha este produto há ${spanDays} dias.`,
+    `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`,
+    aboveAvg
+      ? "O preço encontra-se acima da média observada."
+      : "O preço ainda não se destaca claramente face ao histórico.",
+  ];
+  if (bestStoreLabel) {
+    lines.push(
+      `Se fores comprar agora, a ${bestStoreLabel} tem o melhor preço observado.`,
+    );
+  }
+  return {
+    title: "Ainda recomendamos esperar",
+    lines,
+  };
 }
 
 export function ProductPageClient({ slug }: Props) {
@@ -97,14 +169,14 @@ export function ProductPageClient({ slug }: Props) {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-10">
-        <div className="h-6 w-48 animate-pulse rounded bg-slate-100" />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="h-56 animate-pulse rounded-xl bg-slate-100 sm:h-72" />
-          <div className="space-y-3">
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
+        <div className="h-5 w-56 animate-pulse rounded bg-slate-100" />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="h-64 animate-pulse rounded-2xl bg-slate-100 sm:h-80" />
+          <div className="space-y-4">
             <div className="h-8 w-3/4 animate-pulse rounded bg-slate-100" />
-            <div className="h-10 w-32 animate-pulse rounded bg-slate-100" />
-            <div className="h-24 animate-pulse rounded-xl bg-slate-100" />
+            <div className="h-10 w-36 animate-pulse rounded bg-slate-100" />
+            <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />
           </div>
         </div>
       </main>
@@ -118,8 +190,8 @@ export function ProductPageClient({ slug }: Props) {
           Ainda não temos este produto
         </h1>
         <p className="mt-3 text-slate-500">
-          Pode ser um link antigo, um erro temporário, ou um produto sem histórico suficiente no Limiar.
-          Experimenta a pesquisa na página inicial.
+          Pode ser um link antigo, um erro temporário, ou um produto sem histórico
+          suficiente no Limiar. Experimenta a pesquisa na página inicial.
         </p>
       </main>
     );
@@ -127,9 +199,8 @@ export function ProductPageClient({ slug }: Props) {
 
   const histMin = product.historicalMin;
   const histMax = product.historicalMax;
-
   const storeCount = metrics?.storeCount ?? product.offers.length;
-  const spanDays = historySpanDays(product.history);
+  const spanDays = Math.max(1, historySpanDays(product.history));
   const observations = Math.max(
     product.history.length,
     metrics?.samples90d ?? 0,
@@ -137,22 +208,33 @@ export function ProductPageClient({ slug }: Props) {
   );
 
   const avgObserved = metrics?.avg30d ?? product.avg30d;
-  const currentIsMin = isAbsoluteHistoricalMin(product.currentPrice, product.historicalMin);
+  const currentIsMin = isAbsoluteHistoricalMin(
+    product.currentPrice,
+    product.historicalMin,
+  );
   const aboveAvg = product.currentPrice > avgObserved;
 
   const sortedOffers = [...product.offers].sort((a, b) => a.price - b.price);
   const bestOffer = sortedOffers[0] ?? null;
   const bestStore = bestOffer?.storeName || bestOffer?.store || null;
+  const bestStoreLabel = bestStore
+    ? storeDisplayName(bestStore, bestStore)
+    : null;
 
-  // FASE 8.4 — recomendação apresentada ao utilizador deve ser explicada apenas
-  // com dados observados (histórico) + confiança (e posição vs média observada).
-  const verdict = currentIsMin || (confidence.score >= 50 && !aboveAvg);
-  const recommendationLine = verdict
-    ? "Recomendamos comprar."
-    : "Recomendamos esperar.";
+  const verdict = buildVerdictCopy({
+    spanDays,
+    storeCount,
+    aboveAvg,
+    currentIsMin,
+    confidenceScore: confidence.score,
+    bestStoreLabel,
+  });
 
-  const similar: DiscoveryCard[] =
-    recommendationsFromApi(product.recommendations)?.similar?.slice(0, 6) ?? [];
+  const similar = pickSimilarAlternatives(
+    product,
+    recommendationsFromApi(product.recommendations),
+    6,
+  );
 
   const breadcrumbs = buildPremiumProductBreadcrumbs({
     category: product.category,
@@ -166,91 +248,50 @@ export function ProductPageClient({ slug }: Props) {
   });
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:space-y-10 sm:px-6 sm:py-10">
+    <main className="mx-auto max-w-6xl space-y-10 px-4 py-6 sm:space-y-12 sm:px-6 sm:py-10">
       <ProductJsonLd product={product} />
       <ProductBreadcrumb crumbs={breadcrumbs} />
 
-      {/* Hero (imagem + essenciais + Comprar + ❤️/🛒/🔔) */}
       <ProductHero product={product} />
 
-      {/* Análise Limiar — decisão em primeiro */}
-      <section
-        aria-label="Análise Limiar"
-        className="rounded-2xl border border-slate-200/70 bg-white px-4 py-6 sm:px-6"
-      >
-        <h2 className="font-display text-xl font-bold text-slate-900">
-          Vale a pena comprar?
+      {/* Veredicto Limiar */}
+      <section aria-label="Veredicto Limiar" className="space-y-3">
+        <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
+          {verdict.title}
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-700">
-          {recommendationLine}
-        </p>
+        <div className="max-w-2xl space-y-2 text-[15px] leading-relaxed text-slate-600">
+          {verdict.lines.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
+      </section>
 
-        <ul className="mt-4 space-y-2 text-sm text-slate-600">
-          <li>
-            Observamos este produto há{" "}
-            <span className="font-semibold text-slate-900">{spanDays}</span>{" "}
-            dias.
-          </li>
-          <li>
-            Existem atualmente{" "}
-            <span className="font-semibold text-slate-900">{storeCount}</span>{" "}
-            lojas com oferta.
-          </li>
-          <li>
-            O preço atual encontra-se{" "}
-            <span className="font-semibold text-slate-900">
-              {aboveAvg ? "acima" : "abaixo"}
-            </span>{" "}
-            da média observada.
-          </li>
-          {seasonality?.sufficient && seasonality.lowPricePeriods.length > 0 ? (
-            <li>
-              Existem períodos no histórico em que o preço costuma ficar abaixo do atual.
-            </li>
-          ) : null}
-          {bestStore ? (
-            <li>
-              Onde comprar mais barato:{" "}
-              <span className="font-semibold text-slate-900">
-                {storeDisplayName(bestStore, bestStore)}
-              </span>
-              .
-            </li>
-          ) : null}
+      {/* Confiança */}
+      <section
+        aria-label="Confiança dos dados"
+        className="max-w-md rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm"
+      >
+        <p className="text-sm font-semibold text-slate-800">
+          Confiança dos dados
+        </p>
+        <div className="mt-2 flex items-baseline gap-3">
+          <Stars stars={confidence.stars} />
+          <span className="font-display text-2xl font-bold tabular-nums text-slate-900">
+            {confidence.score}%
+          </span>
+        </div>
+        <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          Baseado em
+        </p>
+        <ul className="mt-2 space-y-1 text-sm text-slate-600">
+          <li>· {spanDays} dias observados</li>
+          <li>· {storeCount} lojas</li>
+          <li>· {observations} alterações de preço</li>
         </ul>
       </section>
 
-      {/* Confiança (apenas base estatística + estrelas) */}
-      <section
-        aria-label="Confiança"
-        className="rounded-2xl border border-slate-200/70 bg-slate-50 px-4 py-6 sm:px-6"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-slate-700">
-              Confidence:{" "}
-              <span className="font-display tabular-nums">{confidence.score}%</span>{" "}
-              <span className="inline-flex items-center align-middle">
-                (<Stars stars={confidence.stars} />)
-              </span>
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="sr-only">Confiança por estrelas</span>
-          </div>
-        </div>
-        <p className="mt-3 text-sm text-slate-600">
-          Based on:{" "}
-          <span className="font-semibold text-slate-900">{spanDays}</span> days
-          observed, <span className="font-semibold text-slate-900">{storeCount}</span>{" "}
-          stores,{" "}
-          <span className="font-semibold text-slate-900">{observations}</span>{" "}
-          price changes.
-        </p>
-      </section>
-
-      {/* Histórico — 1 gráfico grande */}
-      <section id="historico" className="space-y-3">
+      {/* Histórico */}
+      <section id="historico" className="space-y-4">
         <PriceHistoryChart
           productId={slug}
           currentPrice={product.currentPrice}
@@ -260,62 +301,49 @@ export function ProductPageClient({ slug }: Props) {
         />
       </section>
 
-      {/* Onde comprar — cartões por loja (sem tabela) */}
+      {/* Onde comprar */}
       {product.offers?.length ? (
-        <section id="lojas" className="scroll-mt-20 space-y-3">
-          <div>
-            <h2 className="font-display text-xl font-bold text-slate-900">
-              Onde comprar
-            </h2>
-          </div>
+        <section id="lojas" className="scroll-mt-20 space-y-4">
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Onde comprar
+          </h2>
           <StoreCompareTable offers={product.offers} />
         </section>
       ) : null}
 
-      {/* Alternativas — 1 lista, max 6 */}
+      {/* Alternativas */}
       {similar.length ? (
-        <section id="alternativas" className="scroll-mt-20 space-y-3">
-          <div>
-            <h2 className="font-display text-xl font-bold text-slate-900">
-              Alternativas semelhantes
-            </h2>
-          </div>
-
-          <ul className="grid gap-3 sm:grid-cols-2">
+        <section id="alternativas" className="scroll-mt-20 space-y-4">
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Alternativas semelhantes
+          </h2>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {similar.map((p) => (
-              <li
-                key={`alt-${p.slug}`}
-                className="rounded-xl border border-slate-200 bg-white p-3"
-              >
+              <li key={`alt-${p.slug}`}>
                 <Link
                   href={`/p/?id=${encodeURIComponent(p.slug)}`}
-                  className="block"
+                  className="flex h-full items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 transition-colors hover:border-slate-300"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
-                      {p.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={p.imageUrl}
-                          alt={p.name}
-                          className="h-10 w-10 object-contain"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <span className="text-xs font-bold text-slate-600">
-                          ?
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-sm font-medium text-slate-900">
-                        {p.name}
-                      </p>
-                      <p className="mt-1 text-sm font-bold tabular-nums text-slate-900">
-                        {formatEUR(p.currentPrice)}
-                      </p>
-                    </div>
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-slate-50">
+                    {p.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.imageUrl}
+                        alt=""
+                        className="h-12 w-12 object-contain"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="text-xs text-slate-400">—</span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-2 text-sm font-medium text-slate-900">
+                      {p.name}
+                    </p>
+                    <p className="mt-1 text-sm font-bold tabular-nums text-slate-900">
+                      {formatEUR(p.currentPrice)}
+                    </p>
                   </div>
                 </Link>
               </li>

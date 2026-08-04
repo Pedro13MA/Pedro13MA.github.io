@@ -188,8 +188,24 @@ describe("product-display — never Other", () => {
       chipsetModel: "RTX 5070",
     });
     expect(crumbs.every((c) => !isOtherLabel(c.label))).toBe(true);
-    expect(crumbs.some((c) => c.label.includes("Gráficas") || c.label === "gpu" || c.label === "Placas Gráficas")).toBe(
+    expect(crumbs[0]?.label).toBe("Explorar");
+    expect(crumbs.some((c) => c.label.includes("Gráficas") || c.label === "Placas Gráficas")).toBe(
       true,
     );
+    expect(crumbs.some((c) => c.label.includes("RTX"))).toBe(false);
+  });
+
+  it("breadcrumbs parse JSON taxonomy arrays and omit product name", () => {
+    const crumbs = buildPremiumProductBreadcrumbs({
+      taxonomyPath: '["telemoveis","smartphones"]',
+      productName: "iPhone 15 128GB",
+    });
+    expect(crumbs.map((c) => c.label)).toEqual([
+      "Explorar",
+      "Telemóveis",
+      "Smartphones",
+    ]);
+    expect(crumbs.some((c) => c.label.includes("iPhone"))).toBe(false);
+    expect(crumbs.every((c) => !c.label.includes("["))).toBe(true);
   });
 });

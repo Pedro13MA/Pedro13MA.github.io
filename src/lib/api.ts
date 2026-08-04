@@ -398,7 +398,7 @@ export type ApiProductDetail = {
   vramSpec?: string | null;
   leaf_id?: string | null;
   product_kind_v2?: string | null;
-  taxonomy_path?: string | null;
+  taxonomy_path?: string | string[] | null;
   brand_normalized?: string | null;
   taxonomy_version?: string | null;
   typed_attributes?: Record<string, unknown> | null;
@@ -805,7 +805,9 @@ export function detailToProduct(d: ApiProductDetail): Product {
     chipsetModel: d.chipsetModel ?? undefined,
     vramSpec: d.vramSpec ?? undefined,
     leafId: d.leaf_id ?? undefined,
-    taxonomyPath: d.taxonomy_path ?? undefined,
+    taxonomyPath: Array.isArray(d.taxonomy_path)
+      ? d.taxonomy_path
+      : d.taxonomy_path ?? undefined,
     brandNormalized: d.brand_normalized ?? undefined,
     typedAttributes: d.typed_attributes ?? undefined,
     knowledge: d.knowledge ?? undefined,

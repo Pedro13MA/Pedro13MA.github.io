@@ -79,8 +79,6 @@ export function SiteFooter() {
       links: [
         { href: "/categorias/", label: "Categorias" },
         { href: "/mercado/", label: "Mercado" },
-        { href: "/catalogo/", label: "Catálogo" },
-        { href: "/#decisoes", label: "Decisões" },
         { href: "/catalog/", label: "Explorar" },
         { href: "/#cupoes", label: "Cupões" },
       ],
