@@ -1,15 +1,58 @@
-# Limiar — Frontend Web
+# Lymiar Web
 
-Plataforma de **Price Intelligence & Decisão de Compra** ("Devo comprar agora ou esperar?").
+Frontend oficial do **Lymiar**, uma plataforma de inteligência de preços que ajuda os utilizadores a perceber **quando um produto vale realmente a pena ser comprado**.
 
-Substitui a landing marketing antiga. Consome (via mocks, por agora) as estruturas do backend Limiar em Python/SQLite.
+Em vez de mostrar apenas o preço mais baixo, o Lymiar analisa o histórico de preços, tendências, contexto do mercado e disponibilidade de campanhas para responder à pergunta:
 
-## Stack
+> **Vale a pena comprar agora ou esperar?**
 
-- **Next.js 15** (App Router) + TypeScript
-- **Tailwind CSS v4** + componentes estilo **shadcn/ui**
-- **recharts** — histórico de preço
-- Export estático (`output: 'export'`) — GitHub Pages
+---
+
+## Tecnologias
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Recharts
+- React
+- Static assets otimizados para produção
+
+---
+
+## Funcionalidades
+
+- Pesquisa inteligente de produtos
+- Página de produto completa
+- Histórico de preços
+- Comparação entre lojas
+- Recomendação de compra
+- Deteção de oportunidades
+- Sistema de cupões
+- Produtos semelhantes
+- SEO otimizado
+- Open Graph
+- JSON-LD
+- Responsive Design
+
+---
+
+## Arquitetura
+
+Este repositório contém apenas o frontend.
+
+O backend encontra-se no repositório privado **Lymiar Hub**, responsável por:
+
+- Ingestão de produtos
+- Monitorização de preços
+- Histórico
+- Taxonomia
+- Sistema de classificação
+- Motor de inteligência
+- API
+- Workers
+- Alertas
+
+---
 
 ## Desenvolvimento
 
@@ -18,34 +61,58 @@ npm install
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000).
+Abrir:
+
+```
+http://localhost:3000
+```
+
+---
 
 ## Estrutura
 
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Homepage (search + oportunidades + cupões)
-│   └── p/[slug]/page.tsx     # Página de produto
 ├── components/
-│   ├── ui/                   # button, badge, card, input, table
-│   ├── product/              # header, decision, stores, alert, cards
-│   ├── charts/               # PriceHistoryChart
-│   └── layout/               # header, search
-└── lib/
-    ├── types.ts              # Product, Offer, Promotion, DecisionScore
-    └── mock-data.ts          # dados alinhados ao motor Limiar
+├── hooks/
+├── lib/
+├── services/
+├── styles/
+├── types/
+└── utils/
 ```
 
-## Páginas
+---
 
-| Rota | Conteúdo |
-|------|----------|
-| `/` | Hero + pesquisa, oportunidades do dia, cupões ativos |
-| `/p/[slug]` ou `/p/[ean]` | Semáforo, gráfico, multi-loja, decisão, alerta |
+## API
 
-## Próximos passos
+Em desenvolvimento:
 
-- Ligar API do backend Limiar (substituir `mock-data.ts`)
-- Persistência de alertas (Telegram / Email)
-- Auth opcional para watchlists
+```
+https://api.lymiar.com
+```
+
+Durante desenvolvimento podem ser utilizados endpoints locais ou de staging.
+
+---
+
+## Objetivo
+
+O Lymiar pretende tornar-se a principal plataforma ibérica de inteligência de preços, permitindo aos consumidores tomar decisões de compra baseadas em dados reais e não apenas em descontos aparentes.
+
+Em vez de responder apenas:
+
+> "Onde está mais barato?"
+
+o Lymiar responde:
+
+> **"Este é realmente o momento certo para comprar?"**
+
+---
+
+## Licença
+
+Este repositório contém o frontend oficial do Lymiar.
+
+Todos os direitos reservados.
