@@ -3,14 +3,14 @@ import { Suspense } from "react";
 import { ComparePageClient } from "@/components/product/ComparePageClient";
 
 export const metadata: Metadata = {
-  title: "Comparador de produtos · Limiar",
+  title: "Comparador de produtos · Lymiar",
   description:
-    "Compare até 4 produtos lado a lado: preço, histórico, índice Limiar e especificações reais do catálogo.",
+    "Compare até 4 produtos lado a lado: preço, histórico, índice Lymiar e especificações reais do catálogo.",
   alternates: {
     canonical: "/comparar/",
   },
   openGraph: {
-    title: "Comparador Limiar",
+    title: "Comparador Lymiar",
     description:
       "Comparação profissional com destaque automático do melhor preço, score e lojas — só com dados observados.",
     type: "website",
@@ -34,11 +34,11 @@ export default function CompararPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            name: "Comparador Limiar",
+            name: "Comparador Lymiar",
             applicationCategory: "ShoppingApplication",
             description:
-              "Compare produtos com preço, histórico e índice Limiar observados.",
-            url: "https://pedro13ma.github.io/comparar/",
+              "Compare produtos com preço, histórico e índice Lymiar observados.",
+            url: "https://lymiar.com/comparar/",
           }),
         }}
       />

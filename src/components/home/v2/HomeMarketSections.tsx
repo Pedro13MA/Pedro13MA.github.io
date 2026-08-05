@@ -80,7 +80,7 @@ export function HomeStores({ items }: { items: MarketplaceStoreListItem[] }) {
   return (
     <HomeSection
       title="Lojas"
-      subtitle="Lojas com ofertas observadas no Limiar."
+      subtitle="Lojas com ofertas observadas no Lymiar."
       href="/mercado/lojas/"
     >
       {items.length ? (
@@ -158,7 +158,7 @@ export function HomeMarket({ summary }: { summary: HomepageMarketSummary }) {
 
 export function HomeStats({ summary }: { summary: HomepageMarketSummary }) {
   return (
-    <HomeSection title="Estatísticas" subtitle="Cobertura observada do Limiar.">
+    <HomeSection title="Estatísticas" subtitle="Cobertura observada do Lymiar.">
       <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 px-5 py-6 sm:px-8">
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <li className="text-sm text-slate-600">

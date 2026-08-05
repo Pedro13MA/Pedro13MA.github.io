@@ -59,7 +59,7 @@ function PreferencesBody() {
       setMsg("Permissão recusada.");
       return;
     }
-    new Notification("Limiar", {
+    new Notification("Lymiar", {
       body: "Notificações do browser activas. Só eventos observados.",
     });
     setPrefs((p) =>

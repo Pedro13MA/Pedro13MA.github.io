@@ -150,7 +150,7 @@ export function ProjectDetailClient() {
     let cancelled = false;
     const t = window.setTimeout(() => {
       setSearching(true);
-      searchProducts(term, { limit: 12, sortBy: "limiar_desc" })
+      searchProducts(term, { limit: 12, sortBy: "lymiar_desc" })
         .then((res) => {
           if (cancelled) return;
           const mapped = (res.results || []).map(summaryToProduct);
@@ -165,7 +165,7 @@ export function ProjectDetailClient() {
               leafFromProduct(b),
             );
             if (cb !== ca) return cb - ca;
-            return b.decision.limiarIndex.value - a.decision.limiarIndex.value;
+            return b.decision.lymiarIndex.value - a.decision.lymiarIndex.value;
           });
           setResults(mapped);
         })
@@ -230,7 +230,7 @@ export function ProjectDetailClient() {
     });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `limiar-projeto-${project.name}.json`;
+    a.download = `lymiar-projeto-${project.name}.json`;
     a.click();
   };
 
@@ -246,14 +246,14 @@ export function ProjectDetailClient() {
           `"${(s.product?.name || "").replace(/"/g, '""')}"`,
           unitPrice(s),
           `"${store}"`,
-          s.product?.limiarIndex ?? "",
+          s.product?.lymiarIndex ?? "",
         ].join(",");
       }),
     ];
     const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `limiar-projeto-${project.name}.csv`;
+    a.download = `lymiar-projeto-${project.name}.csv`;
     a.click();
   };
 
@@ -594,7 +594,7 @@ td,th{border:1px solid #e2e8f0;padding:6px;text-align:left}@media print{body{mar
                           {store
                             ? ` · ${storeDisplayName(store.store, store.storeName)}`
                             : ""}
-                          {` · Score ${p.limiarIndex}`}
+                          {` · Score ${p.lymiarIndex}`}
                           {typeof p.knowledgeCompleteness === "number"
                             ? ` · Ficha ${p.knowledgeCompleteness}%`
                             : ""}
@@ -745,7 +745,7 @@ td,th{border:1px solid #e2e8f0;padding:6px;text-align:left}@media print{body{mar
                 autoFocus
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Pesquisar (pesquisa Limiar existente)…"
+                placeholder="Pesquisar (pesquisa Lymiar existente)…"
                 className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none ring-sky-500 focus:ring-2"
                 aria-label="Pesquisar"
               />
@@ -795,7 +795,7 @@ td,th{border:1px solid #e2e8f0;padding:6px;text-align:left}@media print{body{mar
                       </span>
                       <span className="text-xs text-slate-500">
                         {formatEUR(prod.currentPrice)} · Índice{" "}
-                        {prod.decision.limiarIndex.value}
+                        {prod.decision.lymiarIndex.value}
                       </span>
                       {chips.length ? (
                         <span className="mt-0.5 block truncate text-[10px] text-slate-400">

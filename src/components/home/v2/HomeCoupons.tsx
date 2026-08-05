@@ -13,7 +13,7 @@ export function HomeCoupons({ items }: { items: ApiSmartCoupon[] }) {
     <HomeSection
       id="cupoes"
       title="Últimos cupões"
-      subtitle="Códigos informativos — aplicar na loja. Não alteram o preço Limiar."
+      subtitle="Códigos informativos — aplicar na loja. Não alteram o preço Lymiar."
       href="/#cupoes"
     >
       {items.length ? (

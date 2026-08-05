@@ -10,7 +10,7 @@ export type ProductSnapshot = {
   brand?: string | null;
   imageUrl?: string | null;
   currentPrice: number;
-  limiarIndex: number;
+  lymiarIndex: number;
   cheapestStore?: string | null;
   condition?: string | null;
   category?: string | null;

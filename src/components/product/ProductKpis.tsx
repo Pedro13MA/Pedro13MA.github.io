@@ -28,7 +28,7 @@ export function ProductKpis({ product, metrics }: Props) {
     { label: "Lojas", value: String(storeCount) },
     {
       label: "Índice",
-      value: `${product.decision.limiarIndex.value}`,
+      value: `${product.decision.lymiarIndex.value}`,
     },
     { label: "Actualizado", value: updated },
   ];

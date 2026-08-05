@@ -105,7 +105,7 @@ export async function cloudRegisterDevice(
   });
 }
 
-const ETAG_KEY = "limiar.sync.etags.v1";
+const ETAG_KEY = "lymiar.sync.etags.v1";
 
 export function getCachedEtag(collection: string): string | null {
   if (typeof window === "undefined") return null;

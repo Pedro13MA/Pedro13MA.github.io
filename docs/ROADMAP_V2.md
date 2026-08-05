@@ -2,7 +2,7 @@
 
 # Objetivo
 
-Plano de evolução do Limiar (2026–2031): strangler incremental com rollback. Não é reescrita. O Limiar permanece funcional em cada merge.
+Plano de evolução do Lymiar (2026–2031): strangler incremental com rollback. Não é reescrita. O Lymiar permanece funcional em cada merge.
 
 # Âmbito
 
@@ -54,7 +54,7 @@ Merge de PRs: cumprir também `QUALITY_BAR`.
 | Next.js App Router + componentes de produto/search/cupões | Shell UX útil; corrigir integridade, não redesenhar UI |
 | Compliance “feeds oficiais only” | Reduz risco legal |
 | Testes de parsing Awin, cupões, decision rules que passam | Património; alargar, não apagar |
-| Deploy systemd de `main` + `limiar-api` (forma geral) | Adequado à VPS atual |
+| Deploy systemd de `main` + `lymiar-api` (forma geral) | Adequado à VPS atual |
 | Conceito `daily_price_summary` | Intenção correta; evoluir honestidade, não descartar a ideia |
 
 **Regra:** se funciona em produção e não mente ao utilizador nem explode o disco, não tocar só por “pureza arquitetural”.
@@ -110,13 +110,13 @@ Merge de PRs: cumprir também `QUALITY_BAR`.
 | | |
 |--|--|
 | **Motivo** | PVPR + 1 ponto ≠ mínimo histórico |
-| **Impacto** | Integridade Limiar Index / deals |
+| **Impacto** | Integridade Lymiar Index / deals |
 | **Risco** | Menos “BUY” agressivos (aceitável) |
 | **Esforço** | S–M |
 | **Dependências** | Definir N_min, span_min (ex. ≥7 dias úteis observados, ≥5 pontos) |
 | **Rollback** | Flag `STRICT_HIST_MIN=0` |
 | **Métricas** | % deals com hist_min true e N&lt;min → 0 |
-| **Done** | Testes limiar_index · doc thresholds |
+| **Done** | Testes lymiar_index · doc thresholds |
 
 ### 1.5 Remover / desativar alerta web falso — **P0**
 
@@ -235,7 +235,7 @@ Merge de PRs: cumprir também `QUALITY_BAR`.
 | | |
 |--|--|
 | **Motivo** | Ética + clareza produto |
-| **Impacto** | Diferenciação Limiar |
+| **Impacto** | Diferenciação Lymiar |
 | **Risco** | Médio (dois caminhos) — mitiga com flag |
 | **Esforço** | L |
 | **Dependências** | Fase 1 thresholds / nulls |
@@ -505,7 +505,7 @@ evidence: { sample_days, span_days, pctile?, hist_min?, stale_hours?, policy_ver
 
 | | |
 |--|--|
-| **Trigger** | Lock errors frequentes ou multi-writer necessário ou BD &gt; limiar operacional pós-retenção |
+| **Trigger** | Lock errors frequentes ou multi-writer necessário ou BD &gt; lymiar operacional pós-retenção |
 | **Esforço** | XL |
 | **Método** | Sync/replicação lógica ou downtime curto controlado — não rewrite app |
 | **Rollback** | SQLite continua SoR até cutover confirmado |
@@ -700,7 +700,7 @@ Reavaliar REJEITADO anualmente com métricas — não com moda.
 
 **Risco residual consciente:** Fase 4 retenção + compactação de `offers` é a zona de maior risco de dados. Exige backup, dry-run e gates de summary health. Não acelerar por pressão cosmética.
 
-**Frase operacional:** cada PR deve deixar o Limiar tão utilizável quanto ontem, e um pouco mais honesto ou mais barato de operar — nunca “quase pronto depois da migração”.
+**Frase operacional:** cada PR deve deixar o Lymiar tão utilizável quanto ontem, e um pouco mais honesto ou mais barato de operar — nunca “quase pronto depois da migração”.
 
 # Exemplos
 

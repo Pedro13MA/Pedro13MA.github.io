@@ -30,14 +30,14 @@ function uid(prefix: string): string {
 
 function emit(): void {
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("limiar:smartcart-changed"));
+    window.dispatchEvent(new CustomEvent("lymiar:smartcart-changed"));
   }
 }
 
 export function subscribeSmartCart(cb: () => void): () => void {
   if (typeof window === "undefined") return () => {};
-  window.addEventListener("limiar:smartcart-changed", cb);
-  return () => window.removeEventListener("limiar:smartcart-changed", cb);
+  window.addEventListener("lymiar:smartcart-changed", cb);
+  return () => window.removeEventListener("lymiar:smartcart-changed", cb);
 }
 
 export function offersToSnaps(offers: Offer[]): CartOfferSnap[] {
@@ -76,7 +76,7 @@ export function productToCartDraft(
     offers: offersToSnaps(product.offers),
     leafId: product.leafId,
     chipsetModel: product.chipsetModel,
-    limiarIndex: product.decision.limiarIndex.value,
+    lymiarIndex: product.decision.lymiarIndex.value,
     condition: product.condition,
     insightRecommendation: insights.recommendation,
     insightLabel: insights.recommendationLabel,
@@ -294,7 +294,7 @@ export async function refreshItemFromProduct(
                     name: product.name,
                     imageUrl: product.imageUrl || i.imageUrl,
                     offers: snaps.length ? snaps : i.offers,
-                    limiarIndex: product.decision.limiarIndex.value,
+                    lymiarIndex: product.decision.lymiarIndex.value,
                     updatedAt: Date.now(),
                   }
                 : i,
@@ -330,7 +330,7 @@ export async function replaceCartItem(
                     priceAtAdd: draft.priceAtAdd,
                     leafId: draft.leafId,
                     chipsetModel: draft.chipsetModel,
-                    limiarIndex: draft.limiarIndex,
+                    lymiarIndex: draft.lymiarIndex,
                     preferredStore: null,
                     updatedAt: Date.now(),
                   }

@@ -4,12 +4,12 @@ import { CanonicalListClient } from "@/components/catalogo/CanonicalListClient";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Catálogo canónico · Limiar",
+  title: "Catálogo canónico · Lymiar",
   description:
     "Famílias de produtos com variantes observadas — escolhe capacidade, marca, cor ou edição.",
   alternates: { canonical: `${SITE_URL}/catalogo/` },
   openGraph: {
-    title: "Catálogo canónico Limiar",
+    title: "Catálogo canónico Lymiar",
     description: "Produtos canónicos e variantes factuais.",
     url: `${SITE_URL}/catalogo/`,
     type: "website",

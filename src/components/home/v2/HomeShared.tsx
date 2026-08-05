@@ -62,7 +62,7 @@ export function HomeProductCard({
   if (!item.slug) return null;
   return (
     <Link
-      href={`/p/${encodeURIComponent(item.slug)}/`}
+      href={`/p/?id=${encodeURIComponent(item.slug)}`}
       className="w-[9.5rem] shrink-0 snap-start rounded-xl border border-slate-200/80 bg-white p-2.5 shadow-sm transition-colors hover:border-slate-300 sm:w-40"
     >
       <div className="flex h-24 items-center justify-center rounded-lg bg-slate-50">

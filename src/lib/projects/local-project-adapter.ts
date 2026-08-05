@@ -8,7 +8,7 @@ import {
 } from "@/lib/projects/storage-adapter";
 import type { ProjectsSnapshot } from "@/lib/projects/types";
 
-const KEY = "limiar.projects.v1";
+const KEY = "lymiar.projects.v1";
 
 export class LocalProjectAdapter implements ProjectStorageAdapter {
   readonly name = "local";
@@ -32,7 +32,7 @@ export class LocalProjectAdapter implements ProjectStorageAdapter {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(KEY, JSON.stringify(snapshot));
-      window.dispatchEvent(new CustomEvent("limiar:projects-changed"));
+      window.dispatchEvent(new CustomEvent("lymiar:projects-changed"));
     } catch {
       /* quota */
     }

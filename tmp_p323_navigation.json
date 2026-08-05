@@ -1,0 +1,56 @@
+{
+  "/": {
+    "url": "https://lymiar.com/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/search/?q=SSD%20Samsung": {
+    "url": "https://lymiar.com/search/?q=SSD%20Samsung",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/categorias/": {
+    "url": "https://lymiar.com/categorias/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/categoria/ssd/": {
+    "url": "https://lymiar.com/categoria/ssd/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/categoria/smartwatch/": {
+    "url": "https://lymiar.com/categoria/smartwatch/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/categoria/air_fryer/": {
+    "url": "https://lymiar.com/categoria/air_fryer/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/categoria/padel_gear/": {
+    "url": "https://lymiar.com/categoria/padel_gear/",
+    "status": null,
+    "ok": false,
+    "error": "HTTP Error 404: Not Found"
+  },
+  "/mercado/": {
+    "url": "https://lymiar.com/mercado/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  },
+  "/mercado/marcas/": {
+    "url": "https://lymiar.com/mercado/marcas/",
+    "status": 200,
+    "ok": true,
+    "has_404_text": false
+  }
+}

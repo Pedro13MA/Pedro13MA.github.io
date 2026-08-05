@@ -1,4 +1,4 @@
-# Production Release Candidate — Limiar v1.0.0-rc1
+# Production Release Candidate — Lymiar v1.0.0-rc1
 
 **Data:** 2026-08-03  
 **Fase:** 8.3 — Production Release Candidate  
@@ -8,7 +8,7 @@
 
 ## 1. Resumo executivo
 
-O Limiar está pronto como **Release Candidate 1**. Suites críticas (FE completo + hub fases 7.15–8.2) verdes; build estático Next.js OK. Foram corrigidos apenas bloqueadores de build/SEO privado. Problemas estruturais pré-existentes no hub (Awin public coupon / topic coverage) ficam documentados para **1.1**.
+O Lymiar está pronto como **Release Candidate 1**. Suites críticas (FE completo + hub fases 7.15–8.2) verdes; build estático Next.js OK. Foram corrigidos apenas bloqueadores de build/SEO privado. Problemas estruturais pré-existentes no hub (Awin public coupon / topic coverage) ficam documentados para **1.1**.
 
 ---
 
@@ -29,14 +29,14 @@ O Limiar está pronto como **Release Candidate 1**. Suites críticas (FE complet
 
 ## 3. Resultados dos testes
 
-### Frontend (`Pedro13MA.github.io`)
+### Frontend (`lymiar-web`)
 
 | Suite | Resultado |
 |-------|-----------|
 | Vitest | **138 passed** / 24 files |
 | `next build` | **OK** (após fix tipagem Discovery) |
 
-### Backend (`spotter-intelligence-hub`)
+### Backend (`lymiar-hub`)
 
 | Suite | Resultado |
 |-------|-----------|
@@ -156,16 +156,16 @@ Otimizações transparentes apenas; sem mudanças de API.
 **Preparação (ops — executar no servidor):**
 
 ```bash
-cd /path/to/spotter-intelligence-hub
+cd /path/to/lymiar-hub
 git pull
 source .venv/bin/activate
 pip install -r requirements.txt   # inclui PyJWT
 # Garantir AUTH_* e AUTH_IDENTITY_DB
 # Identity DB cria tabelas no startup (auth + sync + notifications)
-sudo systemctl restart limiar-api   # ou nome real do serviço
+sudo systemctl restart lymiar-api   # ou nome real do serviço
 # Scheduler: NÃO alterar config; apenas restart se deploy de código partilhado
-curl -fsS https://floristacantinhoverde.pt/limiar-api/api/v1/health
-curl -fsS https://floristacantinhoverde.pt/limiar-api/api/v1/session
+curl -fsS https://api.lymiar.com/api/v1/health
+curl -fsS https://api.lymiar.com/api/v1/session
 ```
 
 Health: API read-only + identity lifespan init.
@@ -174,7 +174,7 @@ Health: API read-only + identity lifespan init.
 
 ## 13. Estado Frontend
 
-- Repo: `Pedro13MA.github.io`
+- Repo: `lymiar-web`
 - Build: `npm run build` → `out/`
 - Deploy: GitHub Actions `Deploy GitHub Pages` on push `main`
 - Versão: `1.0.0-rc1`
@@ -210,7 +210,7 @@ Homepage · Pesquisa · Categorias · Produto · Comparador · Projetos · Carri
 
 | Critério | |
 |----------|--|
-| Zero alterações motores Limiar | Cumprido |
+| Zero alterações motores Lymiar | Cumprido |
 | Zero alterações ranking / search SQL / taxonomy / scheduler / telegram | Cumprido |
 | Sem novas features nesta fase | Cumprido |
 | Estabilidade / docs / build | Cumprido |

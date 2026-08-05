@@ -16,7 +16,7 @@ export function ProductShareActions({ product }: Props) {
   const url =
     typeof window !== "undefined"
       ? window.location.href
-      : `https://pedro13ma.github.io/p/?id=${encodeURIComponent(product.slug)}`;
+      : `https://lymiar.com/p/?id=${encodeURIComponent(product.slug)}`;
 
   const copy = useCallback(async () => {
     try {
@@ -52,7 +52,7 @@ export function ProductShareActions({ product }: Props) {
       .join("\n");
     const html = `<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"/><title>${escapeHtml(
       product.name,
-    )} — Limiar</title>
+    )} — Lymiar</title>
 <style>
 body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;color:#0f172a;line-height:1.5}
 h1{font-size:1.5rem} h2{font-size:1.1rem;margin-top:1.5rem}
@@ -63,21 +63,21 @@ td,th{border-bottom:1px solid #e2e8f0;padding:.5rem;text-align:left}
 <h1>${escapeHtml(product.name)}</h1>
 <p class="meta">${escapeHtml(product.brand || "")} · ${escapeHtml(
       displayCategoryLabel(
-        product.subcategoryLabel,
         product.leafId,
+        product.subcategoryLabel,
         product.category,
       ) || product.brand || "",
     )} · ${new Date().toLocaleString("pt-PT")}</p>
 <p><strong>Preço:</strong> ${formatEUR(product.currentPrice)} · 
-<strong>Índice Limiar:</strong> ${product.decision.limiarIndex.value}/100 · 
+<strong>Índice Lymiar:</strong> ${product.decision.lymiarIndex.value}/100 · 
 <strong>Mín./Máx.:</strong> ${formatEUR(product.historicalMin)} / ${formatEUR(
       product.historicalMax,
     )}</p>
 <h2>Lojas</h2>
 <pre style="white-space:pre-wrap;font-family:inherit">${escapeHtml(stores || "—")}</pre>
 <h2>Histórico</h2>
-<p>${product.history.length} pontos observados no Limiar.</p>
-<p class="meta">Resumo gerado no Limiar — exporte via Imprimir → Guardar como PDF.</p>
+<p>${product.history.length} pontos observados no Lymiar.</p>
+<p class="meta">Resumo gerado no Lymiar — exporte via Imprimir → Guardar como PDF.</p>
 <script>window.onload=()=>window.print()</script>
 </body></html>`;
 

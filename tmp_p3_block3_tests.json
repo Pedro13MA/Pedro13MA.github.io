@@ -1,0 +1,17 @@
+{
+  "phase": "P3-BLOCK3",
+  "generated_at": "2026-08-05",
+  "command": "npm test -- src/lib/product src/components/product/p34",
+  "result": "9 passed",
+  "coverage": [
+    "flag_default_off",
+    "flag_enable",
+    "compare_alert_placeholders_disabled",
+    "telegram_strip",
+    "similar_empty",
+    "related_placeholder",
+    "coupons_empty",
+    "stores_empty",
+    "skeleton_aria_busy"
+  ]
+}

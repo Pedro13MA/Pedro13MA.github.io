@@ -55,7 +55,7 @@ export function DecisionCard({
   } else if (decision.semaphore === "fair") {
     why = "O preço está alinhado com o que temos observado — nem claramente barato, nem claramente caro.";
   } else {
-    const summary = (decision.limiarIndex.summary || decision.reason || "").trim();
+    const summary = (decision.lymiarIndex.summary || decision.reason || "").trim();
     why =
       summary && !/score|índice|deal/i.test(summary)
         ? summary

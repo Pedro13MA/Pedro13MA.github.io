@@ -88,7 +88,7 @@ Menu: link **Mercado** no header/footer.
 
 ## Limitações
 
-- Stats de score médio Limiar não são calculadas em SQL puro (exigiriam batch de índices); preços/contagens/marcas/lojas são factuais
+- Stats de score médio Lymiar não são calculadas em SQL puro (exigiriam batch de índices); preços/contagens/marcas/lojas são factuais
 - Cupões/promoções dependem do schema presente na DB (fallback 0 se tabela ausente)
 - Páginas marca/loja detalhe usam `?id=` (static export)
 - Screenshots: validar visualmente em staging após deploy

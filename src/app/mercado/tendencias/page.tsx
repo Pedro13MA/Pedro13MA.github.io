@@ -4,12 +4,12 @@ import { TendenciasClient } from "@/components/mercado/TendenciasClient";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Tendências | Mercado Limiar",
+  title: "Tendências | Mercado Lymiar",
   description:
-    "Actividade observada no mercado Limiar — sem previsões de futuro.",
+    "Actividade observada no mercado Lymiar — sem previsões de futuro.",
   alternates: { canonical: `${SITE_URL}/mercado/tendencias/` },
   openGraph: {
-    title: "Tendências | Mercado Limiar",
+    title: "Tendências | Mercado Lymiar",
     url: `${SITE_URL}/mercado/tendencias/`,
   },
 };

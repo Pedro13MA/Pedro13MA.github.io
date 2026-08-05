@@ -1,11 +1,11 @@
-# Release Notes — Limiar v1.0.0-rc1
+# Release Notes — Lymiar v1.0.0-rc1
 
 **Data:** 3 de Agosto de 2026  
 **Tipo:** Release Candidate (não é GA)
 
-## O que é o Limiar
+## O que é o Lymiar
 
-O Limiar responde se vale a pena comprar agora, esperar, ou se ainda não há dados suficientes — com base em preços **observados**, sem previsões inventadas.
+O Lymiar responde se vale a pena comprar agora, esperar, ou se ainda não há dados suficientes — com base em preços **observados**, sem previsões inventadas.
 
 ## O que inclui esta RC1
 
@@ -23,7 +23,7 @@ O Limiar responde se vale a pena comprar agora, esperar, ou se ainda não há da
 
 ## Como testar
 
-1. Abrir https://pedro13ma.github.io/
+1. Abrir https://lymiar.com/
 2. Pesquisar um produto → veredicto + lojas + histórico
 3. Entrar com OAuth → Minha Área → sync
 4. Ativar notificações de teste em `/notificacoes/`
@@ -32,7 +32,7 @@ O Limiar responde se vale a pena comprar agora, esperar, ou se ainda não há da
 
 - Cobertura de lojas parcial — o produto admite “ainda não sabemos”
 - Email/Push dependem de secrets VPS (SMTP / VAPID)
-- Alguns testes legados do hub (Awin/topic coverage) falham — não bloqueiam API Limiar 8.x
+- Alguns testes legados do hub (Awin/topic coverage) falham — não bloqueiam API Lymiar 8.x
 
 ## Próximo passo
 

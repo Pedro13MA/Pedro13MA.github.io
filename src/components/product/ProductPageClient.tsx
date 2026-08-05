@@ -18,11 +18,16 @@ import {
 import { recommendationsFromApi } from "@/lib/product-discovery";
 import { pickSimilarAlternatives } from "@/lib/product-similar-alternatives";
 import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
+import { isP34ProductPageEnabled } from "@/lib/product/flags";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
 import { ProductHero } from "@/components/product/ProductHero";
 import { ProductJsonLd } from "@/components/product/ProductJsonLd";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
+import {
+  ProductPageP34,
+  ProductPdpSkeleton,
+} from "@/components/product/p34";
 import { storeDisplayName } from "@/lib/storeLogos";
 import { formatEUR } from "@/lib/utils";
 import Link from "next/link";
@@ -61,7 +66,7 @@ function buildVerdictCopy(opts: {
 
   if (thinHistory) {
     return {
-      title: "O Limiar ainda está a observar este produto",
+      title: "O Lymiar ainda está a observar este produto",
       lines: [
         `Acompanhamos este produto há apenas ${spanDays} dia${spanDays === 1 ? "" : "s"}.`,
         "Ainda não existe informação suficiente para recomendar a compra.",
@@ -74,7 +79,7 @@ function buildVerdictCopy(opts: {
 
   if (currentIsMin || (!aboveAvg && confidenceScore >= 50)) {
     const lines = [
-      `O Limiar acompanha este produto há ${spanDays} dias.`,
+      `O Lymiar acompanha este produto há ${spanDays} dias.`,
       `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`,
       currentIsMin
         ? "O preço actual corresponde ao mínimo observado."
@@ -92,7 +97,7 @@ function buildVerdictCopy(opts: {
   }
 
   const lines = [
-    `O Limiar acompanha este produto há ${spanDays} dias.`,
+    `O Lymiar acompanha este produto há ${spanDays} dias.`,
     `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`,
     aboveAvg
       ? "O preço encontra-se acima da média observada."
@@ -168,6 +173,9 @@ export function ProductPageClient({ slug }: Props) {
   }, [product, metrics]);
 
   if (loading) {
+    if (isP34ProductPageEnabled()) {
+      return <ProductPdpSkeleton />;
+    }
     return (
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
         <div className="h-5 w-56 animate-pulse rounded bg-slate-100" />
@@ -191,7 +199,7 @@ export function ProductPageClient({ slug }: Props) {
         </h1>
         <p className="mt-3 text-slate-500">
           Pode ser um link antigo, um erro temporário, ou um produto sem histórico
-          suficiente no Limiar. Experimenta a pesquisa na página inicial.
+          suficiente no Lymiar. Experimenta a pesquisa na página inicial.
         </p>
       </main>
     );
@@ -247,6 +255,24 @@ export function ProductPageClient({ slug }: Props) {
     chipsetModel: product.chipsetModel,
   });
 
+  if (isP34ProductPageEnabled()) {
+    return (
+      <ProductPageP34
+        product={product}
+        slug={slug}
+        breadcrumbs={breadcrumbs}
+        verdict={verdict}
+        confidence={confidence}
+        spanDays={spanDays}
+        storeCount={storeCount}
+        observations={observations}
+        histMin={histMin}
+        histMax={histMax}
+        similar={similar}
+      />
+    );
+  }
+
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-6 sm:space-y-12 sm:px-6 sm:py-10">
       <ProductJsonLd product={product} />
@@ -254,8 +280,12 @@ export function ProductPageClient({ slug }: Props) {
 
       <ProductHero product={product} />
 
-      {/* Veredicto Limiar */}
-      <section aria-label="Veredicto Limiar" className="space-y-3">
+      {/* Veredicto Lymiar */}
+      <section
+        id="porque"
+        aria-label="Veredicto Lymiar"
+        className="scroll-mt-28 space-y-3"
+      >
         <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
           {verdict.title}
         </h2>
@@ -291,7 +321,7 @@ export function ProductPageClient({ slug }: Props) {
       </section>
 
       {/* Histórico */}
-      <section id="historico" className="space-y-4">
+      <section id="historico" className="scroll-mt-28 space-y-4">
         <PriceHistoryChart
           productId={slug}
           currentPrice={product.currentPrice}
@@ -303,7 +333,7 @@ export function ProductPageClient({ slug }: Props) {
 
       {/* Onde comprar */}
       {product.offers?.length ? (
-        <section id="lojas" className="scroll-mt-20 space-y-4">
+        <section id="lojas" className="scroll-mt-28 space-y-4">
           <h2 className="font-display text-xl font-bold text-slate-900">
             Onde comprar
           </h2>

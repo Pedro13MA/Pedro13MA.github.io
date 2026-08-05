@@ -2,13 +2,13 @@
 
 # Objetivo
 
-Índice oficial da documentação Limiar: hierarquia de autoridade, domínios, docs canónicos e como usar antes de implementar.
+Índice oficial da documentação Lymiar: hierarquia de autoridade, domínios, docs canónicos e como usar antes de implementar.
 
 # Âmbito
 
-Documentação normativa e de referência do produto Limiar (repos de engenharia e web).
+Documentação normativa e de referência do produto Lymiar (repos de engenharia e web).
 
-Cópias canónicas vivem em `Documents/Limiar` e em `docs/` dos repositórios ativos.
+Cópias canónicas vivem em `Documents/Lymiar` e em `docs/` dos repositórios ativos.
 
 # Princípios
 
@@ -78,8 +78,8 @@ Informam contexto. **Não são norma.** Em conflito com docs canónicos, ignorar
 
 | Documento | Nota |
 |-----------|------|
-| `LIMIAR_FULL_TECHNICAL_AUDIT` | Auditoria técnica pontual |
-| `LIMIAR_IDEAL_ARCHITECTURE_2026` / `IDEAL_ARCHITECTURE` | Arquitetura ideal; muitas propostas rejeitadas no roadmap |
+| `LYMIAR_FULL_TECHNICAL_AUDIT` | Auditoria técnica pontual |
+| `LYMIAR_IDEAL_ARCHITECTURE_2026` / `IDEAL_ARCHITECTURE` | Arquitetura ideal; muitas propostas rejeitadas no roadmap |
 | `DESTRUCTION_DAY` / `DESTRUCTION_DAY_CTO` | Exercício crítico; não redefine regras |
 | `SCALE_5Y` / `SCALE_5Y_ARCHITECTURE_REPORT` | Projeções de escala; triggers em `ROADMAP_V2` |
 | `DEV_ENVIRONMENT_REPORT` | Estado do ambiente de desenvolvimento |
@@ -126,4 +126,4 @@ Este ficheiro indexa os canónicos e as refs históricas. O processo de alteraç
 
 | Data | Nota |
 |------|------|
-| 2026-08-03 | Criação do índice oficial Limiar (hierarquia, domínios, canónicos, refs históricas, filosofia, fluxo pré-feature). |
+| 2026-08-03 | Criação do índice oficial Lymiar (hierarquia, domínios, canónicos, refs históricas, filosofia, fluxo pré-feature). |

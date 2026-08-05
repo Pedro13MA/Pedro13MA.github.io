@@ -1,0 +1,97 @@
+{
+  "queries": {
+    "SSD Samsung": {
+      "total": 38,
+      "has_intent": true,
+      "rewrite": "ssd samsung",
+      "fallback": null,
+      "first": "SSD Externo Samsung T7 Shield 1TB USB3.2 Gen2 Preto (1050/1000MB/s)",
+      "pass": true
+    },
+    "Samsung SSD": {
+      "total": 38,
+      "has_intent": true,
+      "rewrite": "samsung ssd",
+      "fallback": null,
+      "first": "SSD Externo Samsung T7 Shield 1TB USB3.2 Gen2 Preto (1050/1000MB/s)",
+      "pass": true
+    },
+    "melhor SSD Samsung": {
+      "total": 38,
+      "has_intent": true,
+      "rewrite": "ssd samsung",
+      "fallback": null,
+      "first": "SSD Externo Samsung T7 Shield 1TB USB3.2 Gen2 Preto (1050/1000MB/s)",
+      "pass": true
+    },
+    "portátil gaming": {
+      "total": 118,
+      "has_intent": true,
+      "rewrite": "portatil gaming",
+      "fallback": null,
+      "first": "Portátil Gaming ACER Nitro V 15 (15,6'' - Intel Core i9-13900H - RAM: 32 GB - 1 TB SSD - NVIDIA GeForce RTX 4060)",
+      "pass": true
+    },
+    "melhor portátil gaming": {
+      "total": 118,
+      "has_intent": true,
+      "rewrite": "portatil gaming",
+      "fallback": null,
+      "first": "Portátil Gaming ACER Nitro V 15 (15,6'' - Intel Core i9-13900H - RAM: 32 GB - 1 TB SSD - NVIDIA GeForce RTX 4060)",
+      "pass": true
+    },
+    "Apple Watch": {
+      "total": 225,
+      "has_intent": true,
+      "rewrite": "apple watch",
+      "fallback": null,
+      "first": "Carcasa para Apple Watch Series Se 2Nd OTTERBOX",
+      "pass": true
+    },
+    "Bullpadel": {
+      "total": 31,
+      "has_intent": true,
+      "rewrite": "bullpadel",
+      "fallback": null,
+      "first": "Bullpadel XPLO Tour Final 2024 Martin Di Nenno Padel Racket",
+      "pass": true
+    },
+    "TP-Link Tapo": {
+      "total": 31,
+      "has_intent": true,
+      "rewrite": "tp link tapo",
+      "fallback": null,
+      "first": "Câmara de Vigilância Segurança TP-LINK TC72",
+      "pass": true
+    },
+    "Air Fryer": {
+      "total": 187,
+      "has_intent": true,
+      "rewrite": "air fryer",
+      "fallback": null,
+      "first": "Fritadeira Sem Óleo MOULINEX Air fryer Easy Fry Silence EZ5568F0 (5 L - Preto)",
+      "pass": true
+    },
+    "frigideira": {
+      "total": 101,
+      "has_intent": true,
+      "rewrite": "frigideira",
+      "fallback": null,
+      "first": "Frigideira Wok TEFAL Unlimited Premium G25619 (28 cm)",
+      "pass": true
+    },
+    "RTX 5070": {
+      "total": 49,
+      "has_intent": true,
+      "rewrite": "rtx 5070",
+      "fallback": null,
+      "first": "Tarjeta Grafica Asus Dual Rtx5070 Oc 12gb",
+      "pass": true
+    }
+  },
+  "suggest_http": 200,
+  "p33_env": "P33_SEARCH_ENGINE=true",
+  "suggest_engine": "p33",
+  "suggest_products": 3,
+  "all_pass": true
+}

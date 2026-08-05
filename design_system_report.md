@@ -1,4 +1,4 @@
-# Design System Report — Limiar FASE 8.3
+# Design System Report — Lymiar FASE 8.3
 
 ## Identidade visual
 
@@ -27,7 +27,7 @@
 | `Badge` | default, teal(=sky), buy, fair, wait, tier | “teal” semanticamente sky |
 | `Input` | — | manter bordas slate |
 | `Table` | — | header `bg-slate-50` |
-| `LimiarLogo` | — | brand mark |
+| `LymiarLogo` | — | brand mark |
 
 **Em falta (1.1):** Modal, Drawer, Dropdown, Tooltip, Skeleton unificado, EmptyState.
 

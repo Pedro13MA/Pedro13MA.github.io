@@ -1,4 +1,4 @@
-# Overlay Audit — Limiar FASE 8.3
+# Overlay Audit — Lymiar FASE 8.3
 
 ## Escala z-index (canónica)
 

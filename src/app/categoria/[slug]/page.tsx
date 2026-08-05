@@ -19,25 +19,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const label = slug.replace(/_/g, " ");
   const path = `/categoria/${slug}/`;
   const title = `${label} — preços e histórico`;
-  const description = `Compare preços de ${label} nas principais lojas portuguesas. Consulte histórico de preços, ofertas, promoções e disponibilidade no Limiar.`;
+  const description = `Compare preços de ${label} nas principais lojas portuguesas. Consulte histórico de preços, ofertas, promoções e disponibilidade no Lymiar.`;
   return {
     title,
     description,
     robots: { index: true, follow: true },
     alternates: { canonical: `${SITE_URL}${path}` },
     openGraph: {
-      title: `${title} | Limiar`,
+      title: `${title} | Lymiar`,
       description,
       url: `${SITE_URL}${path}`,
-      siteName: "Limiar",
+      siteName: "Lymiar",
       locale: "pt_PT",
       type: "website",
-      images: [{ url: `${SITE_URL}/og-default.svg` }],
+      images: [
+        {
+          url: `${SITE_URL}/og-default.png`,
+          width: 1200,
+          height: 630,
+          alt: "Lymiar",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | Limiar`,
+      title: `${title} | Lymiar`,
       description,
+      images: [`${SITE_URL}/og-default.png`],
     },
   };
 }

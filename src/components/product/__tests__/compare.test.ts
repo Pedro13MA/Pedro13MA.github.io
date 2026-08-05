@@ -36,7 +36,7 @@ function stubStorage() {
   vi.stubGlobal("window", {
     localStorage: ls,
     dispatchEvent: () => true,
-    location: { origin: "https://pedro13ma.github.io" },
+    location: { origin: "https://lymiar.com" },
   });
 }
 
@@ -95,7 +95,7 @@ function baseProduct(over: Partial<Product> = {}): Product {
       feedCategory: "hardware",
       bullets: [],
       semaphore: "buy",
-      limiarIndex: {
+      lymiarIndex: {
         value: 88,
         summary: "Bom momento",
         factors: {
@@ -129,7 +129,7 @@ describe("compare storage", () => {
           ean: String(i),
           name: `Product ${i}`,
           currentPrice: 100 + i,
-          limiarIndex: 50,
+          lymiarIndex: 50,
         }).ok,
       ).toBe(true);
     }
@@ -139,7 +139,7 @@ describe("compare storage", () => {
         ean: "x",
         name: "Extra",
         currentPrice: 1,
-        limiarIndex: 1,
+        lymiarIndex: 1,
       }).reason,
     ).toBe("full");
     expect(readCompareList()).toHaveLength(4);
@@ -167,7 +167,7 @@ describe("compare engine", () => {
       chipsetModel: "RTX 5070 Ti",
       decision: {
         ...baseProduct().decision,
-        limiarIndex: { ...baseProduct().decision.limiarIndex, value: 70 },
+        lymiarIndex: { ...baseProduct().decision.lymiarIndex, value: 70 },
         cheapestStore: "pcdiga",
       },
       offers: [
@@ -266,7 +266,7 @@ describe("compare engine", () => {
       currentPrice: 500,
       decision: {
         ...baseProduct().decision,
-        limiarIndex: { ...baseProduct().decision.limiarIndex, value: 40 },
+        lymiarIndex: { ...baseProduct().decision.lymiarIndex, value: 40 },
       },
     });
     expect(sortProducts([a, b], "price")[0].slug).toBe("b");

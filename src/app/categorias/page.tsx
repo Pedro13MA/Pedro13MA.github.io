@@ -5,8 +5,8 @@ import CategoriasHubClient from "./CategoriasHubClient";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Categorias | Limiar",
-  description: "Navega o catálogo Limiar por categorias Taxonomy v2.",
+  title: "Categorias | Lymiar",
+  description: "Navega o catálogo Lymiar por categorias Taxonomy v2.",
   alternates: { canonical: `${SITE_URL}/categorias/` },
 };
 

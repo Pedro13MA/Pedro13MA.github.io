@@ -3,7 +3,7 @@
 ## Objectivo
 
 Camada de notificações factuais sobre Favoritos, Watchlists, Projetos e Smart Cart.
-**Sem** IA, previsões ou alterações a motores Limiar / Scheduler / Telegram.
+**Sem** IA, previsões ou alterações a motores Lymiar / Scheduler / Telegram.
 
 ## Arquitectura
 
@@ -12,7 +12,7 @@ Observação factual (ingest API / worker paralelo futuro)
   → NotificationEventBuilder
   → NotificationService (prefs + dedup 30min)
   → inbox (notifications) + NotificationQueue
-  → Email (HTML Limiar) · Web Push · Browser
+  → Email (HTML Lymiar) · Web Push · Browser
 ```
 
 Telegram permanece canal editorial independente.

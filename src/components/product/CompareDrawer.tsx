@@ -26,8 +26,8 @@ export function CompareDrawer({ open, onClose }: Props) {
     if (!open) return;
     setItems(readCompareList());
     const sync = () => setItems(readCompareList());
-    window.addEventListener("limiar:compare-changed", sync);
-    return () => window.removeEventListener("limiar:compare-changed", sync);
+    window.addEventListener("lymiar:compare-changed", sync);
+    return () => window.removeEventListener("lymiar:compare-changed", sync);
   }, [open]);
 
   if (!open) return null;
@@ -96,7 +96,7 @@ export function CompareDrawer({ open, onClose }: Props) {
                     {item.name}
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500">
-                    {formatEUR(item.currentPrice)} · Índice {item.limiarIndex}
+                    {formatEUR(item.currentPrice)} · Índice {item.lymiarIndex}
                   </p>
                   <button
                     type="button"

@@ -11,7 +11,7 @@ import {
 } from "@/lib/api";
 import { copyCouponCode } from "@/lib/coupon-utils";
 import type { Product, SmartCoupon } from "@/lib/types";
-import { cn, formatEUR, limiarIndexTone, SEMAPHORE_LABEL } from "@/lib/utils";
+import { cn, formatEUR, lymiarIndexTone, SEMAPHORE_LABEL } from "@/lib/utils";
 
 type Props = {
   store: string;
@@ -137,13 +137,13 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
           </p>
         ) : products.length === 0 ? (
           <p className="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">
-            Ainda sem produtos elegíveis para este cupão na base Limiar.
+            Ainda sem produtos elegíveis para este cupão na base Lymiar.
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => {
               const listPrice = product.listPrice ?? product.currentPrice;
-              const tone = limiarIndexTone(product.decision.limiarIndex.value);
+              const tone = lymiarIndexTone(product.decision.lymiarIndex.value);
               const sem = SEMAPHORE_LABEL[product.decision.semaphore];
               const offerUrl = product.offers[0]?.url;
 
@@ -172,7 +172,7 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
                         tone.text,
                       )}
                     >
-                      {product.decision.limiarIndex.value}/100
+                      {product.decision.lymiarIndex.value}/100
                     </span>
                   </Link>
                   <div className="flex flex-1 flex-col gap-2 p-4">
@@ -193,7 +193,7 @@ export function CouponDetailClient({ store, storeName, code }: Props) {
                         href={`/p/?id=${encodeURIComponent(product.slug)}`}
                         className="flex-1 rounded-lg bg-slate-900 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-slate-800"
                       >
-                        Detalhe Limiar
+                        Detalhe Lymiar
                       </Link>
                       {offerUrl ? (
                         <a

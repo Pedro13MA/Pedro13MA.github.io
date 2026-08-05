@@ -4,8 +4,8 @@ import { ProjectDetailClient } from "@/components/projects/ProjectDetailClient";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export const metadata: Metadata = {
-  title: "Projeto · Limiar",
-  description: "Detalhe do projeto Limiar — slots, totais e evolução de preço.",
+  title: "Projeto · Lymiar",
+  description: "Detalhe do projeto Lymiar — slots, totais e evolução de preço.",
   alternates: { canonical: "/projetos/p/" },
 };
 

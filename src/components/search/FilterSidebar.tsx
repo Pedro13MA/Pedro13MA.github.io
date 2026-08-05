@@ -34,51 +34,73 @@ export type FilterValues = {
 const SUBCATEGORY_FILTER_KEY: Record<string, string> = {
   "placas gráficas": "gpu",
   "processadores / cpus": "cpu",
+  "processadores": "cpu",
   "armazenamento": "ssd",
   "armazenamento ssd": "ssd",
+  "ssd": "ssd",
   "ram / memória": "ram",
+  "memória ram": "ram",
   "air fryers": "air_fryer",
   "smartphones": "smartphone",
   "portáteis": "laptop",
+  "desktops": "desktop",
   "computadores de secretária": "desktop",
   "motherboards / placas-mãe": "motherboard",
+  "motherboards": "motherboard",
   "monitores & ecrãs": "monitor",
+  "monitores": "monitor",
   "fontes de alimentação (psu)": "psu",
   "periféricos": "peripheral",
   "componentes de rede": "network",
+  "redes": "network",
   "consolas": "console",
+  "jogos": "game_physical",
+  "comandos": "controller",
+  "tablets": "tablet",
+  "smartwatches": "smartwatch",
   "acessórios": "accessory",
 };
+
+/** Leaf slugs + legacy keys used to drive typed facet blocks. */
+const KNOWN_NAV_KEYS = new Set([
+  "gpu",
+  "cpu",
+  "ssd",
+  "ram",
+  "air_fryer",
+  "smartphone",
+  "laptop",
+  "desktop",
+  "motherboard",
+  "monitor",
+  "psu",
+  "peripheral",
+  "network",
+  "console",
+  "accessory",
+  "game_physical",
+  "game_digital",
+  "controller",
+  "tablet",
+  "smartwatch",
+  "mouse",
+  "keyboard",
+  "fridge",
+  "dishwasher",
+  "washing_machine",
+  "vacuum",
+]);
 
 function resolveActiveCategoryKey(
   subcategory: string,
   inferredCategory?: string | null,
 ): string {
+  // FASE 8.5.1 — valor do filtro é preferencialmente leaf_id
   const raw = (subcategory || inferredCategory || "").trim();
   if (!raw) return "";
   const low = raw.toLowerCase();
   if (SUBCATEGORY_FILTER_KEY[low]) return SUBCATEGORY_FILTER_KEY[low];
-  if (
-    [
-      "gpu",
-      "cpu",
-      "ssd",
-      "ram",
-      "air_fryer",
-      "smartphone",
-      "laptop",
-      "desktop",
-      "motherboard",
-      "monitor",
-      "psu",
-      "peripheral",
-      "network",
-      "console",
-      "accessory",
-    ].includes(low)
-  ) {
-    return low;
-  }
+  if (KNOWN_NAV_KEYS.has(low)) return low;
   return low;
 }
 
@@ -97,6 +119,8 @@ type Props = {
   onSelect: (patch: Partial<FilterValues>) => void;
   onClear: () => void;
   onApplyPrice: () => void;
+  /** Category page cannot filter stock yet — hide fake control. Default true (search). */
+  showInStock?: boolean;
 };
 
 function FacetList({
@@ -180,9 +204,11 @@ function SubcategoryBlock({
   return (
     <div className="space-y-2 rounded-xl border border-sky-100 bg-sky-50/40 p-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-sky-800">
-        Subcategoria
+        Categoria
       </p>
-      <p className="text-[11px] text-slate-500">Tipo de produto</p>
+      <p className="text-[11px] text-slate-500">
+        Taxonomia Lymiar (leaf) · fallback legado se necessário
+      </p>
       <ul className="space-y-1">
         {items.map((item) => {
           const selected = active.toLowerCase() === item.value.toLowerCase();
@@ -359,6 +385,7 @@ export function FilterSidebar({
   onSelect,
   onClear,
   onApplyPrice,
+  showInStock = true,
 }: Props) {
   const useTaxonomy = hasTaxonomyFacets(taxonomyFacets);
   const subcategories = facets.subcategories ?? [];
@@ -371,7 +398,7 @@ export function FilterSidebar({
   return (
     <aside
       className={cn(
-        "limiar-sidebar space-y-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
+        "lymiar-sidebar space-y-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
         "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
         "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
       )}
@@ -405,15 +432,17 @@ export function FilterSidebar({
         }
       />
 
-      <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
-        <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
-        <input
-          type="checkbox"
-          checked={filters.inStockOnly}
-          onChange={(e) => onSelect({ inStockOnly: e.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-        />
-      </label>
+      {showInStock ? (
+        <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
+          <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
+          <input
+            type="checkbox"
+            checked={filters.inStockOnly}
+            onChange={(e) => onSelect({ inStockOnly: e.target.checked })}
+            className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+          />
+        </label>
+      ) : null}
 
       {useTaxonomy && taxonomyFacets && onTaxonomySelectionChange ? (
         <TaxonomyFilters

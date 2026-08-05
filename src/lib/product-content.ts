@@ -350,8 +350,8 @@ export function buildUsefulDescription(product: Product): string | null {
   if (useful.length < 2) return null;
   const cat =
     displayCategoryLabel(
-      product.subcategoryLabel,
       product.leafId?.replace(/_/g, " "),
+      product.subcategoryLabel,
     ) || "produto";
   const highlight = useful
     .slice(0, 3)
@@ -412,7 +412,7 @@ export function buildProductFaq(product: Product): ProductFaqItem[] {
       question: "Este produto é novo?",
       answer:
         condition === "NEW"
-          ? "O estado observado no Limiar é Novo, com base nos dados das lojas."
+          ? "O estado observado no Lymiar é Novo, com base nos dados das lojas."
           : `O estado observado é «${conditionLabel}». Confirme sempre na página da loja antes de comprar.`,
     });
   }
@@ -420,7 +420,7 @@ export function buildProductFaq(product: Product): ProductFaqItem[] {
   if (product.historicalMin > 0) {
     items.push({
       question: "Qual o preço mais baixo observado?",
-      answer: `O mínimo histórico registado no Limiar é ${product.historicalMin.toFixed(2)} € (dados observados, sem previsões).`,
+      answer: `O mínimo histórico registado no Lymiar é ${product.historicalMin.toFixed(2)} € (dados observados, sem previsões).`,
     });
   }
 
@@ -435,7 +435,7 @@ export function buildProductFaq(product: Product): ProductFaqItem[] {
     items.push({
       question: "Quando costuma baixar?",
       answer:
-        "O Limiar não prevê descidas futuras. Use o gráfico de histórico e o Índice Limiar para ver se o momento actual é favorável face ao passado observado.",
+        "O Lymiar não prevê descidas futuras. Use o gráfico de histórico e o Índice Lymiar para ver se o momento actual é favorável face ao passado observado.",
     });
   }
 

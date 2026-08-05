@@ -1,8 +1,8 @@
-# NON_NEGOTIABLES.md — Limiar
+# NON_NEGOTIABLES.md — Lymiar
 
 # Objetivo
 
-Fixar regras absolutas do Limiar. Quebrar qualquer uma é defeito. Cada regra deve ter teste automatizado ou checklist de release verificável.
+Fixar regras absolutas do Lymiar. Quebrar qualquer uma é defeito. Cada regra deve ter teste automatizado ou checklist de release verificável.
 
 # Âmbito
 
@@ -109,7 +109,7 @@ Fixar regras absolutas do Limiar. Quebrar qualquer uma é defeito. Cada regra de
 
 ## Arquitetura
 
-45. Alterações em produção mantêm o Limiar utilizável (sem big-bang obrigatório).
+45. Alterações em produção mantêm o Lymiar utilizável (sem big-bang obrigatório).
 46. APIs públicas existentes não partem campos sem versão nova.
 47. Feature flags de comportamento de decisão/dados têm rollback documentado.
 48. Um único writer lógico na base de dados de catálogo/histórico hot, salvo migração explícita.
@@ -130,7 +130,7 @@ Fixar regras absolutas do Limiar. Quebrar qualquer uma é defeito. Cada regra de
 
 55. Os mesmos inputs de evidência produzem o mesmo ConsumerDecision para a mesma `policy_version`.
 56. Web e API não contradizem o veredicto ConsumerDecision quando a flag está ativa.
-57. Nomes de marca (Limiar) são únicos na UI e canais oficiais; nomes legado não aparecem como marca principal.
+57. Nomes de marca (Lymiar) são únicos na UI e canais oficiais; nomes legado não aparecem como marca principal.
 58. Testes da suite obrigatória passam antes de merge a `main`.
 59. Health de readiness falha se o último feed com sucesso exceder o SLA configurado.
 60. Cada P0 de NON_NEGOTIABLES tem teste ou check de release nomeado em CI/docs.

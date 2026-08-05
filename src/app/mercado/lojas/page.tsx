@@ -4,11 +4,11 @@ import { LojasListClient } from "@/components/mercado/LojasListClient";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Lojas | Mercado Limiar",
-  description: "Lojas com ofertas observadas no Limiar.",
+  title: "Lojas | Mercado Lymiar",
+  description: "Lojas com ofertas observadas no Lymiar.",
   alternates: { canonical: `${SITE_URL}/mercado/lojas/` },
   openGraph: {
-    title: "Lojas | Mercado Limiar",
+    title: "Lojas | Mercado Lymiar",
     url: `${SITE_URL}/mercado/lojas/`,
   },
 };

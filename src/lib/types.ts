@@ -1,4 +1,4 @@
-/** Types aligned with Limiar backend (Python/SQLite) + web decision UI. */
+/** Types aligned with Lymiar backend (Python/SQLite) + web decision UI. */
 
 export type DealTier = "S" | "A" | "B";
 
@@ -159,8 +159,8 @@ export interface ScoreBreakdown {
   feedbackAdjustment: number;
 }
 
-/** Fatores factuais do Índice Limiar (0–100). */
-export interface LimiarIndexFactors {
+/** Fatores factuais do Índice Lymiar (0–100). */
+export interface LymiarIndexFactors {
   vsAvg30d: {
     score: number;
     label: string;
@@ -183,11 +183,11 @@ export interface LimiarIndexFactors {
   };
 }
 
-export interface LimiarIndex {
+export interface LymiarIndex {
   /** Score 0–100. */
   value: number;
   summary: string;
-  factors: LimiarIndexFactors;
+  factors: LymiarIndexFactors;
 }
 
 export interface SeasonalMarker {
@@ -220,7 +220,7 @@ export interface DecisionScore {
   /** Justificações factuais (sem previsões). */
   bullets: string[];
   semaphore: DecisionSemaphore;
-  limiarIndex: LimiarIndex;
+  lymiarIndex: LymiarIndex;
 }
 
 export interface Product {
@@ -337,7 +337,7 @@ export interface Product {
   /** ISO timestamp — quando a oportunidade foi detetada / publicada. */
   detectedAt?: string | null;
   publishedAt?: string | null;
-  /** Limiar v2 — preço de referência e desconto real. */
+  /** Lymiar v2 — preço de referência e desconto real. */
   referencePrice?: number | null;
   referenceSource?: string | null;
   realDiscountPct?: number | null;

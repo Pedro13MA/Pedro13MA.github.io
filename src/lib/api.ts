@@ -1,9 +1,9 @@
-/** Cliente HTTP para a API FastAPI Limiar (VPS). */
+/** Cliente HTTP para a API FastAPI Lymiar (VPS). */
 
 import type {
   DecisionScore,
   DecisionSemaphore,
-  LimiarIndex,
+  LymiarIndex,
   Offer,
   PaymentMethod,
   PricePoint,
@@ -17,8 +17,11 @@ import type {
   StoreCampaign,
 } from "@/lib/types";
 
-/** Proxy HTTPS nginx → FastAPI :8000 (domínio sem challenge Cloudflare bot). */
-const DEFAULT_API_URL = "https://floristacantinhoverde.pt/limiar-api";
+/**
+ * Host oficial da API Lymiar.
+ * Override: NEXT_PUBLIC_API_URL
+ */
+const DEFAULT_API_URL = "https://api.lymiar.com";
 
 export function getApiBaseUrl(): string {
   const raw = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).trim();
@@ -55,7 +58,9 @@ export type ApiProductSummary = {
   historicalMin?: number | null;
   historicalMax?: number | null;
   dropTodayPct?: number | null;
-  limiarIndex: number;
+  lymiarIndex?: number;
+  /** TEMP alias — API VPS ainda pode emitir limiarIndex (Fase B4.2). */
+  limiarIndex?: number;
   semaphore: DecisionSemaphore;
   summary: string;
   isHistoricalMin?: boolean;
@@ -78,7 +83,12 @@ export type ApiProductSummary = {
   savings?: number | null;
   couponCode?: string | null;
   offerUrl?: string | null;
-  /** Limiar v2 */
+  /** FASE 8.5.1 — taxonomy v2 passthrough */
+  leaf_id?: string | null;
+  taxonomy_path?: string | string[] | null;
+  subcategory?: string | null;
+  subcategoryLabel?: string | null;
+  /** Lymiar v2 */
   referencePrice?: number | null;
   referenceSource?: string | null;
   realDiscountPct?: number | null;
@@ -160,6 +170,54 @@ export type SearchResponse = {
   taxonomyFacets?: TaxonomyFacet[];
   /** FASE 7.21 — destaque canónico (não altera results) */
   canonicalHighlight?: CanonicalHighlight | null;
+  /** P3 Block 2 — intent (aditivo; null se flag OFF) */
+  intent?: SearchIntentPayload | null;
+  didYouMean?: string[];
+  relatedQueries?: string[];
+  categoryRedirect?: { slug: string; url: string } | null;
+};
+
+export type SearchIntentPayload = {
+  original?: string;
+  normalized?: string;
+  brand?: string | null;
+  brands?: string[];
+  category_profile?: string | null;
+  leaf?: string | null;
+  model?: string | null;
+  intent_type?: string;
+  confidence?: number;
+  did_you_mean?: string[];
+  related_queries?: string[];
+  category_redirect?: string | null;
+};
+
+export type SearchSuggestItem = {
+  ean?: string;
+  slug?: string;
+  name?: string;
+  brand?: string | null;
+  category?: string | null;
+  imageUrl?: string | null;
+  currentPrice?: number | null;
+  url?: string | null;
+  type?: string;
+  label?: string;
+  title?: string;
+  text?: string;
+};
+
+export type SearchSuggestResponse = {
+  query: string;
+  normalized?: string;
+  intent?: SearchIntentPayload | null;
+  products: SearchSuggestItem[];
+  categories: SearchSuggestItem[];
+  brands: SearchSuggestItem[];
+  suggestions: SearchSuggestItem[];
+  landings: SearchSuggestItem[];
+  categoryRedirect?: { slug: string; url: string } | null;
+  engine?: string;
 };
 
 export type CategorySeo = {
@@ -263,7 +321,7 @@ export type CategoryProductsResponse = {
 };
 
 export type SearchSortBy =
-  | "limiar_desc"
+  | "lymiar_desc"
   | "price_asc"
   | "price_desc"
   | "discount_desc";
@@ -365,7 +423,9 @@ export type ApiProductDetail = {
     feedCategory?: string;
     bullets: string[];
     semaphore: DecisionSemaphore;
-    limiarIndex: LimiarIndex;
+    lymiarIndex?: LymiarIndex;
+    /** TEMP alias — API VPS legada. */
+    limiarIndex?: LymiarIndex;
   };
   activePromotion?: Record<string, unknown> | null;
   activeCoupon?: Record<string, unknown> | null;
@@ -384,7 +444,7 @@ export type ApiProductDetail = {
     campaignTitle?: string | null;
     brands?: string[];
   } | null;
-  /** Limiar v2 */
+  /** Lymiar v2 */
   referencePrice?: number | null;
   referenceSource?: string | null;
   realDiscountPct?: number | null;
@@ -567,7 +627,7 @@ export type PromotionsResponse = {
 
 const DEFAULT_SEASONALITY: Seasonality = {
   timesBelowCurrent12m: 0,
-  note: "Sazonalidade estimada a partir do histórico de preços Limiar.",
+  note: "Sazonalidade estimada a partir do histórico de preços Lymiar.",
   markers: Array.from({ length: 12 }, (_, i) => ({
     month: i + 1,
     label: "",
@@ -575,21 +635,50 @@ const DEFAULT_SEASONALITY: Seasonality = {
   })),
 };
 
-export function summaryToProduct(s: ApiProductSummary): Product {
-  const index: LimiarIndex = {
-    value: s.limiarIndex,
-    summary: s.summary,
-    factors: {
-      vsAvg30d: { score: 0, label: "Preço vs média 30d", detail: "—" },
-      historicalMin: { score: 0, label: "Mínimo histórico", detail: "—" },
-      couponApplied: { score: 0, label: "Cupão aplicado", detail: "—" },
-      volatility: { score: 0, label: "Volatilidade", detail: "—" },
-    },
+/** Score 0–100 a partir de summary (lymiarIndex oficial | limiarIndex TEMP). */
+export function readSummaryLymiarScore(
+  s: Pick<ApiProductSummary, "lymiarIndex" | "limiarIndex">,
+): number {
+  const raw = s.lymiarIndex ?? s.limiarIndex;
+  const n = typeof raw === "number" ? raw : Number(raw);
+  return Number.isFinite(n) ? n : 0;
+}
+
+const EMPTY_LYMIAR_FACTORS: LymiarIndex["factors"] = {
+  vsAvg30d: { score: 0, label: "Preço vs média 30d", detail: "—" },
+  historicalMin: { score: 0, label: "Mínimo histórico", detail: "—" },
+  couponApplied: { score: 0, label: "Cupão aplicado", detail: "—" },
+  volatility: { score: 0, label: "Volatilidade", detail: "—" },
+};
+
+/** Garante sempre um LymiarIndex com `.value` (evita TypeError em produção). */
+export function coerceLymiarIndex(
+  raw: LymiarIndex | number | null | undefined,
+  summary = "",
+): LymiarIndex {
+  if (raw && typeof raw === "object") {
+    const value = Number((raw as LymiarIndex).value);
+    return {
+      value: Number.isFinite(value) ? value : 0,
+      summary: String((raw as LymiarIndex).summary ?? summary ?? ""),
+      factors: (raw as LymiarIndex).factors ?? EMPTY_LYMIAR_FACTORS,
+    };
+  }
+  const value = typeof raw === "number" ? raw : Number(raw);
+  return {
+    value: Number.isFinite(value) ? value : 0,
+    summary: summary || "",
+    factors: EMPTY_LYMIAR_FACTORS,
   };
+}
+
+export function summaryToProduct(s: ApiProductSummary): Product {
+  const score = readSummaryLymiarScore(s);
+  const index = coerceLymiarIndex(score, s.summary || "");
   const decision: DecisionScore = {
-    finalScore: s.limiarIndex,
+    finalScore: score,
     publish: s.semaphore === "buy",
-    tier: s.limiarIndex >= 85 ? "S" : s.limiarIndex >= 50 ? "A" : "B",
+    tier: score >= 85 ? "S" : score >= 50 ? "A" : "B",
     reason: s.summary,
     breakdown: {
       baseQuality: 0,
@@ -610,7 +699,7 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     feedCategory: "other",
     bullets: [s.summary],
     semaphore: s.semaphore,
-    limiarIndex: index,
+    lymiarIndex: index,
   };
   return {
     slug: s.slug,
@@ -618,6 +707,22 @@ export function summaryToProduct(s: ApiProductSummary): Product {
     name: s.name,
     brand: s.brand,
     category: s.category || "",
+    subcategory: (s as { subcategory?: string | null }).subcategory ?? undefined,
+    subcategoryLabel:
+      (s as { subcategoryLabel?: string | null }).subcategoryLabel ?? undefined,
+    leafId: s.leaf_id ?? undefined,
+    taxonomyPath: Array.isArray(s.taxonomy_path)
+      ? s.taxonomy_path
+      : typeof s.taxonomy_path === "string"
+        ? (() => {
+            try {
+              const parsed = JSON.parse(s.taxonomy_path);
+              return Array.isArray(parsed) ? parsed : undefined;
+            } catch {
+              return undefined;
+            }
+          })()
+        : s.taxonomy_path ?? undefined,
     imageUrl: s.imageUrl,
     currentPrice: s.currentPrice,
     listPrice: s.listPrice ?? undefined,
@@ -856,7 +961,10 @@ export function detailToProduct(d: ApiProductDetail): Product {
       feedCategory: d.decision.feedCategory || "other",
       bullets: d.decision.bullets || [],
       semaphore: d.decision.semaphore,
-      limiarIndex: d.decision.limiarIndex,
+      lymiarIndex: coerceLymiarIndex(
+        d.decision.lymiarIndex ?? d.decision.limiarIndex,
+        d.decision.reason || "",
+      ),
     },
     seasonality: {
       ...DEFAULT_SEASONALITY,
@@ -918,7 +1026,7 @@ export async function searchProducts(
     q,
     limit: String(limit),
     offset: String(offset),
-    sort_by: opts?.sortBy || "limiar_desc",
+    sort_by: opts?.sortBy || "lymiar_desc",
   });
   if (opts?.category) params.set("category", opts.category);
   if (opts?.brand) params.set("brand", opts.brand);
@@ -949,9 +1057,74 @@ export async function searchProducts(
   return apiGet<SearchResponse>(`/api/v1/search?${params}`);
 }
 
+/** P3 Block 2 — typeahead agrupado (fallback legado se suggest indisponível). */
+export async function suggestSearch(
+  q: string,
+  opts?: { limit?: number },
+): Promise<SearchSuggestResponse> {
+  const limit = opts?.limit ?? 8;
+  const params = new URLSearchParams({ q, limit: String(limit) });
+  try {
+    return await apiGet<SearchSuggestResponse>(
+      `/api/v1/search/suggest?${params}`,
+    );
+  } catch {
+    // Integração: API sem /suggest → não zerar typeahead
+    const legacy = await searchProducts(q, { limit });
+    return {
+      query: q,
+      normalized: q,
+      intent: legacy.intent ?? null,
+      products: legacy.results.map((p) => ({
+        ean: p.ean,
+        slug: p.slug,
+        name: p.name,
+        brand: p.brand,
+        category: p.category,
+        imageUrl: p.imageUrl,
+        currentPrice: p.currentPrice,
+        url: `/p/?id=${encodeURIComponent(p.slug)}`,
+        type: "product",
+      })),
+      categories: [],
+      brands: [],
+      suggestions: [],
+      landings: [],
+      categoryRedirect: legacy.categoryRedirect ?? null,
+      engine: "legacy-fallback",
+    };
+  }
+}
+
 /** FASE 7.5 — categorias L1 */
 export async function getCategories(): Promise<CategoriesListResponse> {
   return apiGet<CategoriesListResponse>("/api/v1/categorias");
+}
+
+/** P3 Block 1 — árvore taxonomy (backend TreeProvider via API). Read-only. */
+export type TaxonomyTreeNodeApi = {
+  slug: string;
+  display_name: string;
+  parent?: string | null;
+  level: number;
+  is_active?: boolean;
+  kind_allowed?: string | null;
+  children: TaxonomyTreeNodeApi[];
+};
+
+export type TaxonomyTreeApiResponse = {
+  taxonomy_version: string;
+  source?: string;
+  tree: TaxonomyTreeNodeApi[];
+};
+
+export async function getTaxonomyTree(
+  taxonomyVersion?: string,
+): Promise<TaxonomyTreeApiResponse> {
+  const q = taxonomyVersion
+    ? `?taxonomy_version=${encodeURIComponent(taxonomyVersion)}`
+    : "";
+  return apiGet<TaxonomyTreeApiResponse>(`/api/v1/taxonomy/tree${q}`);
 }
 
 export async function getCategory(slug: string): Promise<CategoryDetail> {
@@ -981,7 +1154,7 @@ export async function getCategoryProducts(
   const params = new URLSearchParams({
     limit: String(opts?.limit ?? 24),
     offset: String(opts?.offset ?? 0),
-    sort_by: opts?.sortBy || "limiar_desc",
+    sort_by: opts?.sortBy || "lymiar_desc",
   });
   if (opts?.q?.trim()) params.set("q", opts.q.trim());
   if (opts?.taxonomyFilters) {

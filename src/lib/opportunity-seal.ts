@@ -62,7 +62,7 @@ export function buildDecisionReason(product: Product): string {
     if (histMin > 0 && current <= histMin * 1.02) {
       return `Está perto do menor preço que observámos (${formatEUR(histMin)}).`;
     }
-    const summary = (product.decision.limiarIndex.summary || product.decision.reason || "").trim();
+    const summary = (product.decision.lymiarIndex.summary || product.decision.reason || "").trim();
     if (summary && !/score|índice|index|deal/i.test(summary)) {
       return summary.length > 140 ? `${summary.slice(0, 137)}…` : summary;
     }

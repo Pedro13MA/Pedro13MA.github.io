@@ -1,9 +1,46 @@
 /**
- * FASE 7.10 — labels de apresentação (nunca "Other").
- * Só UX; não altera taxonomy nem API.
+ * FASE 7.10 / 8.5.1 — labels de apresentação (nunca "Other").
+ * Leaf-first: taxonomy v2 antes de subcategory legacy.
  */
 
 const OTHER_RE = /^(other|others|outro|outros|unknown|n\/?a|unmapped)$/i;
+const UNUSABLE_LEAF =
+  /^(unclassified|non_catalog|unmapped|other|outros)?$/i;
+
+/** Labels PT alinhadas com taxonomy_nodes (v1.1). */
+const LEAF_LABEL: Record<string, string> = {
+  laptop: "Portáteis",
+  desktop: "Desktops",
+  gpu: "Placas Gráficas",
+  cpu: "Processadores",
+  ssd: "SSD",
+  ram: "Memória RAM",
+  motherboard: "Motherboards",
+  monitor: "Monitores",
+  smartphone: "Smartphones",
+  tablet: "Tablets",
+  smartwatch: "Smartwatches",
+  console: "Consolas",
+  game_physical: "Jogos Físicos",
+  game_digital: "Jogos digitais",
+  controller: "Comandos",
+  mouse: "Ratos",
+  keyboard: "Teclados",
+  headphones: "Auscultadores",
+  cable: "Cabos",
+  charger: "Carregadores",
+  fridge: "Frigoríficos",
+  dishwasher: "Máquinas de Lavar Loiça",
+  washing_machine: "Máquinas de Lavar",
+  vacuum: "Aspiradores",
+  printer: "Impressoras",
+  informatica: "Informática",
+  telemoveis: "Telemóveis",
+  gaming: "Gaming",
+  casa: "Casa",
+  tv_audio: "TV e Áudio",
+  fotografia: "Fotografia",
+};
 
 export function isOtherLabel(value: string | null | undefined): boolean {
   if (!value) return true;
@@ -22,18 +59,46 @@ export function displayCategoryLabel(
   return null;
 }
 
+export function humanizeLeafId(leafId: string | null | undefined): string | null {
+  const slug = (leafId || "").trim().toLowerCase();
+  if (!slug || UNUSABLE_LEAF.test(slug)) return null;
+  return LEAF_LABEL[slug] || slug.replace(/_/g, " ");
+}
+
 export function displayLeafOrBrand(opts: {
   subcategoryLabel?: string | null;
   leafId?: string | null;
   category?: string | null;
   brand?: string | null;
+  taxonomyPath?: string | string[] | null;
 }): string | null {
-  const leaf = displayCategoryLabel(
-    opts.subcategoryLabel,
-    opts.leafId ? opts.leafId.replace(/_/g, " ") : null,
-    opts.category,
-  );
-  if (leaf) return leaf;
+  // FASE 8.5.1 — leaf utilizável: nunca preferir subcategory legacy (pode estar errada)
+  const fromLeaf = humanizeLeafId(opts.leafId);
+  if (fromLeaf) return fromLeaf;
+
+  let pathLeaf: string | null = null;
+  if (opts.taxonomyPath) {
+    const parts = Array.isArray(opts.taxonomyPath)
+      ? opts.taxonomyPath
+      : (() => {
+          const s = String(opts.taxonomyPath).trim();
+          if (s.startsWith("[")) {
+            try {
+              const p = JSON.parse(s);
+              return Array.isArray(p) ? p.map(String) : [];
+            } catch {
+              return [];
+            }
+          }
+          return s.split(/[/>|,]/).map((x) => x.trim()).filter(Boolean);
+        })();
+    const last = parts[parts.length - 1];
+    pathLeaf = humanizeLeafId(String(last || "")) || null;
+  }
+  if (pathLeaf) return pathLeaf;
+
+  const legacy = displayCategoryLabel(opts.subcategoryLabel, opts.category);
+  if (legacy) return legacy;
   const brand = (opts.brand || "").trim();
   return brand || null;
 }

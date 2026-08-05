@@ -1,0 +1,29 @@
+{
+  "phase": "P3-BLOCK1",
+  "generated_at": "2026-08-05",
+  "components": [
+    "TaxonomyTreeProvider",
+    "SiteHeaderP32",
+    "MegaMenu",
+    "MegaMenuTrigger",
+    "MegaMenuColumn",
+    "MegaMenuQuickLinks",
+    "MegaMenuBrands",
+    "MobileNavDrawer",
+    "BottomNavigation",
+    "BreadcrumbNav",
+    "EmptyCategory",
+    "CategoryHero",
+    "CategoryGrid",
+    "CategoryCard",
+    "CategoryRelated",
+    "CategoryLayout"
+  ],
+  "lib": [
+    "src/lib/nav/flags.ts",
+    "src/lib/nav/elevation.ts",
+    "src/lib/nav/build-menu.ts",
+    "src/lib/nav/types.ts",
+    "getTaxonomyTree in api.ts"
+  ]
+}

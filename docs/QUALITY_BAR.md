@@ -6,7 +6,7 @@ Definir a barra mínima de qualidade para merge. Um PR só pode ser mergeado qua
 
 # Âmbito
 
-Aplica-se a alterações em código, config, schema, UI, API, bot, docs normativos e operações que toquem o Limiar.
+Aplica-se a alterações em código, config, schema, UI, API, bot, docs normativos e operações que toquem o Lymiar.
 
 Lê-se com: `VISION`, `NON_NEGOTIABLES`, `PRODUCT_PRINCIPLES`, `DATA_PRINCIPLES`, `ENGINEERING_PRINCIPLES`, `ARCHITECTURE_PRINCIPLES`, `ROADMAP_V2`, `GOVERNANCE`.
 
@@ -14,7 +14,7 @@ Não substitui `NON_NEGOTIABLES`. Se houver conflito, prevalece `NON_NEGOTIABLES
 
 # Princípios
 
-1. Evolution over Revolution — o Limiar permanece utilizável em cada merge.
+1. Evolution over Revolution — o Lymiar permanece utilizável em cada merge.
 2. Critérios aplicáveis são obrigatórios; N/A sem marcação do revisor não conta.
 3. Feature só está **DONE** quando todos os itens aplicáveis estão `[x]` ou `[N/A]` justificado.
 4. Autor marca o que verificou; revisor confirma N/A um a um.
@@ -60,7 +60,7 @@ Não substitui `NON_NEGOTIABLES`. Se houver conflito, prevalece `NON_NEGOTIABLES
 
 - [ ] Mesmos inputs + mesma `policy_version` → mesmo ConsumerDecision
 - [ ] Web e API não contradizem o veredicto quando a flag está ativa
-- [ ] Marca “Limiar” única; nomes legado não como marca principal
+- [ ] Marca “Lymiar” única; nomes legado não como marca principal
 - [ ] Ordenação de lojas na decisão: preço total disponível + stock — nunca comissão
 - [ ] Alertas pessoais ≠ publicações do canal editorial
 
@@ -249,4 +249,4 @@ Não substitui `NON_NEGOTIABLES`. Se houver conflito, prevalece `NON_NEGOTIABLES
 
 | Data | Nota |
 |------|------|
-| 2026-08-03 | Reescrito na estrutura oficial (Objetivo…Histórico). Critérios 0–19 e limiares (p95 800 ms, Lighthouse ≥70, cobertura ≥80% branches novas) preservados. |
+| 2026-08-03 | Reescrito na estrutura oficial (Objetivo…Histórico). Critérios 0–19 e lymiares (p95 800 ms, Lighthouse ≥70, cobertura ≥80% branches novas) preservados. |

@@ -1,0 +1,42 @@
+{
+  "phase": "P3.2.1",
+  "generated_at": "2026-08-05",
+  "flag": "P33_SEARCH_ENGINE",
+  "modules": [
+    "src/api/search_p33/query_understand.py",
+    "src/api/search_p33/aliases.py",
+    "src/api/search_p33/intent.py",
+    "src/api/search_p33/normalize.py",
+    "src/api/search_intent.py",
+    "src/api/services/search_service.py"
+  ],
+  "mandatory_queries": [
+    "SSD Samsung",
+    "Samsung SSD",
+    "melhor SSD Samsung",
+    "portátil gaming",
+    "melhor portátil gaming",
+    "Apple Watch",
+    "Bullpadel",
+    "TP-Link Tapo",
+    "câmara TP-Link",
+    "Air Fryer",
+    "frigideira",
+    "RTX 5070"
+  ],
+  "tests": {
+    "file": "tests/test_p321_search_quality.py",
+    "command": "python -m pytest tests/test_p321_search_quality.py tests/test_p33_search_engine.py -q",
+    "result": "44 passed"
+  },
+  "acceptance": {
+    "stopwords_removed": true,
+    "nl_rewrite": true,
+    "brand_category": true,
+    "category_attribute": true,
+    "full_questions": true,
+    "progressive_fallback": true,
+    "mandatory_cases_pass": true,
+    "zero_empty_when_catalog_has_hits": true
+  }
+}

@@ -33,11 +33,15 @@ import {
   type TaxonomySelection,
 } from "@/lib/taxonomy-facets";
 import type { Product } from "@/lib/types";
+import { relatedForSlug } from "@/lib/nav/build-menu";
+import { EmptyCategory } from "@/components/nav/EmptyCategory";
+import { CategoryRelated } from "@/components/nav/CategoryLayout";
+import { useTaxonomyNavOptional } from "@/components/nav/TaxonomyTreeProvider";
 
 const PAGE_SIZE = 24;
 
 const SORT_OPTIONS: { value: SearchSortBy; label: string }[] = [
-  { value: "limiar_desc", label: "Melhor momento para comprar" },
+  { value: "lymiar_desc", label: "Melhor momento para comprar" },
   { value: "price_asc", label: "Preço mais baixo" },
   { value: "price_desc", label: "Preço mais alto" },
   { value: "discount_desc", label: "Maior Desconto" },
@@ -59,12 +63,27 @@ type Props = {
 export function CategoryPage({ slug, initialCategory = null }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const q = (searchParams.get("q") || "").trim();
-  const sortBy = (searchParams.get("sort_by") || "limiar_desc") as SearchSortBy;
-  const page = Math.max(1, Number(searchParams.get("page") || "1") || 1);
+  /** String estável — evita cancelar fetch em loop (mesmo padrão P3.2.2 Search). */
+  const queryKey = searchParams.toString();
+  const nav = useTaxonomyNavOptional();
+  const related = useMemo(
+    () => (nav?.tree?.length ? relatedForSlug(nav.tree, slug) : []),
+    [nav?.tree, slug],
+  );
+  const q = (new URLSearchParams(queryKey).get("q") || "").trim();
+  const sortBy = (new URLSearchParams(queryKey).get("sort_by") ||
+    "lymiar_desc") as SearchSortBy;
+  const page = Math.max(
+    1,
+    Number(new URLSearchParams(queryKey).get("page") || "1") || 1,
+  );
   const taxonomySelection = useMemo(
-    () => selectionFromSearchParams(searchParams),
-    [searchParams],
+    () => selectionFromSearchParams(new URLSearchParams(queryKey)),
+    [queryKey],
+  );
+  const taxonomyKey = useMemo(
+    () => JSON.stringify(taxonomySelection),
+    [taxonomySelection],
   );
 
   const [category, setCategory] = useState<CategoryDetail | null>(initialCategory);
@@ -82,12 +101,13 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
   const [maxDraft, setMaxDraft] = useState("");
   const [stats, setStats] = useState<MarketplaceCategoryStats | null>(null);
 
-  const filters: FilterValues = useMemo(
-    () => ({
+  const filters: FilterValues = useMemo(() => {
+    const sp = new URLSearchParams(queryKey);
+    return {
       category: "",
       subcategory: "",
-      brand: searchParams.get("brand") || "",
-      store: searchParams.get("store") || "",
+      brand: sp.get("brand") || "",
+      store: sp.get("store") || "",
       type: "",
       model: "",
       vram: "",
@@ -95,12 +115,16 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
       socket: "",
       capacity: "",
       format: "",
-      minPrice: searchParams.get("min_price") || searchParams.get("price_min") || "",
-      maxPrice: searchParams.get("max_price") || searchParams.get("price_max") || "",
+      minPrice: sp.get("min_price") || sp.get("price_min") || "",
+      maxPrice: sp.get("max_price") || sp.get("price_max") || "",
       inStockOnly: false,
-    }),
-    [searchParams],
-  );
+    };
+  }, [queryKey]);
+
+  useEffect(() => {
+    setMinDraft(filters.minPrice);
+    setMaxDraft(filters.maxPrice);
+  }, [filters.minPrice, filters.maxPrice]);
 
   const buildUrl = useCallback(
     (
@@ -117,7 +141,7 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
       const query = patch.q !== undefined ? patch.q.trim() : q;
       if (query) params.set("q", query);
       const sort = patch.sortBy ?? sortBy;
-      if (sort && sort !== "limiar_desc") params.set("sort_by", sort);
+      if (sort && sort !== "lymiar_desc") params.set("sort_by", sort);
       const nextPage = patch.page ?? page;
       if (nextPage > 1) params.set("page", String(nextPage));
       const minP = patch.minPrice ?? filters.minPrice;
@@ -181,12 +205,20 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
       q: q || undefined,
       limit: PAGE_SIZE,
       offset,
-      sortBy: SORT_OPTIONS.some((o) => o.value === sortBy) ? sortBy : "limiar_desc",
+      sortBy: SORT_OPTIONS.some((o) => o.value === sortBy) ? sortBy : "lymiar_desc",
       taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
     })
       .then((res) => {
         if (cancelled) return;
-        setProducts(res.results.map(summaryToProduct));
+        const mapped: Product[] = [];
+        for (const row of res.results) {
+          try {
+            mapped.push(summaryToProduct(row));
+          } catch {
+            /* skip malformed card — não derrubar a grelha */
+          }
+        }
+        setProducts(mapped);
         setTotal(res.total);
         setFacets(res.facets || EMPTY_FACETS);
         setTaxonomyFacets(res.taxonomyFacets ?? []);
@@ -218,9 +250,24 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [slug, q, page, sortBy, taxonomySelection]);
+  }, [slug, q, page, sortBy, taxonomyKey]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const recommended = useMemo(
+    () =>
+      products
+        .filter((p) => p.decision.lymiarIndex.value >= 70)
+        .slice(0, 4),
+    [products],
+  );
+  const recommendedKeys = useMemo(
+    () => new Set(recommended.map((p) => p.ean || p.slug)),
+    [recommended],
+  );
+  const gridProducts = useMemo(
+    () => products.filter((p) => !recommendedKeys.has(p.ean || p.slug)),
+    [products, recommendedKeys],
+  );
 
   if (!category && !loading) {
     return (
@@ -359,6 +406,7 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
               router.push(buildUrl({ page: 1 }, next))
             }
             filters={filters}
+            showInStock={false}
             minDraft={minDraft}
             maxDraft={maxDraft}
             onMinDraft={setMinDraft}
@@ -406,33 +454,25 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
 
         <section>
           <CategoryFamilies leafHint={slug} />
-          {!loading && products.length ? (
-            (() => {
-              const recommended = products
-                .filter((p) => p.decision.limiarIndex.value >= 70)
-                .slice(0, 4);
-              if (!recommended.length) return null;
-              return (
-                <div className="mb-8 space-y-3">
-                  <h2 className="font-display text-lg font-bold text-slate-900">
-                    Produtos recomendados
-                  </h2>
-                  <p className="text-sm text-slate-500">
-                    Melhor momento observado nesta página — sem alterar a
-                    listagem.
-                  </p>
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    {recommended.map((product) => (
-                      <OpportunityCard
-                        key={`rec-${product.ean}`}
-                        product={product}
-                        compact
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })()
+          {!loading && recommended.length ? (
+            <div className="mb-8 space-y-3">
+              <h2 className="font-display text-lg font-bold text-slate-900">
+                Produtos recomendados
+              </h2>
+              <p className="text-sm text-slate-500">
+                Melhor momento observado nesta página — sem alterar a
+                listagem.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {recommended.map((product) => (
+                  <OpportunityCard
+                    key={`rec-${product.ean || product.slug}`}
+                    product={product}
+                    compact
+                  />
+                ))}
+              </div>
+            </div>
           ) : null}
           {loading ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -446,8 +486,12 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
           ) : products.length ? (
             <>
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {products.map((product) => (
-                  <OpportunityCard key={product.ean} product={product} compact />
+                {gridProducts.map((product) => (
+                  <OpportunityCard
+                    key={product.ean || product.slug}
+                    product={product}
+                    compact
+                  />
                 ))}
               </div>
               {totalPages > 1 ? (
@@ -475,10 +519,20 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
               ) : null}
             </>
           ) : (
-            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-600">
-              Ainda não há produtos nesta categoria com os filtros actuais.
-            </p>
+            <EmptyCategory
+              title={category?.display_name || slug}
+              parentHref={
+                category?.parent
+                  ? `/categoria/${category.parent}/`
+                  : "/categorias/"
+              }
+              parentLabel={
+                category?.parent ? "Ver categoria pai" : "Todas as categorias"
+              }
+              related={related}
+            />
           )}
+          {related.length ? <CategoryRelated items={related} /> : null}
         </section>
       </div>
 

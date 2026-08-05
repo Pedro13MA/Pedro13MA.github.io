@@ -14,7 +14,7 @@ export function ActiveCampaignBanner({ product }: Props) {
         🎟️ Existe campanha disponível nesta loja
       </p>
       <p className="mt-1 text-xs text-sky-900/75">
-        Este produto pode estar abrangido por uma campanha. O preço Limiar não é
+        Este produto pode estar abrangido por uma campanha. O preço Lymiar não é
         alterado.
       </p>
     </div>
@@ -40,7 +40,7 @@ export function StoreCouponsInfoBanner({ product }: Props) {
       </p>
       <p className="mt-1 text-xs text-sky-900/75">
         Este produto pode estar abrangido por uma campanha. Consulta condições na
-        loja — o preço Limiar continua a ser o preço real encontrado.
+        loja — o preço Lymiar continua a ser o preço real encontrado.
       </p>
     </div>
   );

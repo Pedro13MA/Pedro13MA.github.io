@@ -1,0 +1,25 @@
+{
+  "phase": "P3-BLOCK1",
+  "generated_at": "2026-08-05",
+  "acceptance": {
+    "navigation_functional_flag_on": true,
+    "desktop_megamenu": true,
+    "mobile_drawer_bottom_nav": true,
+    "breadcrumbs": true,
+    "categorias_map": true,
+    "categoria_pages": true,
+    "feature_flag_default_off": true,
+    "zero_backend_changes": true,
+    "zero_db_changes": true,
+    "zero_taxonomy_seed_changes": true,
+    "tests_passed": true,
+    "block2_not_started": true
+  },
+  "limitations": [
+    "API taxonomy defaults to 1.1 — elevated L2 hubs may be incomplete until TAXONOMY_V12_* ON",
+    "No Lighthouse run in this phase",
+    "HomeChrome not fully unified with SiteHeaderP32"
+  ],
+  "rollback": "NEXT_PUBLIC_P32_NAVIGATION=false + redeploy",
+  "next_block": "P3 Block 2 — Search & Discovery"
+}

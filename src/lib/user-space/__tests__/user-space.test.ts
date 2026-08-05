@@ -56,7 +56,7 @@ describe("user-space", () => {
         ean: "1",
         name: "RTX 5070",
         currentPrice: 649,
-        limiarIndex: 88,
+        lymiarIndex: 88,
       },
       [SYSTEM_FAVORITES_LIST_ID],
     );
@@ -74,7 +74,7 @@ describe("user-space", () => {
         ean: "2",
         name: "GPU A",
         currentPrice: 500,
-        limiarIndex: 70,
+        lymiarIndex: 70,
       },
       [SYSTEM_FAVORITES_LIST_ID, list.id],
     );

@@ -35,8 +35,8 @@ export function CompareAddButton({
   useEffect(() => {
     setActive(isInCompare(product.slug));
     const sync = () => setActive(isInCompare(product.slug));
-    window.addEventListener("limiar:compare-changed", sync);
-    return () => window.removeEventListener("limiar:compare-changed", sync);
+    window.addEventListener("lymiar:compare-changed", sync);
+    return () => window.removeEventListener("lymiar:compare-changed", sync);
   }, [product.slug]);
 
   const onClick = useCallback(

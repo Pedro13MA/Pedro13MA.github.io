@@ -2,7 +2,7 @@
 
 ## Objectivo
 
-Introduzir identidade de utilizador no Limiar: login OAuth, sessão JWT, perfil.
+Introduzir identidade de utilizador no Lymiar: login OAuth, sessão JWT, perfil.
 **Não** sincronização, **não** cloud storage, **não** conta com password.
 
 ## Arquitectura
@@ -16,9 +16,9 @@ Browser (GH Pages, static export)
               │
               ▼
 Hub FastAPI (identidade isolada)
-  ├─ SQLite limiar_identity.db  (NÃO é o DB de preços)
+  ├─ SQLite lymiar_identity.db  (NÃO é o DB de preços)
   ├─ OAuth: Google · Apple · Microsoft · GitHub
-  ├─ JWT HS256 cookie `limiar_session` + Bearer
+  ├─ JWT HS256 cookie `lymiar_session` + Bearer
   └─ GET /me · GET /session · POST /logout · GET /auth/{provider}
 ```
 
@@ -30,7 +30,7 @@ precisa de Route Handlers `/api/auth/*` — incompatível com export estático.
 Decisão:
 - **Auth.js v5** (`next-auth@beta`) define providers, estratégia JWT e página `/entrar`
   em `src/auth.config.ts`.
-- **Runtime OAuth + JWT** corre no Hub (`src/auth/`), independente do motor Limiar.
+- **Runtime OAuth + JWT** corre no Hub (`src/auth/`), independente do motor Lymiar.
 - O frontend SessionProvider espelha o contrato Auth.js (`status`, `signIn`, `signOut`).
 
 ## Fluxo OAuth
@@ -40,7 +40,7 @@ Decisão:
 3. Hub redirecciona para o IdP (state HMAC assinado).
 4. IdP → `GET|POST {API}/api/v1/auth/{provider}/callback`
 5. Hub troca `code` → perfil, upsert `users`, emite JWT.
-6. Set-Cookie `limiar_session` (HttpOnly, Secure, SameSite=None) + redirect
+6. Set-Cookie `lymiar_session` (HttpOnly, Secure, SameSite=None) + redirect
    para `/entrar/callback/?token=…` (Bearer para cross-origin GH Pages ↔ API).
 7. FE guarda token e chama `GET /api/v1/session`.
 

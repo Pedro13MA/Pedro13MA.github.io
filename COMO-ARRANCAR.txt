@@ -9,7 +9,7 @@ Abre no Explorador de Ficheiros:
 
 OPCAO 2 - PowerShell (copiar TUDO de uma vez)
 ---------------------------------------------
-cd "C:\Users\Utilizador\Desktop\Spotter Site\Pedro13MA.github.io"
+cd "C:\Users\Utilizador\Desktop\Spotter Site\lymiar-web"
 $env:Path = "C:\Program Files\nodejs;" + $env:Path
 npm install
 npm run dev
@@ -18,7 +18,7 @@ Abre no browser: http://localhost:3000
 
 OPCAO 3 - PowerShell com ficheiro .cmd
 --------------------------------------
-cd "C:\Users\Utilizador\Desktop\Spotter Site\Pedro13MA.github.io"
+cd "C:\Users\Utilizador\Desktop\Spotter Site\lymiar-web"
 .\START-HERE.cmd
 
 (NOTA: em PowerShell tens de usar .\ antes do nome:

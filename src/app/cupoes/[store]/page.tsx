@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!meta) return { title: "Cupões" };
   return {
     title: `Cupões ${meta.name}`,
-    description: `Hub de cupões validados Limiar para ${meta.name}.`,
+    description: `Hub de cupões validados Lymiar para ${meta.name}.`,
   };
 }
 

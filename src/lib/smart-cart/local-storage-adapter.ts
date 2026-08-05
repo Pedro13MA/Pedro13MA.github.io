@@ -8,7 +8,7 @@ import {
 } from "@/lib/smart-cart/storage-adapter";
 import type { SmartCartSnapshot } from "@/lib/smart-cart/types";
 
-const KEY = "limiar.smartcart.v1";
+const KEY = "lymiar.smartcart.v1";
 
 export class LocalSmartCartAdapter implements SmartCartStorageAdapter {
   readonly name = "local";
@@ -30,7 +30,7 @@ export class LocalSmartCartAdapter implements SmartCartStorageAdapter {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(KEY, JSON.stringify(snapshot));
-      window.dispatchEvent(new CustomEvent("limiar:smartcart-changed"));
+      window.dispatchEvent(new CustomEvent("lymiar:smartcart-changed"));
     } catch {
       /* quota */
     }

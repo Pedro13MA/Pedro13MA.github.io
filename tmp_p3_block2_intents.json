@@ -1,0 +1,302 @@
+{
+  "queries": {
+    "SSD Samsung": {
+      "original": "SSD Samsung",
+      "normalized": "ssd samsung",
+      "tokens": [
+        "ssd",
+        "samsung"
+      ],
+      "brand": "samsung",
+      "brands": [
+        "samsung"
+      ],
+      "category_profile": "ssd",
+      "leaf": "ssd",
+      "model": null,
+      "technology": [],
+      "intent_type": "hybrid",
+      "confidence": 0.92,
+      "aliases_matched": [
+        "ssd"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "samsung ssd",
+        "ssd nvme",
+        "samsung nvme",
+        "ssd 1tb"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "hybrid_brand_category"
+      ]
+    },
+    "Bullpadel": {
+      "original": "Bullpadel",
+      "normalized": "bullpadel",
+      "tokens": [
+        "bullpadel"
+      ],
+      "brand": "bullpadel",
+      "brands": [
+        "bullpadel"
+      ],
+      "category_profile": null,
+      "leaf": "padel_racket",
+      "model": null,
+      "technology": [],
+      "intent_type": "hybrid",
+      "confidence": 0.92,
+      "aliases_matched": [
+        "bullpadel"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "bullpadel padel racket",
+        "bullpadel raquete",
+        "nox padel",
+        "raquete padel"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "hybrid_brand_category"
+      ]
+    },
+    "TP-Link Tapo": {
+      "original": "TP-Link Tapo",
+      "normalized": "tp link tapo",
+      "tokens": [
+        "tp",
+        "link",
+        "tapo"
+      ],
+      "brand": "tp-link",
+      "brands": [
+        "tp-link"
+      ],
+      "category_profile": null,
+      "leaf": "security_camera",
+      "model": null,
+      "technology": [],
+      "intent_type": "hybrid",
+      "confidence": 0.92,
+      "aliases_matched": [
+        "tp link",
+        "tapo"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "tp-link security camera",
+        "tapo c520",
+        "tp-link câmara",
+        "câmara vigilância"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "hybrid_brand_category"
+      ]
+    },
+    "Apple Watch": {
+      "original": "Apple Watch",
+      "normalized": "apple watch",
+      "tokens": [
+        "apple",
+        "watch"
+      ],
+      "brand": "apple",
+      "brands": [
+        "apple"
+      ],
+      "category_profile": null,
+      "leaf": "smartwatch",
+      "model": "apple watch",
+      "technology": [],
+      "intent_type": "hybrid",
+      "confidence": 0.92,
+      "aliases_matched": [
+        "apple watch"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "apple smartwatch",
+        "apple watch",
+        "galaxy watch",
+        "smartwatch gps"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "hybrid_brand_category"
+      ]
+    },
+    "Frigideira": {
+      "original": "Frigideira",
+      "normalized": "frigideira",
+      "tokens": [
+        "frigideira"
+      ],
+      "brand": null,
+      "brands": [],
+      "category_profile": null,
+      "leaf": "cookware",
+      "model": null,
+      "technology": [],
+      "intent_type": "category",
+      "confidence": 0.8,
+      "aliases_matched": [
+        "frigideira"
+      ],
+      "did_you_mean": [],
+      "related_queries": [],
+      "category_redirect": "cookware",
+      "labels": [
+        "category"
+      ]
+    },
+    "Air Fryer": {
+      "original": "Air Fryer",
+      "normalized": "air fryer",
+      "tokens": [
+        "air",
+        "fryer"
+      ],
+      "brand": null,
+      "brands": [],
+      "category_profile": null,
+      "leaf": "air_fryer",
+      "model": null,
+      "technology": [],
+      "intent_type": "category",
+      "confidence": 0.8,
+      "aliases_matched": [
+        "air fryer"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "air fryer",
+        "fritadeira sem óleo"
+      ],
+      "category_redirect": "air_fryer",
+      "labels": [
+        "category"
+      ]
+    },
+    "Monitor Gaming": {
+      "original": "Monitor Gaming",
+      "normalized": "monitor gaming",
+      "tokens": [
+        "monitor",
+        "gaming"
+      ],
+      "brand": null,
+      "brands": [],
+      "category_profile": null,
+      "leaf": "monitor",
+      "model": null,
+      "technology": [
+        "gaming"
+      ],
+      "intent_type": "category",
+      "confidence": 0.8,
+      "aliases_matched": [
+        "monitor gaming"
+      ],
+      "did_you_mean": [],
+      "related_queries": [],
+      "category_redirect": "monitor",
+      "labels": [
+        "category"
+      ]
+    },
+    "RTX 5070": {
+      "original": "RTX 5070",
+      "normalized": "rtx 5070",
+      "tokens": [
+        "rtx",
+        "5070"
+      ],
+      "brand": null,
+      "brands": [],
+      "category_profile": "gpu",
+      "leaf": "gpu",
+      "model": "rtx 5070",
+      "technology": [],
+      "intent_type": "model",
+      "confidence": 0.85,
+      "aliases_matched": [
+        "rtx"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "rtx 4070",
+        "rtx 5070",
+        "placa gráfica"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "model"
+      ]
+    },
+    "Galaxy Watch": {
+      "original": "Galaxy Watch",
+      "normalized": "galaxy watch",
+      "tokens": [
+        "galaxy",
+        "watch"
+      ],
+      "brand": "samsung",
+      "brands": [
+        "samsung"
+      ],
+      "category_profile": null,
+      "leaf": "smartwatch",
+      "model": "galaxy watch",
+      "technology": [],
+      "intent_type": "hybrid",
+      "confidence": 0.92,
+      "aliases_matched": [
+        "galaxy watch"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "samsung smartwatch",
+        "apple watch",
+        "galaxy watch",
+        "smartwatch gps"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "hybrid_brand_category"
+      ]
+    },
+    "iPhone 17": {
+      "original": "iPhone 17",
+      "normalized": "iphone 17",
+      "tokens": [
+        "iphone",
+        "17"
+      ],
+      "brand": "apple",
+      "brands": [
+        "apple"
+      ],
+      "category_profile": null,
+      "leaf": "smartphone",
+      "model": "iphone 17",
+      "technology": [],
+      "intent_type": "hybrid",
+      "confidence": 0.92,
+      "aliases_matched": [
+        "iphone"
+      ],
+      "did_you_mean": [],
+      "related_queries": [
+        "apple smartphone"
+      ],
+      "category_redirect": null,
+      "labels": [
+        "hybrid_brand_category"
+      ]
+    }
+  }
+}

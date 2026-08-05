@@ -1,0 +1,23 @@
+{
+  "phase": "P3-BLOCK3",
+  "generated_at": "2026-08-05",
+  "created": [
+    "src/lib/product/flags.ts",
+    "src/components/product/p34/ProductPageP34.tsx",
+    "src/components/product/p34/ProductPdpSkeleton.tsx",
+    "src/components/product/p34/ProductActionPlaceholders.tsx",
+    "src/components/product/p34/ProductDiscoveryPlaceholders.tsx",
+    "src/components/product/p34/ProductCouponsSection.tsx",
+    "src/components/product/p34/index.ts"
+  ],
+  "modified": ["src/components/product/ProductPageClient.tsx"],
+  "reused_unchanged": [
+    "ProductHero",
+    "PriceHistoryChart",
+    "StoreCompareTable",
+    "ProductJsonLd",
+    "CampaignCouponBlock banners",
+    "BreadcrumbNav",
+    "buildPremiumProductBreadcrumbs"
+  ]
+}

@@ -1,0 +1,75 @@
+/* Homepage “Bloomberg dos preços” — light SaaS (apenas .home-premium) */
+
+.home-premium {
+  --hm-bg: #ffffff;
+  --hm-bg-soft: #f8fafc;
+  --hm-bg-elevated: #ffffff;
+  --hm-brand: #2563eb;
+  --hm-brand-soft: #eff6ff;
+  --hm-buy: #16a34a;
+  --hm-buy-soft: #f0fdf4;
+  --hm-wait: #f59e0b;
+  --hm-wait-soft: #fffbeb;
+  --hm-ai: #7c3aed;
+  --hm-ai-soft: #f5f3ff;
+  --hm-text: #0f172a;
+  --hm-muted: #64748b;
+  --hm-faint: #94a3b8;
+  --hm-line: #e2e8f0;
+  --hm-focus: #2563eb;
+
+  background: var(--hm-bg);
+  color: var(--hm-muted);
+  color-scheme: light;
+  min-height: 100vh;
+}
+
+.home-premium ::selection {
+  background: rgba(37, 99, 235, 0.18);
+  color: #0f172a;
+}
+
+@keyframes home-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-premium .home-fade {
+  animation: home-fade-in 0.55s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-premium .home-fade {
+    animation: none;
+  }
+}
+
+.home-premium .home-search-input:focus {
+  outline: none;
+  border-color: var(--hm-brand);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.home-premium .home-card {
+  background: var(--hm-bg-elevated);
+  border: 1px solid var(--hm-line);
+  border-radius: 1.25rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.home-premium .home-card:hover {
+  border-color: #cbd5e1;
+}
+
+.home-premium button[aria-label="Notificações"] {
+  border-color: var(--hm-line) !important;
+  background: #fff !important;
+  color: var(--hm-muted) !important;
+  box-shadow: none !important;
+}

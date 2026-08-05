@@ -59,7 +59,7 @@ export function VariantPicker({
   const resolve = (v: CanonicalVariantCard) => {
     onResolved?.(v);
     if (navigateOnResolve && typeof window !== "undefined") {
-      window.location.href = `/p/${encodeURIComponent(v.slug)}/`;
+      window.location.href = `/p/?id=${encodeURIComponent(v.slug)}`;
     }
   };
 
@@ -134,7 +134,7 @@ export function VariantPicker({
           {(group.variants || []).map((v) => (
             <li key={v.slug}>
               <Link
-                href={`/p/${encodeURIComponent(v.slug)}/`}
+                href={`/p/?id=${encodeURIComponent(v.slug)}`}
                 className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50"
               >
                 <span className="text-sm font-medium text-slate-900">

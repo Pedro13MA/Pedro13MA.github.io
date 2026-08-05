@@ -1,0 +1,23 @@
+{
+  "phase": "P3-BLOCK1",
+  "generated_at": "2026-08-05",
+  "routes": [
+    { "path": "/categorias/", "change": "full taxonomy map when flag ON" },
+    { "path": "/categoria/[slug]/", "change": "empty state + related; SSG slugs extended" },
+    { "path": "/*", "change": "SiteHeader P32 when flag ON" },
+    { "path": "/search/", "note": "header search submits here — Block 2 owns intelligence" },
+    { "path": "/mercado/", "note": "unchanged" },
+    { "path": "/comparar/", "note": "unchanged" }
+  ],
+  "canonical": "SITE_URL + path (existing generateMetadata)",
+  "extra_static_slugs": [
+    "wearables",
+    "smart_home",
+    "desporto",
+    "padel_gear",
+    "security_camera",
+    "cookware",
+    "smart_ring",
+    "drone"
+  ]
+}

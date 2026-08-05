@@ -3,7 +3,7 @@
 ## Objectivo
 
 Sincronizar dados pessoais do utilizador autenticado (OAuth FASE 8.0).
-Anónimo continua 100% localStorage. **Zero** alterações a motores Limiar.
+Anónimo continua 100% localStorage. **Zero** alterações a motores Lymiar.
 
 ## Arquitectura
 
@@ -11,7 +11,7 @@ Anónimo continua 100% localStorage. **Zero** alterações a motores Limiar.
 Browser
   ├─ anónimo → Local*Adapter (inalterado)
   └─ autenticado → SyncService → Cloud*Adapter → Hub /api/v1/user/*
-                                              → limiar_identity.db
+                                              → lymiar_identity.db
                                               → user_id = JWT.sub
 ```
 

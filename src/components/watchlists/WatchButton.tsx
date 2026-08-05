@@ -138,7 +138,7 @@ export function ProductWatchButton({
       target={{
         key: product.slug,
         label: product.name,
-        href: `/p/${encodeURIComponent(product.slug)}/`,
+        href: `/p/?id=${encodeURIComponent(product.slug)}`,
         imageUrl: product.imageUrl,
       }}
       baseline={baselineFromProduct(product)}

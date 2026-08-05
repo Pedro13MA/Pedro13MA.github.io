@@ -59,7 +59,7 @@ export const DECISION_UI_LABEL: Record<
   },
 };
 
-export function limiarIndexTone(value: number): {
+export function lymiarIndexTone(value: number): {
   stroke: string;
   text: string;
   track: string;

@@ -50,7 +50,7 @@ function baseProduct(partial: Partial<Product> = {}): Product {
       dealQuality: "GOOD",
       opportunityType: "PRICE_DROP",
       semaphore: "buy",
-      limiarIndex: { value: 70, label: "", band: "good" },
+      lymiarIndex: { value: 70, label: "", band: "good" },
       isHistoricalMin: false,
       cheapestStore: null,
     },
@@ -87,21 +87,60 @@ describe("pickSimilarAlternatives", () => {
     expect(out.map((c) => c.slug)).toEqual(["galaxy-s24"]);
   });
 
-  it("dedupes and caps at 6", () => {
-    const items = Array.from({ length: 10 }, (_, i) =>
-      card({
-        slug: `phone-${i}`,
-        name: `Pixel ${i}`,
-        currentPrice: 850 + i,
-        leafId: "smartphone",
-      }),
-    );
+  it("never mixes console bucket leaves (game vs controller)", () => {
     const recs: ProductRecommendations = {
-      similar: items,
-      alternatives: [items[0]],
+      similar: [
+        card({
+          slug: "fifa",
+          name: "FIFA 25 Nintendo Switch",
+          currentPrice: 55,
+          leafId: "game_physical",
+        }),
+        card({
+          slug: "dualsense",
+          name: "DualSense Wireless",
+          currentPrice: 60,
+          leafId: "controller",
+        }),
+        card({
+          slug: "pokemon-2",
+          name: "Pokémon Pokopia",
+          currentPrice: 50,
+          leafId: "game_physical",
+        }),
+      ],
     };
-    const out = pickSimilarAlternatives(baseProduct(), recs, 6);
-    expect(out).toHaveLength(6);
-    expect(new Set(out.map((c) => c.slug)).size).toBe(6);
+    const out = pickSimilarAlternatives(
+      baseProduct({
+        slug: "pokemon",
+        name: "Pokémon Legends",
+        subcategory: "console",
+        leafId: "game_physical",
+        currentPrice: 52,
+        listPrice: 52,
+      }),
+      recs,
+      6,
+    );
+    expect(out.map((c) => c.slug).sort()).toEqual(["fifa", "pokemon-2"]);
+  });
+
+  it("rejects cards without leaf when current has usable leaf", () => {
+    const recs: ProductRecommendations = {
+      similar: [
+        card({
+          slug: "legacy-peer",
+          name: "Samsung Galaxy A55",
+          currentPrice: 420,
+          // no leafId — would previously match via subcategory heuristics
+        }),
+      ],
+    };
+    const out = pickSimilarAlternatives(
+      baseProduct({ leafId: "smartphone", currentPrice: 400, listPrice: 400 }),
+      recs,
+      6,
+    );
+    expect(out).toHaveLength(0);
   });
 });

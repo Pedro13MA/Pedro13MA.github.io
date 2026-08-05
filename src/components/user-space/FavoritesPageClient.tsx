@@ -53,7 +53,7 @@ export function FavoritesPageClient() {
     }
     list.sort((a, b) => {
       if (sort === "price") return a.currentPrice - b.currentPrice;
-      if (sort === "score") return b.limiarIndex - a.limiarIndex;
+      if (sort === "score") return b.lymiarIndex - a.lymiarIndex;
       if (sort === "name") return a.name.localeCompare(b.name, "pt");
       return b.savedAt - a.savedAt;
     });
@@ -154,7 +154,7 @@ export function FavoritesPageClient() {
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-900">{fav.name}</p>
                     <p className="mt-0.5 text-sm text-slate-500">
-                      {formatEUR(fav.currentPrice)} · Índice {fav.limiarIndex}
+                      {formatEUR(fav.currentPrice)} · Índice {fav.lymiarIndex}
                       {fav.cheapestStore
                         ? ` · ${storeDisplayName(fav.cheapestStore)}`
                         : ""}

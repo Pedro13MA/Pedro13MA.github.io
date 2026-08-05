@@ -1,0 +1,35 @@
+{
+  "phase": "P3.2.3",
+  "mobile": {
+    "bottom_navigation": {
+      "status": "code_ok_when_P32",
+      "notes": "BottomNavigation activa com NEXT_PUBLIC_P32_NAVIGATION; home alinhada via SiteHeader quando P32 ON."
+    },
+    "drawer": {
+      "status": "fixed",
+      "before": "Drawer podia abrir com taxonomy null → Categorias vazias",
+      "after": "Estado a carregar + link /categorias/; Menu disabled enquanto loading sem model"
+    },
+    "mega_menu": {
+      "status": "code_ok_when_P32",
+      "desktop_hover": "MegaMenu + Escape + focus return",
+      "mobile": "MobileNavDrawer"
+    },
+    "search": {
+      "status": "code_ok",
+      "notes": "SearchTypeahead compact no header P32; race de pedidos corrigida"
+    },
+    "pdp_anchors": {
+      "status": "fixed",
+      "notes": "scroll-mt-28 em #porque/#historico/#lojas para não ficarem sob bottom nav"
+    },
+    "safe_areas": {
+      "status": "deferred",
+      "notes": "Polish fino de safe-area → P3.8"
+    },
+    "live_production": {
+      "P32": false,
+      "note": "Build antigo sem P32 — bottom nav ausente em lymiar.com até publish"
+    }
+  }
+}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { MinhaAreaPageClient } from "@/components/watchlists/MinhaAreaPageClient";
 
 export const metadata: Metadata = {
-  title: "Minha Área · Limiar",
+  title: "Minha Área · Lymiar",
   description:
     "Resumo dos favoritos, alertas, projetos, carrinho, timeline e watchlists.",
   robots: { index: false, follow: false },

@@ -32,7 +32,7 @@ export type CartItem = {
   status: CartItemStatus;
   leafId?: string | null;
   chipsetModel?: string | null;
-  limiarIndex?: number;
+  lymiarIndex?: number;
   condition?: string | null;
   /** FASE 7.16 — rótulo factual (UI only; não altera optimize). */
   insightRecommendation?: string | null;

@@ -169,10 +169,10 @@ export function computeCompareBadges(products: Product[]): CompareBadge[] {
     }
   }
 
-  const scores = products.map((p) => p.decision.limiarIndex.value);
+  const scores = products.map((p) => p.decision.lymiarIndex.value);
   const maxScore = Math.max(...scores);
   const scoreWinners = products.filter(
-    (p) => p.decision.limiarIndex.value === maxScore,
+    (p) => p.decision.lymiarIndex.value === maxScore,
   );
   if (scoreWinners.length === 1 && maxScore > 0) {
     badges.push({
@@ -395,10 +395,10 @@ export function buildCompareRows(products: Product[]): CompareRow[] {
   pushMetric(
     "score",
     "decision",
-    "Score Limiar",
+    "Score Lymiar",
     products.map((p) => ({
-      text: `${p.decision.limiarIndex.value}/100`,
-      numeric: p.decision.limiarIndex.value,
+      text: `${p.decision.lymiarIndex.value}/100`,
+      numeric: p.decision.lymiarIndex.value,
     })),
     false,
   );
@@ -419,7 +419,7 @@ export function buildCompareRows(products: Product[]): CompareRow[] {
     "decision",
     "Justificação",
     products.map((p) => ({
-      text: (p.decision.limiarIndex.summary || p.decision.reason || "—").slice(
+      text: (p.decision.lymiarIndex.summary || p.decision.reason || "—").slice(
         0,
         120,
       ),
@@ -567,7 +567,7 @@ export function buildCompareRows(products: Product[]): CompareRow[] {
   pushMetric(
     "insight_recommendation",
     "insights",
-    "Leitura Limiar",
+    "Leitura Lymiar",
     insightList.map((i) => ({
       text: i.recommendationLabel || "—",
       numeric: null,
@@ -614,7 +614,7 @@ export function sortProducts(
   copy.sort((a, b) => {
     if (key === "price") return a.currentPrice - b.currentPrice;
     if (key === "score") {
-      return b.decision.limiarIndex.value - a.decision.limiarIndex.value;
+      return b.decision.lymiarIndex.value - a.decision.lymiarIndex.value;
     }
     if (key === "history") {
       return historySpanDays(b.history) - historySpanDays(a.history);
@@ -623,9 +623,9 @@ export function sortProducts(
       return (a.brand || "").localeCompare(b.brand || "", "pt");
     }
     const ca =
-      displayCategoryLabel(a.subcategoryLabel, a.leafId, a.category) || "";
+      displayCategoryLabel(a.leafId, a.subcategoryLabel, a.category) || "";
     const cb =
-      displayCategoryLabel(b.subcategoryLabel, b.leafId, b.category) || "";
+      displayCategoryLabel(b.leafId, b.subcategoryLabel, b.category) || "";
     return ca.localeCompare(cb, "pt");
   });
   return copy;
@@ -634,8 +634,8 @@ export function sortProducts(
 export function categoryLabelForProduct(p: Product): string {
   return (
     displayCategoryLabel(
-      p.subcategoryLabel,
       p.leafId?.replace(/_/g, " "),
+      p.subcategoryLabel,
       isOtherLabel(p.category || "") ? null : p.category,
     ) || "—"
   );

@@ -71,7 +71,7 @@ function prod(
       feedCategory: "hardware",
       bullets: [],
       semaphore: "buy",
-      limiarIndex: {
+      lymiarIndex: {
         value: score,
         summary: "ok",
         factors: {

@@ -1,4 +1,4 @@
-# Layout Consistency Report — Limiar FASE 8.3
+# Layout Consistency Report — Lymiar FASE 8.3
 
 ## Contrato de shell (após auditoria)
 

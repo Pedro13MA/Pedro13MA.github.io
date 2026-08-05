@@ -82,7 +82,7 @@ describe("merge", () => {
             ean: "1",
             name: "L",
             currentPrice: 1,
-            limiarIndex: 1,
+            lymiarIndex: 1,
             listIds: ["favorites"],
             savedAt: 1,
             updatedAt: 9,
@@ -100,7 +100,7 @@ describe("merge", () => {
             ean: "2",
             name: "C",
             currentPrice: 2,
-            limiarIndex: 2,
+            lymiarIndex: 2,
             listIds: ["favorites"],
             savedAt: 1,
             updatedAt: 1,
@@ -144,7 +144,7 @@ describe("merge", () => {
       ean: `${i}`,
       name: `L${i}`,
       currentPrice: 1,
-      limiarIndex: 1,
+      lymiarIndex: 1,
       addedAt: i + 10,
     }));
     const cloud = Array.from({ length: 3 }, (_, i) => ({
@@ -152,7 +152,7 @@ describe("merge", () => {
       ean: `c${i}`,
       name: `C${i}`,
       currentPrice: 1,
-      limiarIndex: 1,
+      lymiarIndex: 1,
       addedAt: i,
     }));
     expect(mergeCompare(local, cloud, "keep_both").length).toBeLessThanOrEqual(4);

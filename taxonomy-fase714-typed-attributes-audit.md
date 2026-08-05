@@ -1,6 +1,6 @@
 # FASE 7.14 — Auditoria de cobertura `typed_attributes` (pré-engine)
 
-**Fonte:** `/opt/limiar/limiar.db` (VPS) · script `scripts/audit_typed_attributes_coverage.py`  
+**Fonte:** `/opt/lymiar/lymiar.db` (VPS) · script `scripts/audit_typed_attributes_coverage.py`  
 **Princípio:** se a cobertura for insuficiente, a Compatibility Engine devolve **Desconhecido** — nunca inventa atributos nem parsers frágeis a partir do nome.
 
 ## Resumo executivo

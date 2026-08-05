@@ -35,7 +35,7 @@ export type ProjectProductSnap = {
   imageUrl?: string | null;
   currentPrice: number;
   priceAtAdd: number;
-  limiarIndex: number;
+  lymiarIndex: number;
   cheapestStore?: string | null;
   storeCouponsAvailable?: boolean;
   isOnSale?: boolean;

@@ -47,7 +47,7 @@ Sem alteração a ranking, SQL de pesquisa, dual-write, classificação.
 
 ## Comparação VS
 
-- localStorage `limiar.compare.v1`, máx. 4
+- localStorage `lymiar.compare.v1`, máx. 4
 - Drawer lateral; com ≥2 produtos → `/comparar/`
 - Tabela: preço, score, marca, lojas, mín. histórico, specs tipadas
 
@@ -62,7 +62,7 @@ Sem alteração a ranking, SQL de pesquisa, dual-write, classificação.
 - [x] PDF (print-to-PDF)
 - [x] Breadcrumb Início
 - [x] Responsivo
-- [x] Zero regressões no motor Limiar
+- [x] Zero regressões no motor Lymiar
 
 ## Performance
 

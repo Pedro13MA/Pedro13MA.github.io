@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { PerfilPageClient } from "@/components/auth/PerfilPageClient";
 
 export const metadata: Metadata = {
-  title: "Perfil · Limiar",
-  description: "O teu perfil Limiar.",
+  title: "Perfil · Lymiar",
+  description: "O teu perfil Lymiar.",
   robots: { index: false, follow: false },
   alternates: { canonical: "/perfil/" },
 };

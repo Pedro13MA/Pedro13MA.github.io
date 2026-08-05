@@ -100,8 +100,8 @@ export function CartAlternatives({ item, onReplaced }: Props) {
                 <p className="text-xs text-slate-500">
                   {formatEUR(p.currentPrice)}
                   {sameChip ? " · Mesmo chipset" : ""}
-                  {p.decision.limiarIndex.value
-                    ? ` · Score ${p.decision.limiarIndex.value}`
+                  {p.decision.lymiarIndex.value
+                    ? ` · Score ${p.decision.lymiarIndex.value}`
                     : ""}
                   {save > 1 ? (
                     <span className="text-emerald-700">

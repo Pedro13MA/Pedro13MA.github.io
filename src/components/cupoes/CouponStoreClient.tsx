@@ -87,8 +87,8 @@ export function CouponStoreClient({ store, storeName }: Props) {
             Todas as campanhas actualmente disponíveis para esta loja.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-slate-500">
-            O Limiar apresenta as campanhas promocionais activas desta loja. O Índice
-            Limiar continua sempre a ser calculado com base no preço real observado,
+            O Lymiar apresenta as campanhas promocionais activas desta loja. O Índice
+            Lymiar continua sempre a ser calculado com base no preço real observado,
             independentemente da existência de cupões ou campanhas.
           </p>
         </header>

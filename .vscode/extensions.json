@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+    "editorconfig.editorconfig",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense"
+  ],
+  "unwantedRecommendations": []
+}

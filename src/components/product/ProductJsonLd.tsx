@@ -15,8 +15,8 @@ export function ProductJsonLd({ product }: { product: Product }) {
   const best = [...product.offers].sort((a, b) => a.price - b.price)[0];
   const category =
     displayCategoryLabel(
-      product.subcategoryLabel,
       product.leafId?.replace(/_/g, " "),
+      product.subcategoryLabel,
       product.category,
     ) || undefined;
 

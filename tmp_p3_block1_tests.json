@@ -1,0 +1,18 @@
+{
+  "phase": "P3-BLOCK1",
+  "generated_at": "2026-08-05",
+  "command": "npm test -- src/lib/nav src/components/nav",
+  "result": "8 passed",
+  "files": [
+    "src/lib/nav/__tests__/nav.test.ts",
+    "src/components/nav/__tests__/nav-ui.test.tsx"
+  ],
+  "coverage_areas": [
+    "feature_flag_default_off",
+    "mega_menu_from_tree",
+    "related_siblings",
+    "breadcrumb",
+    "empty_category",
+    "bottom_navigation_a11y_labels"
+  ]
+}

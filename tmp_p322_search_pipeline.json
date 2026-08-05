@@ -1,0 +1,24 @@
+{
+  "phase": "P3.2.2",
+  "generated_at": "2026-08-05",
+  "pipeline": [
+    {"step": 1, "name": "SearchBar / URL q", "status": "ok", "note": "FE envia q exacto via URLSearchParams"},
+    {"step": 2, "name": "searchProducts / suggestSearch", "status": "ok", "note": "suggest com fallback legado"},
+    {"step": 3, "name": "GET /api/v1/search", "status": "ok"},
+    {"step": 4, "name": "SearchService", "status": "ok", "note": "P33 path activo"},
+    {"step": 5, "name": "query_understand.rewrite", "status": "ok"},
+    {"step": 6, "name": "parse_search_query(search_text)", "status": "ok"},
+    {"step": 7, "name": "SQL candidates + progressive fallback", "status": "ok"},
+    {"step": 8, "name": "ranking", "status": "unchanged"},
+    {"step": 9, "name": "SearchResponse JSON", "status": "ok", "note": "intent+rewrite aditivos"},
+    {"step": 10, "name": "SearchPageClient cards", "status": "ok", "note": "deps estáveis + map seguro"}
+  ],
+  "break_points_fixed": [
+    "VPS missing search_p33 package",
+    "P33_SEARCH_ENGINE not set",
+    "suggest 404",
+    "melhor* required_token AND → 0",
+    "FE effect cancel risk",
+    "summaryToProduct taxonomy_path string"
+  ]
+}

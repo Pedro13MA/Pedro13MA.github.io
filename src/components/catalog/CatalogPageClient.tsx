@@ -46,11 +46,11 @@ const PAGE_SIZE = 24;
 
 export type CatalogSection = "deals" | "overpriced" | "drops" | "telegram" | "";
 type CatalogTab = "products" | "alerts";
-type CatalogSort = "discount_desc" | "limiar_desc" | "price_asc";
+type CatalogSort = "discount_desc" | "lymiar_desc" | "price_asc";
 
 const SORT_OPTIONS: { value: CatalogSort; label: string; api?: SearchSortBy }[] = [
   { value: "discount_desc", label: "Maior Desconto", api: "discount_desc" },
-  { value: "limiar_desc", label: "Score Limiar", api: "limiar_desc" },
+  { value: "lymiar_desc", label: "Score Lymiar", api: "lymiar_desc" },
   { value: "price_asc", label: "Menor Preço", api: "price_asc" },
 ];
 
@@ -72,7 +72,7 @@ const SECTION_META: Record<
   },
   telegram: {
     title: "Últimas oportunidades detetadas",
-    subtitle: "Produtos enviados automaticamente para o canal Telegram do Limiar.",
+    subtitle: "Produtos enviados automaticamente para o canal Telegram do Lymiar.",
   },
 };
 
@@ -121,7 +121,7 @@ function sortProducts(products: Product[], sort: CatalogSort): Product[] {
     );
   } else {
     copy.sort(
-      (a, b) => b.decision.limiarIndex.value - a.decision.limiarIndex.value,
+      (a, b) => b.decision.lymiarIndex.value - a.decision.lymiarIndex.value,
     );
   }
   return copy;
@@ -141,10 +141,10 @@ function readCatalogState(params: URLSearchParams) {
   const cat = LEGACY_CATALOG_CATEGORY[rawCat] || rawCat;
 
   const conditions = parseCatalogConditions(params);
-  const sortRaw = (params.get("sort") || "limiar_desc") as CatalogSort;
+  const sortRaw = (params.get("sort") || "lymiar_desc") as CatalogSort;
   const sort = SORT_OPTIONS.some((o) => o.value === sortRaw)
     ? sortRaw
-    : "limiar_desc";
+    : "lymiar_desc";
   const q = (params.get("q") || "").trim();
   const page = Math.max(1, Number(params.get("page") || "1") || 1);
   const tab: CatalogTab = params.get("tab") === "alerts" ? "alerts" : "products";
@@ -213,7 +213,7 @@ export function CatalogPageClient() {
       if (next.section) params.set("section", next.section);
       if (next.cat) params.set("cat", next.cat);
       for (const c of next.conditions) params.append("condition", c);
-      if (next.sort && next.sort !== "limiar_desc") params.set("sort", next.sort);
+      if (next.sort && next.sort !== "lymiar_desc") params.set("sort", next.sort);
       if (next.q) params.set("q", next.q);
       if (next.minPrice) params.set("min_price", next.minPrice);
       if (next.maxPrice) params.set("max_price", next.maxPrice);
@@ -391,7 +391,7 @@ export function CatalogPageClient() {
       q: state.q.length >= 2 ? state.q : undefined,
       limit: PAGE_SIZE,
       offset,
-      sortBy: sortOpt?.api || "limiar_desc",
+      sortBy: sortOpt?.api || "lymiar_desc",
       taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
     })
       .then((res) => {
@@ -458,7 +458,7 @@ export function CatalogPageClient() {
     searchProducts(state.q, {
       limit: PAGE_SIZE,
       offset,
-      sortBy: sortOpt?.api || "limiar_desc",
+      sortBy: sortOpt?.api || "lymiar_desc",
       taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
       minPrice: state.minPrice ? Number(state.minPrice) : undefined,
       maxPrice: state.maxPrice ? Number(state.maxPrice) : undefined,
@@ -668,12 +668,12 @@ export function CatalogPageClient() {
       ? {
           title: "Histórico de Alertas do Bot",
           subtitle:
-            "Oportunidades com perfil de publicação no canal Telegram Limiar.",
+            "Oportunidades com perfil de publicação no canal Telegram Lymiar.",
         }
       : state.section
         ? SECTION_META[state.section]
         : {
-            title: "Catálogo Limiar",
+            title: "Catálogo Lymiar",
             subtitle:
               "Navega a taxonomy, filtra por estado e facets, e encontra o melhor momento para comprar.",
           };
@@ -856,7 +856,7 @@ export function CatalogPageClient() {
                         {product.name}
                       </p>
                       <p className="mt-0.5 text-xs text-sky-700">
-                        Índice {product.decision.limiarIndex.value}/100
+                        Índice {product.decision.lymiarIndex.value}/100
                         {product.decision.isHistoricalMin
                           ? " · Mín. histórico"
                           : ""}

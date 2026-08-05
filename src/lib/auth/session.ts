@@ -1,10 +1,10 @@
 /** Cliente de sessão — JWT em sessionStorage + cookie cross-origin no Hub. */
 
 import { getApiBaseUrl } from "@/lib/api";
-import type { LimiarSession, LimiarUser } from "@/lib/auth/types";
+import type { LymiarSession, LymiarUser } from "@/lib/auth/types";
 import type { AuthProviderId } from "@/auth.config";
 
-const TOKEN_KEY = "limiar_session_token";
+const TOKEN_KEY = "lymiar_session_token";
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -30,7 +30,7 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function fetchSession(): Promise<LimiarSession> {
+export async function fetchSession(): Promise<LymiarSession> {
   const url = `${getApiBaseUrl()}/api/v1/session`;
   const res = await fetch(url, {
     headers: { Accept: "application/json", ...authHeaders() },
@@ -40,10 +40,10 @@ export async function fetchSession(): Promise<LimiarSession> {
   if (!res.ok) {
     return { authenticated: false, user: null };
   }
-  return (await res.json()) as LimiarSession;
+  return (await res.json()) as LymiarSession;
 }
 
-export async function fetchMe(): Promise<LimiarUser | null> {
+export async function fetchMe(): Promise<LymiarUser | null> {
   const url = `${getApiBaseUrl()}/api/v1/me`;
   const res = await fetch(url, {
     headers: { Accept: "application/json", ...authHeaders() },
@@ -51,7 +51,7 @@ export async function fetchMe(): Promise<LimiarUser | null> {
     cache: "no-store",
   });
   if (!res.ok) return null;
-  return (await res.json()) as LimiarUser;
+  return (await res.json()) as LymiarUser;
 }
 
 export async function logoutRemote(): Promise<void> {

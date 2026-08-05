@@ -1,0 +1,29 @@
+{
+  "phase": "P3.2.3",
+  "performance": {
+    "fixed": [
+      {
+        "issue": "CategoryPage fetch cancel-storm",
+        "fix": "queryKey/taxonomyKey estáveis + deps de useEffect"
+      },
+      {
+        "issue": "SearchTypeahead stale responses",
+        "fix": "requestSeq — ignora respostas antigas"
+      },
+      {
+        "issue": "Duplicate recommended+grid cards",
+        "fix": "recommendedKeys exclui da grelha principal"
+      }
+    ],
+    "observed_live": {
+      "category_ssd_load": "Produção: ~3–5s até grelha (loading 'A carregar' visível)",
+      "pdp_load": "Produção: skeleton ~2–8s depois hero+histórico+lojas",
+      "search_production": "0 resultados (build FE antigo) — não é perf, é bug de integração"
+    },
+    "deferred": [
+      "Memoização agressiva OpportunityCard",
+      "Deduplicação de fetches taxonomy tree",
+      "P3.9 performance formal"
+    ]
+  }
+}

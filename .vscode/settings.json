@@ -1,5 +1,32 @@
 {
-  "terminal.integrated.env.windows": {
-    "Path": "C:\\Program Files\\nodejs;${env:Path}"
-  }
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "files.exclude": {
+    "**/.next": false,
+    "**/tsconfig.tsbuildinfo": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/out": true
+  },
+  "terminal.integrated.cwd": "${workspaceFolder}"
 }

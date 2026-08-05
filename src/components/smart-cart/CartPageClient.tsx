@@ -146,7 +146,7 @@ export function CartPageClient() {
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/carrinho/`
-      : "https://pedro13ma.github.io/carrinho/";
+      : "https://lymiar.com/carrinho/";
 
   const copyLink = async () => {
     try {
@@ -180,7 +180,7 @@ export function CartPageClient() {
     });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `limiar-carrinho-${config?.name || "cart"}.csv`;
+    a.download = `lymiar-carrinho-${config?.name || "cart"}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -195,7 +195,7 @@ export function CartPageClient() {
     const optHtml = selected
       ? `<h2>${escapeHtml(selected.label)}</h2><p>Total ${formatEUR(selected.grandTotal)} · ${selected.storeCount} lojas${selected.shippingUnknown ? " · portes desconhecidos" : ""}</p>`
       : "";
-    const html = `<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"/><title>Carrinho Limiar</title>
+    const html = `<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"/><title>Carrinho Lymiar</title>
 <style>body{font-family:system-ui;margin:1.5rem}table{width:100%;border-collapse:collapse;font-size:12px}
 td,th{border:1px solid #e2e8f0;padding:6px;text-align:left}th{background:#f8fafc}
 @media print{body{margin:0}}</style></head><body>
@@ -342,7 +342,7 @@ ${optHtml}
             Telegram
           </a>
           <a
-            href={`mailto:?subject=Carrinho%20Limiar&body=${encodeURIComponent(shareUrl)}`}
+            href={`mailto:?subject=Carrinho%20Lymiar&body=${encodeURIComponent(shareUrl)}`}
             className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
           >
             Email

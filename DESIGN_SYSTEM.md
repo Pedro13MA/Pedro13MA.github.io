@@ -1,4 +1,4 @@
-# Limiar — Design System (web)
+# Lymiar — Design System (web)
 
 ## Direção
 

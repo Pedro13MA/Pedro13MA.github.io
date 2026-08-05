@@ -28,7 +28,7 @@ export const LEGACY_CATALOG_CATEGORY: Record<string, string> = {
   informatica: "informatica",
 };
 
-const SECTION_STORAGE = "limiar.catalog.section.";
+const SECTION_STORAGE = "lymiar.catalog.section.";
 
 export function readCatalogSectionOpen(
   sectionId: string,

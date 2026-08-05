@@ -1,0 +1,26 @@
+{
+  "phase": "P3.2.3",
+  "accessibility": {
+    "fixed": [
+      "Mobile drawer: empty/loading state em vez de lista em branco",
+      "SearchEmptyState: hints P33 gated pela mesma flag que a página de resultados",
+      "P34: heading de histórico duplicado → sr-only no wrapper (mantém aria)",
+      "Removido botão 'Criar alerta' disabled que competia com Alerta do hero"
+    ],
+    "partial": [
+      "MegaMenu: Escape + restore focus no trigger",
+      "MobileNavDrawer: Escape fecha; sem focus trap Tab completo",
+      "SearchTypeahead: role=combobox/listbox; sem setas/aria-activedescendant"
+    ],
+    "deferred": [
+      "Focus trap formal nos drawers (P3.8)",
+      "Keyboard highlight no typeahead (P3.8)",
+      "Auditoria contraste WCAG completa (P3.8)",
+      "Favorites drawer Escape (P3.8)"
+    ],
+    "hydration": {
+      "status": "no_errors_observed_in_code_paths_touched",
+      "notes": "ProductShareActions window.location só em handlers — OK"
+    }
+  }
+}

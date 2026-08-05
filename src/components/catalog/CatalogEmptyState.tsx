@@ -20,7 +20,7 @@ export function CatalogEmptyState({
         Nenhum produto encontrado.
       </p>
       <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-        Ajusta ou remove filtros para ver mais resultados no catálogo Limiar.
+        Ajusta ou remove filtros para ver mais resultados no catálogo Lymiar.
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <Button type="button" variant="outline" onClick={onClearFilters}>

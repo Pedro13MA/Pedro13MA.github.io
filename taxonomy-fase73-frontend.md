@@ -68,7 +68,7 @@ GET /api/v1/search
 
 - `taxonomyFacets` ausente / `[]` → UI legado **exacta** (sem erro)
 - Facets vazias ocultas; ordenação alfabética dos facets; valores por frequência (number: numérico)
-- Colapsáveis; expand memorizado em `localStorage` (`limiar.taxonomyFacet.expanded.*`)
+- Colapsáveis; expand memorizado em `localStorage` (`lymiar.taxonomyFacet.expanded.*`)
 - Contadores `(N)` + badge de selecção
 - Hint: “Pré-visualização — ainda não altera os resultados.”
 

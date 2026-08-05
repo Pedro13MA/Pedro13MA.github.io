@@ -1,4 +1,4 @@
-# FASE 7.7 — Catálogo Limiar v2 (UI + UX)
+# FASE 7.7 — Catálogo Lymiar v2 (UI + UX)
 
 **100% Frontend.** Pesquisa, ranking, API, SQL, resolver, scheduler, telegram, histórico e classificação **inalterados**.
 
@@ -39,7 +39,7 @@ Dados de produtos (sem novos endpoints):
 ## URL (deep-link)
 
 ```text
-/catalog/?cat=gpu&condition=NEW&brand=asus&vram_gb=16&sort=limiar_desc
+/catalog/?cat=gpu&condition=NEW&brand=asus&vram_gb=16&sort=lymiar_desc
 /catalog/?q=ssd&min_price=50&max_price=200
 /catalog/?section=deals
 ```

@@ -41,7 +41,7 @@ function snap(
     name: over.name || over.slug,
     currentPrice: 100,
     priceAtAdd: 100,
-    limiarIndex: 80,
+    lymiarIndex: 80,
     offers: [],
     ...over,
   };

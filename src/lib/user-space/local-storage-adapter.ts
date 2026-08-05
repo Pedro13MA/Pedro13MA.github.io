@@ -10,8 +10,8 @@ import {
   type SavedList,
 } from "@/lib/user-space/types";
 
-const KEY = "limiar.userspace.v1";
-const LEGACY_FAV_KEY = "limiar.favorites.v1";
+const KEY = "lymiar.userspace.v1";
+const LEGACY_FAV_KEY = "lymiar.favorites.v1";
 const VERSION = 1;
 
 function emptySnapshot(): UserSpaceSnapshot {
@@ -45,7 +45,7 @@ function migrateLegacyFavorites(): Favorite[] {
         ean: slug,
         name: slug,
         currentPrice: 0,
-        limiarIndex: 0,
+        lymiarIndex: 0,
         listIds: [SYSTEM_FAVORITES_LIST_ID],
         savedAt: now,
         updatedAt: now,
@@ -99,7 +99,7 @@ export class LocalStorageAdapter implements StorageAdapter {
       version: VERSION,
     };
     window.localStorage.setItem(KEY, JSON.stringify(payload));
-    window.dispatchEvent(new CustomEvent("limiar:userspace-changed"));
+    window.dispatchEvent(new CustomEvent("lymiar:userspace-changed"));
   }
 
   async sync(): Promise<void> {

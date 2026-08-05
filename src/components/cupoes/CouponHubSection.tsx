@@ -36,7 +36,7 @@ function CouponEmptyState() {
         Sem campanhas no momento
       </p>
       <p className="mt-2 max-w-md text-[15px] text-slate-500">
-        O preço apresentado pelo Limiar continua sempre baseado no preço real
+        O preço apresentado pelo Lymiar continua sempre baseado no preço real
         encontrado.
       </p>
     </div>
@@ -142,7 +142,7 @@ export function CouponHubSection() {
             Cupões
           </h2>
           <p className="mt-2.5 max-w-2xl text-[15px] leading-relaxed text-slate-500">
-            Campanhas activas nas lojas. O preço Limiar continua baseado no preço observado —
+            Campanhas activas nas lojas. O preço Lymiar continua baseado no preço observado —
             o cupão é ajuda à parte, nunca misturado como se já estivesse aplicado.
           </p>
         </div>

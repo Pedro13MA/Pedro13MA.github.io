@@ -1,8 +1,8 @@
-/** Insights de produto para a página de detalhe Limiar — só dados reais. */
+/** Insights de produto para a página de detalhe Lymiar — só dados reais. */
 
 import type {
   DecisionScore,
-  LimiarIndex,
+  LymiarIndex,
   PricePoint,
   Product,
   Seasonality,
@@ -100,14 +100,14 @@ export function buildProductSummary(product: Product): string {
   }
   if (parts.length === 0) {
     return (
-      product.decision.limiarIndex.summary ||
-      "Monitorizado pelo Limiar com base no histórico de preços multi-loja."
+      product.decision.lymiarIndex.summary ||
+      "Monitorizado pelo Lymiar com base no histórico de preços multi-loja."
     );
   }
   const lead = parts.slice(0, 4).join(" · ");
-  const indexHint = product.decision.limiarIndex.summary?.trim();
+  const indexHint = product.decision.lymiarIndex.summary?.trim();
   if (indexHint && indexHint.length < 120) return `${lead}. ${indexHint}`;
-  return `${lead}. Comparação factual entre lojas e histórico Limiar.`;
+  return `${lead}. Comparação factual entre lojas e histórico Lymiar.`;
 }
 
 export type VariantValueTip = {
@@ -323,7 +323,7 @@ export function estimateSeasonality(
 
   const note =
     lowPricePeriods.length > 0
-      ? `Com base no histórico Limiar, os preços mais baixos concentram-se em: ${lowPricePeriods.join(", ")}.`
+      ? `Com base no histórico Lymiar, os preços mais baixos concentram-se em: ${lowPricePeriods.join(", ")}.`
       : "Com o histórico disponível, ainda não há um padrão sazonal dominante.";
 
   return {
@@ -465,7 +465,7 @@ export function buildDecisionVerdict(opts: {
     if (!thin && span >= 180) {
       points.push({
         kind: "pro",
-        text: "Nunca esteve mais barato no período histórico analisado pelo Limiar.",
+        text: "Nunca esteve mais barato no período histórico analisado pelo Lymiar.",
       });
     }
   } else if (histMin != null && currentPrice > histMin * 1.02) {
@@ -513,13 +513,13 @@ export function buildDecisionVerdict(opts: {
   }
   if (thin) {
     conclusion =
-      "Com o histórico ainda reduzido, o Limiar recomenda confirmar o preço em mais do que uma loja antes de decidir.";
+      "Com o histórico ainda reduzido, o Lymiar recomenda confirmar o preço em mais do que uma loja antes de decidir.";
   }
 
   return { points: ordered, conclusion };
 }
 
-export type LimiarInsight = {
+export type LymiarInsight = {
   id: string;
   icon: string;
   title: string;
@@ -549,14 +549,14 @@ function detectPostLowRise(history: PricePoint[]): boolean {
   return rises >= 3;
 }
 
-export function buildLimiarInsights(opts: {
+export function buildLymiarInsights(opts: {
   product: Product;
   confidence: DataConfidence;
   seasonality: SeasonalityInsight;
   variantTip: VariantValueTip | null;
-}): LimiarInsight[] {
+}): LymiarInsight[] {
   const { product, confidence, seasonality, variantTip } = opts;
-  const insights: LimiarInsight[] = [];
+  const insights: LymiarInsight[] = [];
   const price = product.currentPrice;
   const histMin = product.historicalMin;
   const avg = product.avg30d;
@@ -568,7 +568,7 @@ export function buildLimiarInsights(opts: {
       icon: "🔥",
       title: "Mínimo Histórico",
       message:
-        "O preço actual coincide com o mínimo histórico absoluto registado pelo Limiar.",
+        "O preço actual coincide com o mínimo histórico absoluto registado pelo Lymiar.",
     });
   }
 
@@ -580,7 +580,7 @@ export function buildLimiarInsights(opts: {
         icon: "📈",
         title: "Normalmente sobe",
         message:
-          "No histórico Limiar, após períodos neste nível de preço, o valor voltou a subir em várias ocasiões.",
+          "No histórico Lymiar, após períodos neste nível de preço, o valor voltou a subir em várias ocasiões.",
       });
     }
 
@@ -594,7 +594,7 @@ export function buildLimiarInsights(opts: {
         id: "wait-campaign",
         icon: "⏳",
         title: "Vale esperar",
-        message: `Nos registos Limiar este produto chegou a cerca de ${formatEUR(histMin)} em períodos como ${seasonality.lowPricePeriods[0]}.`,
+        message: `Nos registos Lymiar este produto chegou a cerca de ${formatEUR(histMin)} em períodos como ${seasonality.lowPricePeriods[0]}.`,
       });
     } else if (
       avg > 0 &&
@@ -637,9 +637,9 @@ export function factorBarTone(score: number, maxScore = 30): {
   return { bar: "bg-slate-400", text: "text-slate-600" };
 }
 
-export function displayFactors(index: LimiarIndex) {
+export function displayFactors(index: LymiarIndex) {
   const map: Array<{
-    key: keyof LimiarIndex["factors"];
+    key: keyof LymiarIndex["factors"];
     title: string;
     maxScore: number;
   }> = [

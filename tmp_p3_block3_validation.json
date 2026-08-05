@@ -1,0 +1,22 @@
+{
+  "phase": "P3-BLOCK3",
+  "generated_at": "2026-08-05",
+  "acceptance": {
+    "zero_backend": true,
+    "zero_db": true,
+    "zero_api": true,
+    "zero_taxonomy": true,
+    "zero_rules": true,
+    "zero_search": true,
+    "zero_seo": true,
+    "legacy_page_preserved_flag_off": true,
+    "ux_only_improvements": true,
+    "placeholders_block5": true,
+    "block4_not_started": true
+  },
+  "flag": {
+    "env": "NEXT_PUBLIC_P34_PRODUCT_PAGE",
+    "default": false
+  },
+  "rollback": "NEXT_PUBLIC_P34_PRODUCT_PAGE=false + rebuild"
+}

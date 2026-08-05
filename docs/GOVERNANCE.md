@@ -2,7 +2,7 @@
 
 # Objetivo
 
-Definir como a documentação oficial Limiar é atualizada, como se resolvem conflitos entre docs, e quando `NON_NEGOTIABLES` pode mudar.
+Definir como a documentação oficial Lymiar é atualizada, como se resolvem conflitos entre docs, e quando `NON_NEGOTIABLES` pode mudar.
 
 # Âmbito
 
@@ -70,9 +70,9 @@ Proibido:
 
 Docs oficiais devem manter-se alinhados entre:
 
-- fonte em `Documents/Limiar`
-- `spotter-intelligence-hub/docs/`
-- `Pedro13MA.github.io/docs/` (subset relevante ao web/produto)
+- fonte em `Documents/Lymiar`
+- `lymiar-hub/docs/`
+- `lymiar-web/docs/` (subset relevante ao web/produto)
 
 Conflito entre cópias: corrigir para o texto da fonte canónica; não “escolher a mais conveniente”.
 

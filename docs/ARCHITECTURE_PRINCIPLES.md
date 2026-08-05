@@ -1,4 +1,4 @@
-# ARCHITECTURE_PRINCIPLES.md — Limiar
+# ARCHITECTURE_PRINCIPLES.md — Lymiar
 
 # Objetivo
 
@@ -171,7 +171,7 @@ Regras estruturais:
 
 ## Telegram
 
-- Telegram é **channel adapter**, não o core do Limiar.
+- Telegram é **channel adapter**, não o core do Lymiar.
 - Responsabilidades do adapter: comandos de utilizador, entrega de alertas pessoais, publicação editorial outbound, UX conversacional.
 - Não é fonte de verdade de preços nem dono de ConsumerDecision.
 - Quiet hours, diversity caps e routing de tópicos vivem em Publicação Editorial — visíveis ao adapter, invisíveis ao ConsumerDecision.
@@ -202,7 +202,7 @@ Regras estruturais:
 
 - Score (ou família de scores) para **merecimento e prioridade de publicação**, não para confiança de compra.
 - Pode usar receita, pacing, diversidade, aptidão de canal e sinais de deal.
-- Nunca é etiquetado na UI como “vale a pena comprar”, confiança ou Limiar de compra.
+- Nunca é etiquetado na UI como “vale a pena comprar”, confiança ou Lymiar de compra.
 - Vive no contexto de Publicação Editorial (e inputs que este autorizar).
 - Pode correlacionar-se empiricamente com boas compras — isso não autoriza fundir os modelos.
 - Mudanças em PublishScore não exigem mudanças em ConsumerDecision, e vice-versa — salvo contratos explícitos de leitura.
@@ -317,7 +317,7 @@ Hierarquia de conflito (o de cima prevalece):
 | **Aggregates** | Resumos derivados (barras/períodos); só a partir de observações reais. |
 | **ConsumerDecision** | Veredicto ao comprador: BUY \| WAIT \| UNKNOWN + evidência + versão de política. |
 | **PublishScore** | Score de merecimento/prioridade de publicação — não confiança de compra. |
-| **Channel adapter** | Adaptador de canal (ex.: Telegram); não é o núcleo do Limiar. |
+| **Channel adapter** | Adaptador de canal (ex.: Telegram); não é o núcleo do Lymiar. |
 | **Writer lógico único** | Um escritor lógico para catálogo e histórico hot, salvo migração controlada. |
 | **Trigger de evolução** | Condição medida que autoriza tecnologia ou forma nova — não é default. |
 | **Evolution over Revolution** | Evoluir com rollback e dual-write; sem big-bang obrigatório. |

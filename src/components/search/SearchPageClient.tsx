@@ -12,10 +12,13 @@ import {
   summaryToProduct,
   type CanonicalHighlight,
   type SearchFacets,
+  type SearchIntentPayload,
   type SearchSortBy,
   type TaxonomyFacet,
 } from "@/lib/api";
 import { formatEUR } from "@/lib/utils";
+import { isP33SearchEnabled } from "@/lib/search/flags";
+import { SearchEmptyState } from "@/components/search/SearchEmptyState";
 import {
   appendSelectionToParams,
   clearTaxonomySelection,
@@ -28,7 +31,7 @@ import type { Product } from "@/lib/types";
 const PAGE_SIZE = 24;
 
 const SORT_OPTIONS: { value: SearchSortBy; label: string }[] = [
-  { value: "limiar_desc", label: "Melhor momento para comprar" },
+  { value: "lymiar_desc", label: "Melhor momento para comprar" },
   { value: "price_asc", label: "Preço mais baixo" },
   { value: "price_desc", label: "Preço mais alto" },
   { value: "discount_desc", label: "Maior Desconto" },
@@ -47,7 +50,7 @@ type Filters = FilterValues & {
 };
 
 function readFilters(params: URLSearchParams): Filters {
-  const sort = (params.get("sort_by") || "limiar_desc") as SearchSortBy;
+  const sort = (params.get("sort_by") || "lymiar_desc") as SearchSortBy;
   return {
     category: params.get("category") || "",
     subcategory: params.get("subcategory") || "",
@@ -63,7 +66,7 @@ function readFilters(params: URLSearchParams): Filters {
     minPrice: params.get("min_price") || params.get("price_min") || "",
     maxPrice: params.get("max_price") || params.get("price_max") || "",
     inStockOnly: params.get("in_stock") === "true",
-    sortBy: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "limiar_desc",
+    sortBy: SORT_OPTIONS.some((o) => o.value === sort) ? sort : "lymiar_desc",
     page: Math.max(1, Number(params.get("page") || "1") || 1),
   };
 }
@@ -86,12 +89,44 @@ const EMPTY_FACETS: SearchFacets = {
 export function SearchPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  /** String estável — evita cancelar fetch em loop quando a ref de searchParams muda. */
+  const queryKey = searchParams.toString();
   const q = (searchParams.get("q") || "").trim();
-  const filters = useMemo(() => readFilters(searchParams), [searchParams]);
+  const filters = useMemo(
+    () => readFilters(new URLSearchParams(queryKey)),
+    [queryKey],
+  );
   /** Deep-link: estado reconstruído da URL em cada navegação / refresh */
   const taxonomySelection = useMemo(
-    () => selectionFromSearchParams(searchParams),
-    [searchParams],
+    () => selectionFromSearchParams(new URLSearchParams(queryKey)),
+    [queryKey],
+  );
+
+  const filtersKey = useMemo(
+    () =>
+      JSON.stringify({
+        category: filters.category,
+        subcategory: filters.subcategory,
+        brand: filters.brand,
+        store: filters.store,
+        type: filters.type,
+        model: filters.model,
+        vram: filters.vram,
+        series: filters.series,
+        socket: filters.socket,
+        capacity: filters.capacity,
+        format: filters.format,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        inStockOnly: filters.inStockOnly,
+        sortBy: filters.sortBy,
+        page: filters.page,
+      }),
+    [filters],
+  );
+  const taxonomyKey = useMemo(
+    () => JSON.stringify(taxonomySelection),
+    [taxonomySelection],
   );
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -101,6 +136,13 @@ export function SearchPageClient() {
   const [inferred, setInferred] = useState<string | null>(null);
   const [canonicalHighlight, setCanonicalHighlight] =
     useState<CanonicalHighlight | null>(null);
+  const [intent, setIntent] = useState<SearchIntentPayload | null>(null);
+  const [didYouMean, setDidYouMean] = useState<string[]>([]);
+  const [relatedQueries, setRelatedQueries] = useState<string[]>([]);
+  const [categoryRedirect, setCategoryRedirect] = useState<{
+    slug: string;
+    url: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [minDraft, setMinDraft] = useState(filters.minPrice);
@@ -144,7 +186,7 @@ export function SearchPageClient() {
         params.set("max_price", next.maxPrice);
       }
       if (next.inStockOnly) params.set("in_stock", "true");
-      if (next.sortBy && next.sortBy !== "limiar_desc") {
+      if (next.sortBy && next.sortBy !== "lymiar_desc") {
         params.set("sort_by", next.sortBy);
       }
       if (next.page > 1) params.set("page", String(next.page));
@@ -215,12 +257,24 @@ export function SearchPageClient() {
     })
       .then((res) => {
         if (cancelled) return;
-        setProducts(res.results.map(summaryToProduct));
+        const mapped: Product[] = [];
+        for (const row of res.results) {
+          try {
+            mapped.push(summaryToProduct(row));
+          } catch {
+            // Não descartar a página inteira por um card inválido
+          }
+        }
+        setProducts(mapped);
         setTotal(res.total);
         setFacets(res.facets || EMPTY_FACETS);
         setTaxonomyFacets(res.taxonomyFacets ?? []);
         setInferred(res.inferredCategory || null);
         setCanonicalHighlight(res.canonicalHighlight ?? null);
+        setIntent(res.intent ?? null);
+        setDidYouMean(res.didYouMean ?? []);
+        setRelatedQueries(res.relatedQueries ?? []);
+        setCategoryRedirect(res.categoryRedirect ?? null);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -229,6 +283,10 @@ export function SearchPageClient() {
           setTotal(0);
           setTaxonomyFacets([]);
           setCanonicalHighlight(null);
+          setIntent(null);
+          setDidYouMean([]);
+          setRelatedQueries([]);
+          setCategoryRedirect(null);
         }
       })
       .finally(() => {
@@ -237,7 +295,9 @@ export function SearchPageClient() {
     return () => {
       cancelled = true;
     };
-  }, [q, filters, taxonomySelection]);
+    // queryKey / filtersKey / taxonomyKey: strings estáveis (evita cancel loop)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- filters/taxonomy derivados das keys
+  }, [q, filtersKey, taxonomyKey]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -245,7 +305,7 @@ export function SearchPageClient() {
     return (
       <main className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
         <h1 className="font-display text-2xl font-bold text-slate-900">
-          Pesquisa Limiar
+          Pesquisa Lymiar
         </h1>
         <p className="mt-3 text-slate-500">
           Escreve um termo (ex: SSD, CPU AMD, placa gráfica) e carrega Enter.
@@ -268,6 +328,16 @@ export function SearchPageClient() {
             {inferred ? (
               <Badge variant="teal" className="ml-2">
                 {INFERRED_LABEL[inferred] || inferred}
+              </Badge>
+            ) : null}
+            {isP33SearchEnabled() && intent?.brand ? (
+              <Badge variant="tier" className="ml-2">
+                {intent.brand}
+              </Badge>
+            ) : null}
+            {isP33SearchEnabled() && intent?.intent_type ? (
+              <Badge variant="default" className="ml-2">
+                {intent.intent_type}
               </Badge>
             ) : null}
           </p>
@@ -369,6 +439,37 @@ export function SearchPageClient() {
               </span>
             </Link>
           ) : null}
+          {isP33SearchEnabled() &&
+          (didYouMean.length > 0 || relatedQueries.length > 0) &&
+          products.length > 0 ? (
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+              {didYouMean.length > 0 ? (
+                <span>
+                  Quis dizer{" "}
+                  {didYouMean.map((t, i) => (
+                    <span key={t}>
+                      {i > 0 ? ", " : null}
+                      <Link
+                        href={buildSearchUrl({ q: t })}
+                        className="font-medium text-sky-700 hover:underline"
+                      >
+                        {t}
+                      </Link>
+                    </span>
+                  ))}
+                </span>
+              ) : null}
+              {relatedQueries.slice(0, 4).map((t) => (
+                <Link
+                  key={t}
+                  href={buildSearchUrl({ q: t })}
+                  className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs hover:border-sky-200"
+                >
+                  {t}
+                </Link>
+              ))}
+            </div>
+          ) : null}
           {loading ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -382,7 +483,7 @@ export function SearchPageClient() {
             <>
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
-                  <OpportunityCard key={product.ean} product={product} compact />
+                  <OpportunityCard key={product.ean || product.slug} product={product} compact />
                 ))}
               </div>
               {totalPages > 1 ? (
@@ -410,11 +511,13 @@ export function SearchPageClient() {
               ) : null}
             </>
           ) : (
-            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm leading-relaxed text-slate-600">
-              Não encontrámos produtos para esta pesquisa com os filtros actuais.
-              Experimenta outro termo, limpa os filtros, ou volta mais tarde — ainda
-              podemos não ter histórico suficiente para alguns produtos.
-            </p>
+            <SearchEmptyState
+              query={q}
+              didYouMean={didYouMean}
+              relatedQueries={relatedQueries}
+              categoryRedirect={categoryRedirect}
+              inferred={inferred}
+            />
           )}
         </section>
       </div>

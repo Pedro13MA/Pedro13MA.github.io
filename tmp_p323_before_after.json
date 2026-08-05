@@ -1,0 +1,34 @@
+{
+  "phase": "P3.2.3",
+  "before": {
+    "production_search_SSD_Samsung": 0,
+    "production_flags": {
+      "P32": false,
+      "P33": "env true local / build may lag",
+      "P34": false
+    },
+    "category_fetch_deps": "unstable searchParams object",
+    "product_urls": "mixed /p/slug/ and /p/?id=",
+    "porque_anchor": "dead (#porque missing on PDP)",
+    "home_chrome": "HomeHeader always (no mega menu)",
+    "typeahead_race": true,
+    "category_fake_in_stock": true,
+    "brand_fallback": "/mercado/marcas/"
+  },
+  "after": {
+    "code_search_integration": "Category mirrors Search P322 patterns",
+    "production_flags_env": {
+      "P32": true,
+      "P33": true,
+      "P34": true
+    },
+    "product_urls": "/p/?id= standardized on critical paths",
+    "porque_anchor": "id=porque on legacy + P34 verdict",
+    "home_chrome": "SiteHeader when P32 ON",
+    "typeahead_race": false,
+    "category_fake_in_stock": "hidden via showInStock=false",
+    "brand_fallback": "/mercado/marca/?id=",
+    "api_journeys_all_pass": true,
+    "live_lymiar_search": "pending FE publish"
+  }
+}

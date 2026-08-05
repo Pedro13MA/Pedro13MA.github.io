@@ -1,4 +1,4 @@
-# Frontend Visual Audit — Limiar FASE 8.3
+# Frontend Visual Audit — Lymiar FASE 8.3
 
 **Âmbito:** UI/UX only · zero alterações a APIs, ranking, search, auth, sync, notificações ou motores  
 **Data:** 2026-08-04  

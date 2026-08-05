@@ -14,7 +14,7 @@ export type DiscoveryCard = {
   brand?: string | null;
   imageUrl?: string | null;
   currentPrice: number;
-  limiarIndex?: number;
+  lymiarIndex?: number;
   storeCount?: number;
   leafId?: string | null;
   reason: string;
@@ -40,7 +40,7 @@ export type ProductRecommendations = {
 };
 
 function scoreOf(p: Product): number {
-  return p.decision?.limiarIndex?.value ?? 0;
+  return p.decision?.lymiarIndex?.value ?? 0;
 }
 
 function storeCount(p: Product): number {
@@ -79,7 +79,7 @@ function toCard(
     brand: p.brand,
     imageUrl: p.imageUrl,
     currentPrice: p.currentPrice,
-    limiarIndex: scoreOf(p),
+    lymiarIndex: scoreOf(p),
     storeCount: storeCount(p),
     leafId: p.leafId,
     reason,
@@ -150,7 +150,7 @@ export function classifyDiscoveryPool(
   }
 
   const byScore = (a: DiscoveryCard, b: DiscoveryCard) =>
-    (b.limiarIndex || 0) - (a.limiarIndex || 0);
+    (b.lymiarIndex || 0) - (a.lymiarIndex || 0);
 
   const bandRec = others.filter(
     (p) =>
@@ -164,7 +164,7 @@ export function classifyDiscoveryPool(
     if (scoreOf(best) >= curScore) {
       recommended = [
         toCard(best, "Melhor compra observada nesta categoria (faixa de preço)", current, {
-          badge: "Recomendado Limiar",
+          badge: "Recomendado Lymiar",
         }),
       ];
     }
@@ -253,7 +253,7 @@ export async function fetchClientRecommendations(
   try {
     const res = await searchProducts(q.trim(), {
       limit: 24,
-      sortBy: "limiar_desc",
+      sortBy: "lymiar_desc",
       category: product.leafId || product.subcategory || undefined,
     });
     const pool = (res.results || []).map(summaryToProduct);

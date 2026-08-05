@@ -1,6 +1,6 @@
 # FASE 7.11 — Comparador Premium (VS)
 
-**Comparação profissional até 4 produtos.** Só UX — motor Limiar, pesquisa, ranking, taxonomy, preços, histórico, Scheduler e Telegram **inalterados**.
+**Comparação profissional até 4 produtos.** Só UX — motor Lymiar, pesquisa, ranking, taxonomy, preços, histórico, Scheduler e Telegram **inalterados**.
 
 ## Funcionalidades
 

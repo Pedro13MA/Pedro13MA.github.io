@@ -75,7 +75,7 @@ export function CategorySidebar({ category, siblings }: Props) {
   return (
     <aside
       className={cn(
-        "limiar-sidebar space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
+        "lymiar-sidebar space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
         "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
         "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
       )}

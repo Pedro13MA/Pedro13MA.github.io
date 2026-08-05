@@ -78,7 +78,7 @@ export function eventsFromProductHistory(
   if (history.length < 2) return [];
 
   const limit = opts?.limit ?? 24;
-  const href = `/p/${encodeURIComponent(product.slug)}/`;
+  const href = `/p/?id=${encodeURIComponent(product.slug)}`;
   const label = product.name;
   const events: TimelineEvent[] = [];
 

@@ -1,8 +1,8 @@
-# ENGINEERING_PRINCIPLES.md — Limiar
+# ENGINEERING_PRINCIPLES.md — Lymiar
 
 # Objetivo
 
-Definir a filosofia técnica permanente do Limiar.
+Definir a filosofia técnica permanente do Lymiar.
 
 Orientar como se constrói, o que prevalece em conflito e como testar uma decisão de engenharia.
 
@@ -37,7 +37,7 @@ Não introduzir serviços, brokers, caches ou bases novas enquanto o sistema atu
 
 ## 2. Evolução incremental
 
-O Limiar permanece utilizável em cada alteração. Sem reescritas big-bang, sem “parar para modernizar”.
+O Lymiar permanece utilizável em cada alteração. Sem reescritas big-bang, sem “parar para modernizar”.
 
 Strangler, dual-write e feature flags antes de cortar caminhos antigos. Rollback documentado quando o comportamento muda.
 
@@ -121,7 +121,7 @@ Se não se mede, não se afirma. Health, freshness de feeds, erros, latência e 
 
 Logs sem segredos. Métricas com significado de negócio (amostra, span, veredictos), não só contadores de infra.
 
-**Porquê:** Sem visibilidade, “está bem” é fé — e fé contradiz a honestidade do Limiar.
+**Porquê:** Sem visibilidade, “está bem” é fé — e fé contradiz a honestidade do Lymiar.
 
 ## 12. Performance sob evidência
 
@@ -204,7 +204,7 @@ LLM não decide preços. Scraping fora de feeds oficiais não é atalho aceite.
 Antes de aceitar uma mudança técnica, perguntar:
 
 1. Mantém ou melhora a honestidade dos dados e do veredicto ao comprador?
-2. Mantém o Limiar utilizável, com rollback ou compatibilidade?
+2. Mantém o Lymiar utilizável, com rollback ou compatibilidade?
 3. É a solução mais simples que resolve o problema medido?
 4. Continua compreensível daqui a anos?
 

@@ -8,7 +8,7 @@ import {
 } from "@/lib/watchlists/storage-adapter";
 import type { WatchlistsSnapshot } from "@/lib/watchlists/types";
 
-export const WATCHLISTS_STORAGE_KEY = "limiar.watchlists.v1";
+export const WATCHLISTS_STORAGE_KEY = "lymiar.watchlists.v1";
 
 export class LocalWatchAdapter implements WatchStorageAdapter {
   readonly name = "local";
@@ -36,7 +36,7 @@ export class LocalWatchAdapter implements WatchStorageAdapter {
         WATCHLISTS_STORAGE_KEY,
         JSON.stringify(snapshot),
       );
-      window.dispatchEvent(new CustomEvent("limiar:watchlists-changed"));
+      window.dispatchEvent(new CustomEvent("lymiar:watchlists-changed"));
     } catch {
       /* quota */
     }

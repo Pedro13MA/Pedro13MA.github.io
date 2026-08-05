@@ -34,7 +34,7 @@ type Props = {
 };
 
 /**
- * Sidebar do Catálogo Limiar v2 — categorias taxonomy + filtros + facets.
+ * Sidebar do Catálogo Lymiar v2 — categorias taxonomy + filtros + facets.
  */
 export function CatalogSidebar({
   activeCategory,
@@ -58,7 +58,7 @@ export function CatalogSidebar({
   return (
     <aside
       className={cn(
-        "limiar-sidebar space-y-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
+        "lymiar-sidebar space-y-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
         "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
         "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
         className,
@@ -132,7 +132,7 @@ export function CatalogSidebar({
 
       <CatalogCollapsible id="score" title="Score" defaultOpen={false}>
         <p className="text-xs leading-relaxed text-slate-500">
-          Ordena os resultados por Índice Limiar no selector «Ordenar» acima da
+          Ordena os resultados por Índice Lymiar no selector «Ordenar» acima da
           grelha — sem alterar o algoritmo de score.
         </p>
       </CatalogCollapsible>

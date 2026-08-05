@@ -1,8 +1,8 @@
-# DATABASE_RULES.md — Limiar
+# DATABASE_RULES.md — Lymiar
 
 # Objetivo
 
-Definir as regras permanentes de persistência do Limiar: o que se guarda, como se separa, como se limpa, como se migra e quando se muda de motor.
+Definir as regras permanentes de persistência do Lymiar: o que se guarda, como se separa, como se limpa, como se migra e quando se muda de motor.
 
 Serve para que qualquer alteração à base de dados preserve a verdade dos preços e a operabilidade do sistema.
 

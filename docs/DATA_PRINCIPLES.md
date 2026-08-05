@@ -1,4 +1,4 @@
-# DATA_PRINCIPLES.md — Limiar
+# DATA_PRINCIPLES.md — Lymiar
 
 # Objetivo
 
@@ -30,9 +30,9 @@ Toda regra deve ser verificável: o mesmo conjunto de observações elegíveis e
 # Princípios
 
 1. Só o que foi observado conta para estatísticas, mínimos históricos e veredictos temporais.
-2. Ausência de dado ≠ dado; imputação ≠ observação; marketing do merchant ≠ histórico Limiar.
+2. Ausência de dado ≠ dado; imputação ≠ observação; marketing do merchant ≠ histórico Lymiar.
 3. Em conflito entre conveniência e estas regras, a verdade observada vence.
-4. O Limiar prefere admitir ignorância a simular omnisciência. Dados insuficientes não são falha de produto — são honestidade operacional.
+4. O Lymiar prefere admitir ignorância a simular omnisciência. Dados insuficientes não são falha de produto — são honestidade operacional.
 5. Preferir menos métricas corretas a mais métricas contaminadas.
 6. Current ≠ Events ≠ Aggregates. Um não substitui o outro.
 7. Dados acima de opinião; utilidade acima de engenharia de conveniência.
@@ -189,7 +189,7 @@ Toda regra deve ser verificável: o mesmo conjunto de observações elegíveis e
 
 **MUST NOT**
 - Justificar mínimo histórico só com PVPR / preço “original” do merchant.
-- Afirmar mínimo histórico com uma única observação, com amostra abaixo do limiar, ou com valores imputados/heartbeat.
+- Afirmar mínimo histórico com uma única observação, com amostra abaixo do lymiar, ou com valores imputados/heartbeat.
 - Usar o preço atual para inventar um mínimo passado.
 
 ## Máximos
@@ -209,7 +209,7 @@ Toda regra deve ser verificável: o mesmo conjunto de observações elegíveis e
 
 **MUST NOT**
 - Calcular média sobre série com nulls preenchidos por preço atual ou carry-forward.
-- Apresentar média como “preço típico” com amostra abaixo do limiar sem o dizer.
+- Apresentar média como “preço típico” com amostra abaixo do lymiar sem o dizer.
 
 ## Medianas
 
@@ -266,7 +266,7 @@ Toda regra deve ser verificável: o mesmo conjunto de observações elegíveis e
 
 **MUST**
 - Ser expressável como resultado de primeira classe (UNKNOWN / “ainda não sabemos”).
-- Bloquear claims de mínimo histórico, sazonalidade e BUY/WAIT quando a evidência falha o limiar.
+- Bloquear claims de mínimo histórico, sazonalidade e BUY/WAIT quando a evidência falha o lymiar.
 
 **MUST NOT**
 - Forçar BUY ou WAIT para evitar “buraco” de produto.
@@ -341,7 +341,7 @@ Toda regra deve ser verificável: o mesmo conjunto de observações elegíveis e
 - Carry-forward presente: `is_imputed=true`, `n_obs=0`; fora de estatísticas e de evidência de ConsumerDecision.
 - Mínimo histórico exposto com `sample_days` e `span_days` que cumprem a política, só com observações elegíveis.
 - Oferta atual com `observed_at` explícito; histórico em ticks/barras separado.
-- Amostra abaixo do limiar → `UNKNOWN` / “dados insuficientes”; métrica omitida se não puder declarar amostra.
+- Amostra abaixo do lymiar → `UNKNOWN` / “dados insuficientes”; métrica omitida se não puder declarar amostra.
 - PVPR mostrado como contexto de merchant, separado do histórico observado.
 - Identidade duvidosa → séries separadas ou UNKNOWN; sem fusão.
 
@@ -411,7 +411,7 @@ Em conflito entre conveniência e estas regras — a verdade observada vence. Se
 | **Mediana** | Percentil 50 das observações reais elegíveis (ou das barras elegíveis), conforme a política. |
 | **Percentis** | Quantis da distribuição de preços reais elegíveis na amostra. |
 | **Sazonalidade** | Padrão temporal (época, mês, ciclo) inferido **apenas** de histórico observado elegível com amostra e span adequados à afirmação. |
-| **PVPR / preço de referência do merchant** | Preço de catálogo, “antes”, “recomendado” ou rótulo promocional fornecido pela loja — **não** é observação Limiar de preço praticado ao longo do tempo. |
+| **PVPR / preço de referência do merchant** | Preço de catálogo, “antes”, “recomendado” ou rótulo promocional fornecido pela loja — **não** é observação Lymiar de preço praticado ao longo do tempo. |
 | **Identidade de produtos** | Critério que determina quando duas ofertas referem o mesmo produto (ou a mesma variante) para fins de histórico e comparação. |
 | **Dados insuficientes** | Estado em que a amostra elegível não cumpre os mínimos da política (`sample_days`, `span_days`, N, frescura, ou identidade) para sustentar a afirmação ou o veredicto pedido. |
 | **ConsumerDecision** | Veredicto ao comprador — comprar agora (`BUY`), esperar (`WAIT`), ou não sabemos (`UNKNOWN`) — baseado só em histórico observado elegível, ofertas atuais e evidência de amostra, sob uma `policy_version`. |

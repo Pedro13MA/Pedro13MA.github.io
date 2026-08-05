@@ -4,11 +4,11 @@ import { MarcasListClient } from "@/components/mercado/MarcasListClient";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Marcas | Mercado Limiar",
-  description: "Marcas observadas no catálogo Limiar — estatísticas factuais.",
+  title: "Marcas | Mercado Lymiar",
+  description: "Marcas observadas no catálogo Lymiar — estatísticas factuais.",
   alternates: { canonical: `${SITE_URL}/mercado/marcas/` },
   openGraph: {
-    title: "Marcas | Mercado Limiar",
+    title: "Marcas | Mercado Lymiar",
     url: `${SITE_URL}/mercado/marcas/`,
   },
 };
@@ -22,7 +22,7 @@ export default function MarcasPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            name: "Marcas Limiar",
+            name: "Marcas Lymiar",
             url: `${SITE_URL}/mercado/marcas/`,
           }),
         }}

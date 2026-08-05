@@ -1,0 +1,28 @@
+{
+  "phase": "P3.2.2",
+  "generated_at": "2026-08-05",
+  "before": {
+    "P33_SEARCH_ENGINE": false,
+    "search_p33_on_vps": false,
+    "suggest_http": 404,
+    "intent_field": null,
+    "queries": {
+      "SSD Samsung": {"total": 45, "note": "API OK but wrong ranking; FE sometimes stuck loading"},
+      "melhor SSD Samsung": {"total": 0},
+      "melhor portátil gaming": {"total": 0},
+      "portátil gaming": {"total": 118}
+    }
+  },
+  "after": {
+    "P33_SEARCH_ENGINE": true,
+    "search_p33_on_vps": true,
+    "suggest_http": 200,
+    "intent_field": "present",
+    "queries": {
+      "SSD Samsung": {"total": 34, "rewrite": "ssd samsung"},
+      "melhor SSD Samsung": {"total": 34, "rewrite": "ssd samsung"},
+      "melhor portátil gaming": {"total": 118, "rewrite": "portatil gaming"},
+      "portátil gaming": {"total": 118, "rewrite": "portatil gaming"}
+    }
+  }
+}

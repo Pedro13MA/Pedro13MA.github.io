@@ -22,7 +22,7 @@ API detail (opcional, read-only):
 
 ## Frontend
 
-- Secção **Insights Limiar** (cartões, resumo, pros/cons, timeline, qualidade dos dados ★)
+- Secção **Insights Lymiar** (cartões, resumo, pros/cons, timeline, qualidade dos dados ★)
 - Comparador: grupo **Insights**
 - Smart Cart: rótulo Comprar agora / Esperar / Monitorizar / …
 - Projetos: Bom preço / Preço médio / Poucos dados

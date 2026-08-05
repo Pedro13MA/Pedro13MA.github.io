@@ -46,7 +46,7 @@ export function CompareAddSearch({ open, onClose, onAdded }: Props) {
     let cancelled = false;
     const t = window.setTimeout(() => {
       setLoading(true);
-      searchProducts(term, { limit: 12, sortBy: "limiar_desc" })
+      searchProducts(term, { limit: 12, sortBy: "lymiar_desc" })
         .then((res) => {
           if (cancelled) return;
           setResults((res.results || []).map(summaryToProduct));
@@ -164,7 +164,7 @@ export function CompareAddSearch({ open, onClose, onAdded }: Props) {
                     </p>
                     <p className="text-xs text-slate-500">
                       {formatEUR(p.currentPrice)} · Índice{" "}
-                      {p.decision.limiarIndex.value}
+                      {p.decision.lymiarIndex.value}
                     </p>
                   </div>
                   <Button

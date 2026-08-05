@@ -1,6 +1,6 @@
-/** Tipos de identidade Limiar — espelham o User do Hub (FASE 8.0). */
+/** Tipos de identidade Lymiar — espelham o User do Hub (FASE 8.0). */
 
-export type LimiarUser = {
+export type LymiarUser = {
   id: string;
   provider: string;
   providerAccountId: string;
@@ -11,9 +11,9 @@ export type LimiarUser = {
   lastLogin: string;
 };
 
-export type LimiarSession = {
+export type LymiarSession = {
   authenticated: boolean;
-  user: LimiarUser | null;
+  user: LymiarUser | null;
 };
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";

@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const product = detailToProduct(detail);
     const cat =
       displayCategoryLabel(
-        product.subcategoryLabel,
         product.leafId?.replace(/_/g, " "),
+        product.subcategoryLabel,
         isOtherLabel(product.category) ? null : product.category,
       ) || "";
     const titleParts = [
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         ? product.brand
         : null,
       formatEUR(product.currentPrice),
-      "Limiar",
+      "Lymiar",
     ].filter(Boolean);
     const title = titleParts.join(" · ");
     const useful = buildUsefulDescription(product);
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         product.name,
         cat || null,
         `desde ${formatEUR(product.currentPrice)}`,
-        "histórico observado e comparação de lojas no Limiar.",
+        "histórico observado e comparação de lojas no Lymiar.",
       ]
         .filter(Boolean)
         .join(" — ");
@@ -86,8 +86,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   } catch {
     return {
-      title: `${slug} · Limiar`,
-      description: "Decisão Limiar, histórico observado e onde comprar.",
+      title: `${slug} · Lymiar`,
+      description: "Decisão Lymiar, histórico observado e onde comprar.",
     };
   }
 }

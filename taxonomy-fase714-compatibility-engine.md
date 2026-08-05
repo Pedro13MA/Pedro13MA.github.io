@@ -8,7 +8,7 @@ Auditoria prévia: `taxonomy-fase714-typed-attributes-audit.md`.
 - Nunca bloqueia
 - Nunca inventa specs
 - Sem dados tipados → **Desconhecido**
-- Sem alterar ranking / pesquisa / taxonomy / API / Limiar / Cart / Favoritos / Comparador
+- Sem alterar ranking / pesquisa / taxonomy / API / Lymiar / Cart / Favoritos / Comparador
 
 ## Arquitectura
 

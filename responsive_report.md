@@ -1,4 +1,4 @@
-# Responsive Report — Limiar FASE 8.3
+# Responsive Report — Lymiar FASE 8.3
 
 Breakpoints Tailwind usados: `sm` 640 · `md` 768 · `lg` 1024.
 
@@ -37,7 +37,7 @@ Breakpoints Tailwind usados: `sm` 640 · `md` 768 · `lg` 1024.
 | Tabela comparador | scroll horizontal em mobile | esperado; não esconder colunas sem redesign |
 | Histórico (chart) | compressão em xs | Recharts adapta; labels densas em ecrãs muito estreitos |
 | `/p/[slug]/` direct URL | 404 se slug não estático | usar `/p/?id=` (já é o padrão runtime) |
-| Mega menu | N/A | Limiar não tem mega-menu; só links L1 |
+| Mega menu | N/A | Lymiar não tem mega-menu; só links L1 |
 
 ---
 

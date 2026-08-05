@@ -1,13 +1,19 @@
 /**
- * FASE 8.5 — filtrar alternativas já carregadas para produtos realmente semelhantes.
- * Não altera Discovery/API; só composição na página de produto.
+ * FASE 8.5.1 — filtrar alternativas leaf-first.
+ * Não altera Discovery/API ranking; só composição na página de produto.
+ *
+ * Regra: se o produto actual tem leaf utilizável, só aceitar cards com o
+ * mesmo leaf_id. Nunca misturar por subcategory legacy (ex.: console).
  */
 
 import type { DiscoveryCard, ProductRecommendations } from "@/lib/product-discovery";
 import type { Product } from "@/lib/types";
 
 const ABSURD_RE =
-  /\b(adaptador|adapter|carregador|cabo|capa|pel[ií]cula|trotinete|scooter|cafeteira|caf[eé]|aspirador|frigor[ií]fico|microondas|liquidificador|auscultador|auricular|fone|mouse|rato|teclado|webcam|hub usb|powerbank|power bank)\b/i;
+  /\b(adaptador|adapter|carregador|cabo|capa|pel[ií]cula|trotinete|scooter|cafeteira|caf[eé]|aspirador|frigor[ií]fico|microondas|liquidificador|auscultador|auricular|fone|hub usb|powerbank|power bank)\b/i;
+
+const UNUSABLE_LEAF =
+  /^(unclassified|non_catalog|unmapped|other|outros|accessory)?$/i;
 
 function fold(s: string): string {
   return s
@@ -17,36 +23,51 @@ function fold(s: string): string {
     .trim();
 }
 
+function usableLeaf(raw: string | null | undefined): string {
+  const leaf = fold(raw || "");
+  if (!leaf || UNUSABLE_LEAF.test(leaf)) return "";
+  return leaf;
+}
+
 function sameCategory(current: Product, card: DiscoveryCard): boolean {
-  const curLeaf = fold(current.leafId || current.subcategory || "");
-  const cardLeaf = fold(card.leafId || "");
-  if (curLeaf && cardLeaf && curLeaf === cardLeaf) return true;
+  const curLeaf = usableLeaf(current.leafId);
+  const cardLeaf = usableLeaf(card.leafId);
 
-  // Sem leaf no cartão: aceitar só se o nome partilhar sinais da categoria actual.
+  // Leaf-first: ambos com leaf → exigir igualdade exacta (game ≠ controller ≠ storage)
+  if (curLeaf && cardLeaf) {
+    return curLeaf === cardLeaf;
+  }
+
+  // Produto actual com leaf; cartão sem leaf → rejeitar (não misturar por subcategory)
+  if (curLeaf && !cardLeaf) {
+    return false;
+  }
+
+  // Sem leaf no produto: fallback legado controlado (só sinais de nome)
+  const legacyKey = fold(current.subcategory || "");
   const name = fold(card.name || "");
-  if (!curLeaf) return true;
+  if (!legacyKey) return !ABSURD_RE.test(name);
 
-  if (curLeaf.includes("smartphone") || curLeaf.includes("telemov")) {
+  if (legacyKey.includes("smartphone") || legacyKey.includes("telemov")) {
     return /\b(iphone|galaxy|pixel|xiaomi|redmi|huawei|honor|oneplus|oppo|realme|samsung|apple|smartphone|telemovel)\b/i.test(
       name,
     );
   }
-  if (curLeaf.includes("motherboard") || curLeaf.includes("placa.?m")) {
+  if (legacyKey.includes("motherboard") || legacyKey.includes("placa")) {
     return /\b(motherboard|mainboard|placa.?m[aã]e|b\d{3}|x\d{3}|z\d{3}|b650|b760|x670|z790)\b/i.test(
       name,
     );
   }
-  if (curLeaf.includes("gpu") || curLeaf.includes("graf")) {
+  if (legacyKey.includes("gpu") || legacyKey.includes("graf")) {
     return /\b(rtx|gtx|radeon|rx\s?\d|geforce|arc\s?a)\b/i.test(name);
   }
-  if (curLeaf.includes("laptop") || curLeaf.includes("portat")) {
+  if (legacyKey.includes("laptop") || legacyKey.includes("portat")) {
     return /\b(port[aá]til|laptop|notebook|macbook)\b/i.test(name);
   }
-  if (curLeaf.includes("monitor")) {
+  if (legacyKey.includes("monitor")) {
     return /\b(monitor|ultrawide|\d{2}["']?\s?(led|oled|ips|va))\b/i.test(name);
   }
 
-  // Outras folhas: exigir leafId coincidente (já falhou acima) → rejeitar se absurdo.
   return !ABSURD_RE.test(name);
 }
 

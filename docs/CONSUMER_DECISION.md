@@ -1,4 +1,4 @@
-# CONSUMER_DECISION.md — Limiar
+# CONSUMER_DECISION.md — Lymiar
 
 # Objetivo
 
@@ -84,7 +84,7 @@ Serve para que qualquer engenheiro implemente ou altere a decisão de compra sem
 
 ## Política e evolução
 
-27. Toda alteração de limiares ou lógica de veredicto carrega `policy_version` nova ou explícita.
+27. Toda alteração de lymiares ou lógica de veredicto carrega `policy_version` nova ou explícita.
 28. Feature flag e rollback documentados para mudanças de comportamento de decisão.
 29. Extração/implementação faz-se em paralelo ao caminho editorial existente (Evolution over Revolution). Não apagar PublishScore num único passo.
 30. Calibração e logging de outcomes são melhorias permitidas pelo roadmap. Não autorizam inventar veredictos sem amostra.

@@ -85,7 +85,7 @@ function fakeProduct(slug: string, price: number): Product {
       feedCategory: "hardware",
       bullets: [],
       semaphore: "buy",
-      limiarIndex: {
+      lymiarIndex: {
         value: 80,
         summary: "ok",
         factors: {

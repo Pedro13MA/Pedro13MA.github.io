@@ -1,8 +1,8 @@
-# VISION.md — Limiar
+# VISION.md — Lymiar
 
 # Objetivo
 
-Definir porque o Limiar existe, o problema que resolve, a quem se dirige, a promessa, a missão, a visão a longo prazo e os valores que orientam decisões.
+Definir porque o Lymiar existe, o problema que resolve, a quem se dirige, a promessa, a missão, a visão a longo prazo e os valores que orientam decisões.
 
 # Âmbito
 
@@ -77,8 +77,8 @@ Hierarquia em conflito: `NON_NEGOTIABLES` > `VISION` > `PRODUCT_PRINCIPLES` > ou
 
 | Termo | Significado |
 |-------|-------------|
-| Limiar | Produto que responde se vale a pena comprar agora, esperar, ou se ainda não se sabe. |
-| PVPR | Preço de venda ao público recomendado / preço original declarado pelo merchant; não é histórico Limiar. |
+| Lymiar | Produto que responde se vale a pena comprar agora, esperar, ou se ainda não se sabe. |
+| PVPR | Preço de venda ao público recomendado / preço original declarado pelo merchant; não é histórico Lymiar. |
 | Comprar / esperar / não sabemos | As três respostas válidas ao utilizador. |
 | Observado | Dado de preço efectivamente registado; não imputado nem inventado. |
 | Independência | O conselho ao comprador não é determinado por comissões. |

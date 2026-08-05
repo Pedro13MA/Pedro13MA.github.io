@@ -1,0 +1,16 @@
+{
+  "phase": "P3-BLOCK3",
+  "generated_at": "2026-08-05",
+  "improvements": [
+    "BreadcrumbNav with aria-label Breadcrumb and aria-current on last crumb",
+    "Section headings via aria-labelledby (verdict, confidence, history, coupons, stores, similar, related)",
+    "Skeleton aria-busy and aria-label",
+    "Disabled placeholders with aria-disabled and sr-only hints",
+    "Empty states use role=status",
+    "Telegram strip aside with aria-label"
+  ],
+  "unchanged": [
+    "ProductHero buy CTA focus styles",
+    "PriceHistoryChart internals"
+  ]
+}

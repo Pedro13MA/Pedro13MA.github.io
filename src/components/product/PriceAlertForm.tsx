@@ -140,7 +140,7 @@ export function PriceAlertForm({
 
           {status === "saved" ? (
             <p className="text-center text-sm text-emerald-700">
-              Alerta preparado. Integração Telegram/Email a ligar ao backend Limiar.
+              Alerta preparado. Integração Telegram/Email a ligar ao backend Lymiar.
             </p>
           ) : null}
         </form>

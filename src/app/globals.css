@@ -61,30 +61,30 @@ body {
 }
 
 /* Sidebar de filtros — scrollbar fina */
-.limiar-sidebar {
+.lymiar-sidebar {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
 
-.limiar-sidebar::-webkit-scrollbar {
+.lymiar-sidebar::-webkit-scrollbar {
   width: 6px;
 }
 
-.limiar-sidebar::-webkit-scrollbar-track {
+.lymiar-sidebar::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.limiar-sidebar::-webkit-scrollbar-thumb {
+.lymiar-sidebar::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 999px;
 }
 
-.limiar-sidebar:hover::-webkit-scrollbar-thumb {
+.lymiar-sidebar:hover::-webkit-scrollbar-thumb {
   background-color: #94a3b8;
 }
 
 /* Selo mínimo histórico absoluto — pulsação subtil */
-@keyframes limiar-flame-pulse {
+@keyframes lymiar-flame-pulse {
   0%,
   100% {
     box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.35);
@@ -96,12 +96,12 @@ body {
   }
 }
 
-.limiar-flame-badge {
-  animation: limiar-flame-pulse 2.4s ease-in-out infinite;
+.lymiar-flame-badge {
+  animation: lymiar-flame-pulse 2.4s ease-in-out infinite;
 }
 
 /* FASE 8.4.2 — micro-interações do hero */
-@keyframes limiar-heart-pop {
+@keyframes lymiar-heart-pop {
   0% {
     transform: scale(1);
   }
@@ -113,7 +113,7 @@ body {
   }
 }
 
-@keyframes limiar-cart-bounce {
+@keyframes lymiar-cart-bounce {
   0%,
   100% {
     transform: translateY(0);
@@ -126,7 +126,7 @@ body {
   }
 }
 
-@keyframes limiar-bell-wiggle {
+@keyframes lymiar-bell-wiggle {
   0%,
   100% {
     transform: rotate(0deg);
@@ -145,23 +145,23 @@ body {
   }
 }
 
-.limiar-anim-heart {
-  animation: limiar-heart-pop 0.45s ease;
+.lymiar-anim-heart {
+  animation: lymiar-heart-pop 0.45s ease;
 }
 
-.limiar-anim-cart {
-  animation: limiar-cart-bounce 0.45s ease;
+.lymiar-anim-cart {
+  animation: lymiar-cart-bounce 0.45s ease;
 }
 
-.limiar-anim-bell {
-  animation: limiar-bell-wiggle 0.55s ease;
+.lymiar-anim-bell {
+  animation: lymiar-bell-wiggle 0.55s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .limiar-flame-badge,
-  .limiar-anim-heart,
-  .limiar-anim-cart,
-  .limiar-anim-bell {
+  .lymiar-flame-badge,
+  .lymiar-anim-heart,
+  .lymiar-anim-cart,
+  .lymiar-anim-bell {
     animation: none;
   }
 }

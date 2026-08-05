@@ -1,16 +1,16 @@
 import Link from "next/link";
-import type { LimiarInsight } from "@/lib/product-insights";
+import type { LymiarInsight } from "@/lib/product-insights";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-type Props = { insights: LimiarInsight[] };
+type Props = { insights: LymiarInsight[] };
 
-export function LimiarInsights({ insights }: Props) {
+export function LymiarInsights({ insights }: Props) {
   if (!insights.length) return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dicas Limiar</CardTitle>
+        <CardTitle>Dicas Lymiar</CardTitle>
         <CardDescription>
           Recomendações geradas apenas quando há confiança suficiente nos dados observados.
         </CardDescription>

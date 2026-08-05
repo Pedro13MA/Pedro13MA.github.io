@@ -24,7 +24,7 @@ TaxonomySeoService
              GET /api/v1/sitemaps/categorias[.xml]
              GET /api/v1/sitemaps/landing[.xml]
 
-Frontend (Pedro13MA.github.io)
+Frontend (lymiar-web)
   · CategorySEO.tsx — descrição, contagem, updated_hint, inject JSON-LD
   · CategoryFAQ.tsx — FAQ institucional
   · Breadcrumbs — Início > … > leaf
@@ -42,9 +42,9 @@ Todos os campos são opcionais no schema; se não houver conteúdo editorial, ge
 | Campo | Exemplo (`gpu`) |
 | --- | --- |
 | `title` | Placas Gráficas |
-| `meta_title` | Placas Gráficas — preços e histórico \| Limiar |
+| `meta_title` | Placas Gráficas — preços e histórico \| Lymiar |
 | `meta_description` / `description` | Compare preços de placas gráficas nas principais lojas portuguesas. … |
-| `canonical_url` | `https://pedro13ma.github.io/categoria/gpu/` |
+| `canonical_url` | `https://lymiar.com/categoria/gpu/` |
 | `canonical_path` | `/categoria/gpu/` |
 | `breadcrumbs` | Início → Informática → Componentes → Placas Gráficas |
 | `robots` | `index,follow` |
@@ -59,7 +59,7 @@ Nunca inventa especificações técnicas — só texto institucional.
 [
   {
     "question": "O que é placas gráficas?",
-    "answer": "Placas Gráficas é uma categoria do catálogo Limiar. …"
+    "answer": "Placas Gráficas é uma categoria do catálogo Lymiar. …"
   },
   { "question": "Como comparar preços?", "answer": "…" },
   { "question": "Como funciona o histórico de preços?", "answer": "…" },
@@ -76,20 +76,20 @@ Preparada para substituição futura por conteúdo editorial (mesmo contrato `[{
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Limiar",
-    "url": "https://pedro13ma.github.io",
+    "name": "Lymiar",
+    "url": "https://lymiar.com",
     "description": "Quando vale realmente a pena comprar."
   },
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Limiar",
-    "url": "https://pedro13ma.github.io",
+    "name": "Lymiar",
+    "url": "https://lymiar.com",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://pedro13ma.github.io/search/?q={search_term_string}"
+        "urlTemplate": "https://lymiar.com/search/?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }
@@ -99,17 +99,17 @@ Preparada para substituição futura por conteúdo editorial (mesmo contrato `[{
     "@type": "CollectionPage",
     "name": "Placas Gráficas",
     "description": "Compare preços de placas gráficas…",
-    "url": "https://pedro13ma.github.io/categoria/gpu/",
-    "isPartOf": { "@type": "WebSite", "url": "https://pedro13ma.github.io" }
+    "url": "https://lymiar.com/categoria/gpu/",
+    "isPartOf": { "@type": "WebSite", "url": "https://lymiar.com" }
   },
   {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://pedro13ma.github.io/" },
-      { "@type": "ListItem", "position": 2, "name": "Informática", "item": "https://pedro13ma.github.io/categoria/informatica/" },
-      { "@type": "ListItem", "position": 3, "name": "Componentes", "item": "https://pedro13ma.github.io/categoria/componentes/" },
-      { "@type": "ListItem", "position": 4, "name": "Placas Gráficas", "item": "https://pedro13ma.github.io/categoria/gpu/" }
+      { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://lymiar.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Informática", "item": "https://lymiar.com/categoria/informatica/" },
+      { "@type": "ListItem", "position": 3, "name": "Componentes", "item": "https://lymiar.com/categoria/componentes/" },
+      { "@type": "ListItem", "position": 4, "name": "Placas Gráficas", "item": "https://lymiar.com/categoria/gpu/" }
     ]
   }
 ]
@@ -157,13 +157,13 @@ Categoria inexistente ou reservada → **404** nos endpoints SEO/detalhe.
 ## Canonical
 
 - Uma URL canónica por categoria: `/categoria/{slug}/`
-- Absolute: `https://pedro13ma.github.io/categoria/{slug}/`
+- Absolute: `https://lymiar.com/categoria/{slug}/`
 - Sem variantes duplicadas (trailing slash alinhado com `trailingSlash: true` no Next)
 
 ## OpenGraph / Twitter
 
 - `og:title`, `og:description`, `og:url` = canonical
-- `og:image` = `https://pedro13ma.github.io/og-default.svg`
+- `og:image` = `https://lymiar.com/og-default.svg`
 - `twitter:card` = `summary_large_image`
 
 Frontend `generateMetadata` em `src/app/categoria/[slug]/page.tsx` espelha estes campos.
@@ -178,9 +178,9 @@ Frontend `generateMetadata` em `src/app/categoria/[slug]/page.tsx` espelha estes
 User-agent: *
 Allow: /
 
-Sitemap: https://pedro13ma.github.io/sitemap.xml
-Sitemap: https://pedro13ma.github.io/sitemap-categorias.xml
-Sitemap: https://pedro13ma.github.io/sitemap-landing.xml
+Sitemap: https://lymiar.com/sitemap.xml
+Sitemap: https://lymiar.com/sitemap-categorias.xml
+Sitemap: https://lymiar.com/sitemap-landing.xml
 ```
 
 ## Frontend
@@ -232,7 +232,7 @@ Frontend: Vitest existente (facets/filters) mantém-se verde; SEO é UI + metada
 
 | Área | Alterada? |
 | --- | --- |
-| Ranking / Limiar score | Não |
+| Ranking / Lymiar score | Não |
 | Pesquisa / relevance | Não |
 | `resolver_v2` | Não |
 | Dual-write / backfill | Não |

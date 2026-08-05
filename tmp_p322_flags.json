@@ -1,0 +1,23 @@
+{
+  "phase": "P3.2.2",
+  "generated_at": "2026-08-05",
+  "backend": {
+    "env_var": "P33_SEARCH_ENGINE",
+    "vps_path": "/opt/lymiar/backend/.env",
+    "value": "true",
+    "config_py_default": false,
+    "runtime_effect": "rewrite + intent + ranking_p33 + progressive fallback + /search/suggest"
+  },
+  "frontend": {
+    "env_var": "NEXT_PUBLIC_P33_SEARCH_ENGINE",
+    "file": ".env.production",
+    "value": "true",
+    "runtime_effect": "SearchTypeahead usa suggestSearch; UI intent chips",
+    "requires_rebuild": true
+  },
+  "verified_public_api": {
+    "host": "https://api.lymiar.com",
+    "intent_present": true,
+    "suggest_engine": "p33"
+  }
+}

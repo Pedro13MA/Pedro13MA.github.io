@@ -38,14 +38,14 @@ function uid(prefix: string): string {
 
 function emit(): void {
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("limiar:watchlists-changed"));
+    window.dispatchEvent(new CustomEvent("lymiar:watchlists-changed"));
   }
 }
 
 export function subscribeWatchlists(cb: () => void): () => void {
   if (typeof window === "undefined") return () => {};
-  window.addEventListener("limiar:watchlists-changed", cb);
-  return () => window.removeEventListener("limiar:watchlists-changed", cb);
+  window.addEventListener("lymiar:watchlists-changed", cb);
+  return () => window.removeEventListener("lymiar:watchlists-changed", cb);
 }
 
 async function mutate(

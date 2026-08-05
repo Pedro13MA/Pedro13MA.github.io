@@ -79,7 +79,7 @@ function fakeProduct(over: Partial<Product> & { slug: string; offers: Product["o
       feedCategory: "hardware",
       bullets: [],
       semaphore: "buy",
-      limiarIndex: {
+      lymiarIndex: {
         value: 80,
         summary: "ok",
         factors: {

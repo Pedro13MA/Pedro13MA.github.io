@@ -2,7 +2,7 @@
 
 import type { QueuedOp, SyncCollection } from "@/lib/sync/types";
 
-const QUEUE_KEY = "limiar.sync.queue.v1";
+const QUEUE_KEY = "lymiar.sync.queue.v1";
 
 function read(): QueuedOp[] {
   if (typeof window === "undefined") return [];

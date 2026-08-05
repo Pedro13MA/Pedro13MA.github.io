@@ -1,6 +1,6 @@
 # FASE 7.10 — Product Page Polish (UX + Mobile + Conteúdo)
 
-**Só qualidade de experiência.** Sem funcionalidades novas. Motor Limiar, pesquisa, ranking, taxonomy, preços, histórico, API, Scheduler e Telegram **inalterados**.
+**Só qualidade de experiência.** Sem funcionalidades novas. Motor Lymiar, pesquisa, ranking, taxonomy, preços, histórico, API, Scheduler e Telegram **inalterados**.
 
 ## Mudanças
 

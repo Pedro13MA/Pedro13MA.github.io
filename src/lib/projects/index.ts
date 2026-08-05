@@ -32,14 +32,14 @@ function uid(prefix: string): string {
 
 function emit(): void {
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("limiar:projects-changed"));
+    window.dispatchEvent(new CustomEvent("lymiar:projects-changed"));
   }
 }
 
 export function subscribeProjects(cb: () => void): () => void {
   if (typeof window === "undefined") return () => {};
-  window.addEventListener("limiar:projects-changed", cb);
-  return () => window.removeEventListener("limiar:projects-changed", cb);
+  window.addEventListener("lymiar:projects-changed", cb);
+  return () => window.removeEventListener("lymiar:projects-changed", cb);
 }
 
 export function productToProjectSnap(product: Product): ProjectProductSnap {
@@ -51,7 +51,7 @@ export function productToProjectSnap(product: Product): ProjectProductSnap {
     imageUrl: product.imageUrl,
     currentPrice: product.currentPrice,
     priceAtAdd: product.currentPrice,
-    limiarIndex: product.decision.limiarIndex.value,
+    lymiarIndex: product.decision.lymiarIndex.value,
     cheapestStore: product.decision.cheapestStore,
     storeCouponsAvailable: product.storeCouponsAvailable,
     isOnSale: product.isOnSale,

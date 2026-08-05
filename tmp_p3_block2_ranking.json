@@ -1,0 +1,61 @@
+{
+  "ssd_samsung": {
+    "ssd_beats_ac": true,
+    "ssd": {
+      "exactModel": 80,
+      "brandMatch": 100,
+      "deviceIntent": 90,
+      "tokenCoverage": 100,
+      "categoryCompat": 100,
+      "productTypeScore": 100,
+      "titleQuality": 70,
+      "lymiar": 0,
+      "discount": 0.0,
+      "labels": [
+        "model:neutral",
+        "brand:samsung",
+        "intent:phone_weak",
+        "tokens:1/1",
+        "cat:neutral",
+        "type:main",
+        "quality:ok",
+        "p33:brand_ok:samsung",
+        "p33:leaf_ok:ssd",
+        "p33:hybrid_boost"
+      ]
+    },
+    "ac": {
+      "exactModel": 8,
+      "brandMatch": 30,
+      "deviceIntent": 5,
+      "tokenCoverage": 100,
+      "categoryCompat": 0,
+      "productTypeScore": 100,
+      "titleQuality": 70,
+      "lymiar": 0,
+      "discount": 0.0,
+      "labels": [
+        "model:neutral",
+        "brand:samsung",
+        "intent:phone_weak",
+        "tokens:1/1",
+        "cat:neutral",
+        "type:main",
+        "quality:ok",
+        "p33:brand_ok:samsung",
+        "p33:leaf_miss:ssd",
+        "p33:hard_mismatch",
+        "p33:hybrid_wrong_cat"
+      ]
+    }
+  },
+  "SSD Samsung": {
+    "good_beats_bad": true
+  },
+  "Apple Watch": {
+    "good_beats_bad": true
+  },
+  "Bullpadel Raquete": {
+    "good_beats_bad": true
+  }
+}

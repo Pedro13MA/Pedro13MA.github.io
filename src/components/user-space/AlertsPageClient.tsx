@@ -181,7 +181,7 @@ export function AlertsPageClient() {
             name: edit.productName,
             imageUrl: edit.imageUrl,
             currentPrice: edit.referencePrice ?? 0,
-            limiarIndex: 0,
+            lymiarIndex: 0,
           }}
           onSaved={() => {
             push("Alerta actualizado.");

@@ -400,7 +400,7 @@ export function computeProductInsights(product: Product): ProductInsights {
       id: "today",
       date: new Date().toISOString().slice(0, 10),
       label: "Hoje",
-      detail: "Leitura Limiar com base nos dados observados",
+      detail: "Leitura Lymiar com base nos dados observados",
     });
   }
 

@@ -1,6 +1,6 @@
 # FASE 7.13 — Projetos Inteligentes (Builds)
 
-**Plataforma genérica de Projetos** (não é um configurador só de PC). Templates definem apenas slots. Motor Limiar, ranking, pesquisa, taxonomy, Smart Cart, Favoritos e Comparador **inalterados** — só reutilizados.
+**Plataforma genérica de Projetos** (não é um configurador só de PC). Templates definem apenas slots. Motor Lymiar, ranking, pesquisa, taxonomy, Smart Cart, Favoritos e Comparador **inalterados** — só reutilizados.
 
 ## Arquitectura
 

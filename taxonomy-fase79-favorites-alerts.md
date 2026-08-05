@@ -1,6 +1,6 @@
 # FASE 7.9 — Favoritos, Listas e Alertas Inteligentes
 
-**Incentiva o regresso do utilizador.** Tudo local (localStorage). Motor Limiar, pesquisa, ranking, taxonomy e API **inalterados**.
+**Incentiva o regresso do utilizador.** Tudo local (localStorage). Motor Lymiar, pesquisa, ranking, taxonomy e API **inalterados**.
 
 ## Arquitetura (pronta para FASE 8)
 
@@ -39,8 +39,8 @@ Trocar o adapter (`setUserSpaceAdapter(new CloudAdapter())`) na FASE 8 **sem ree
 
 ## Persistência
 
-- Chave: `limiar.userspace.v1`
-- Migra `limiar.favorites.v1` (string[]) automaticamente
+- Chave: `lymiar.userspace.v1`
+- Migra `lymiar.favorites.v1` (string[]) automaticamente
 - Sem polling, sem requests extra
 
 ## Critérios

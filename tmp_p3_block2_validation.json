@@ -1,0 +1,40 @@
+{
+  "phase": "P3-BLOCK2",
+  "generated_at": "2026-08-05",
+  "acceptance": {
+    "search_significantly_improved": true,
+    "typeahead": true,
+    "intent_detection": true,
+    "intelligent_ranking": true,
+    "aliases": true,
+    "synonyms": true,
+    "hybrid_brand_category": true,
+    "brand_search": true,
+    "category_search": true,
+    "product_search": true,
+    "api_backward_compatible": true,
+    "feature_flag_default_off": true,
+    "zero_taxonomy_changes": true,
+    "zero_rules_engine_changes": true,
+    "p31a_queries_tested": [
+      "SSD Samsung",
+      "Bullpadel",
+      "TP-Link Tapo",
+      "Apple Watch",
+      "Frigideira",
+      "Air Fryer",
+      "Monitor Gaming",
+      "RTX"
+    ],
+    "block3_not_started": true
+  },
+  "rollback": {
+    "backend": "P33_SEARCH_ENGINE=false",
+    "frontend": "NEXT_PUBLIC_P33_SEARCH_ENGINE=false"
+  },
+  "limitations": [
+    "Static landings only",
+    "Advanced filter UI not built (facets already returned)",
+    "Title/leaf quality still depends on catalog data"
+  ]
+}

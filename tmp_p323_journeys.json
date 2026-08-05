@@ -1,0 +1,389 @@
+{
+  "journeys": {
+    "J1_Apple_Watch": {
+      "query": "Apple Watch",
+      "slug": "apple-watch-ultra-3-gps-cellular-49-mm-tit-nio-p-0195950610901",
+      "leaf": "smartwatch",
+      "steps": {
+        "search_api": true,
+        "search_page_ok": true,
+        "product_page_ok": true,
+        "category_page_ok": true,
+        "product_api": true,
+        "has_history_or_empty_ok": true,
+        "has_offers_or_empty_ok": true,
+        "history_points": 1,
+        "offers_count": 1
+      },
+      "category_check": {
+        "url": "https://lymiar.com/categoria/smartwatch/",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "J2_SSD_Samsung": {
+      "query": "SSD Samsung",
+      "slug": "ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+      "leaf": "external_ssd",
+      "steps": {
+        "search_api": true,
+        "search_page_ok": true,
+        "product_page_ok": true,
+        "category_page_ok": true,
+        "product_api": true,
+        "has_history_or_empty_ok": true,
+        "has_offers_or_empty_ok": true,
+        "history_points": 3,
+        "offers_count": 2
+      },
+      "category_check": {
+        "url": "https://lymiar.com/categoria/external_ssd/",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "J3_TP_Link_Tapo": {
+      "query": "TP-Link Tapo",
+      "slug": "c-mara-de-vigil-ncia-seguran-a-tp-link-tc72-4895252507348",
+      "leaf": "phone_accessory_other",
+      "steps": {
+        "search_api": true,
+        "search_page_ok": true,
+        "product_page_ok": true,
+        "category_page_ok": true,
+        "product_api": true,
+        "has_history_or_empty_ok": true,
+        "has_offers_or_empty_ok": true,
+        "history_points": 2,
+        "offers_count": 2
+      },
+      "category_check": {
+        "url": "https://lymiar.com/categoria/phone_accessory_other/",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "J4_Air_Fryer": {
+      "query": "Air Fryer",
+      "slug": "fritadeira-sem-leo-moulinex-air-fryer-easy-fry-s-3045387294045",
+      "leaf": "air_fryer",
+      "steps": {
+        "search_api": true,
+        "search_page_ok": true,
+        "product_page_ok": true,
+        "category_page_ok": true,
+        "product_api": true,
+        "has_history_or_empty_ok": true,
+        "has_offers_or_empty_ok": true,
+        "history_points": 1,
+        "offers_count": 1
+      },
+      "category_check": {
+        "url": "https://lymiar.com/categoria/air_fryer/",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "J5_Frigideira": {
+      "query": "frigideira",
+      "slug": "frigideira-wok-tefal-unlimited-premium-g25619-28-3168430302501",
+      "leaf": "cookware",
+      "steps": {
+        "search_api": true,
+        "search_page_ok": true,
+        "product_page_ok": true,
+        "category_page_ok": false,
+        "product_api": true,
+        "has_history_or_empty_ok": true,
+        "has_offers_or_empty_ok": true,
+        "history_points": 1,
+        "offers_count": 1
+      },
+      "category_check": {
+        "url": "https://lymiar.com/categoria/cookware/",
+        "status": null,
+        "ok": false,
+        "error": "HTTP Error 404: Not Found"
+      },
+      "pass": true
+    },
+    "J6_Bullpadel": {
+      "query": "Bullpadel",
+      "slug": "bullpadel-xplo-tour-final-2024-martin-di-nenno-p-8445402789313",
+      "leaf": "non_catalog",
+      "steps": {
+        "search_api": true,
+        "search_page_ok": true,
+        "product_page_ok": true,
+        "category_page_ok": true,
+        "product_api": true,
+        "has_history_or_empty_ok": true,
+        "has_offers_or_empty_ok": true,
+        "history_points": 1,
+        "offers_count": 1
+      },
+      "category_check": {
+        "url": "https://lymiar.com/categoria/non_catalog/",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    }
+  },
+  "search": {
+    "Apple Watch": {
+      "api_total": 220,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "apple-watch-ultra-3-gps-cellular-49-mm-tit-nio-p-0195950610901",
+      "first_name": "APPLE Watch Ultra 3 GPS + Cellular 49 mm Titânio Preto com Loop Milanesa Titânio Preto (Tamanho M)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=Apple%20Watch",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=apple-watch-ultra-3-gps-cellular-49-mm-tit-nio-p-0195950610901",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "SSD Samsung": {
+      "api_total": 24,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+      "first_name": "SSD Externo Samsung T7 Shield 1TB USB3.2 Gen2 Preto (1050/1000MB/s)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=SSD%20Samsung",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "Samsung SSD": {
+      "api_total": 25,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+      "first_name": "SSD Externo Samsung T7 Shield 1TB USB3.2 Gen2 Preto (1050/1000MB/s)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=Samsung%20SSD",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "melhor SSD Samsung": {
+      "api_total": 26,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+      "first_name": "SSD Externo Samsung T7 Shield 1TB USB3.2 Gen2 Preto (1050/1000MB/s)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=melhor%20SSD%20Samsung",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=ssd-externo-samsung-t7-shield-1tb-usb3-2-gen2-pr-8806092968424",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "portátil gaming": {
+      "api_total": 118,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "port-til-gaming-acer-nitro-v-15-15-6-intel-core-4711474240668",
+      "first_name": "Portátil Gaming ACER Nitro V 15 (15,6'' - Intel Core i9-13900H - RAM: 32 GB - 1 TB SSD - NVIDIA GeForce RTX 4060)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=port%C3%A1til%20gaming",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=port-til-gaming-acer-nitro-v-15-15-6-intel-core-4711474240668",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "melhor portátil gaming": {
+      "api_total": 118,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "port-til-gaming-acer-nitro-v-15-15-6-intel-core-4711474240668",
+      "first_name": "Portátil Gaming ACER Nitro V 15 (15,6'' - Intel Core i9-13900H - RAM: 32 GB - 1 TB SSD - NVIDIA GeForce RTX 4060)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=melhor%20port%C3%A1til%20gaming",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=port-til-gaming-acer-nitro-v-15-15-6-intel-core-4711474240668",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "Bullpadel": {
+      "api_total": 19,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "bullpadel-xplo-tour-final-2024-martin-di-nenno-p-8445402789313",
+      "first_name": "Bullpadel XPLO Tour Final 2024 Martin Di Nenno Padel Racket",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=Bullpadel",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=bullpadel-xplo-tour-final-2024-martin-di-nenno-p-8445402789313",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "TP-Link Tapo": {
+      "api_total": 31,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "c-mara-de-vigil-ncia-seguran-a-tp-link-tc72-4895252507348",
+      "first_name": "Câmara de Vigilância Segurança TP-LINK TC72",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=TP-Link%20Tapo",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=c-mara-de-vigil-ncia-seguran-a-tp-link-tc72-4895252507348",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "câmara TP-Link": {
+      "api_total": 31,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "c-mara-de-vigil-ncia-seguran-a-tp-link-tc72-4895252507348",
+      "first_name": "Câmara de Vigilância Segurança TP-LINK TC72",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=c%C3%A2mara%20TP-Link",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=c-mara-de-vigil-ncia-seguran-a-tp-link-tc72-4895252507348",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "Air Fryer": {
+      "api_total": 187,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "fritadeira-sem-leo-moulinex-air-fryer-easy-fry-s-3045387294045",
+      "first_name": "Fritadeira Sem Óleo MOULINEX Air fryer Easy Fry Silence EZ5568F0 (5 L - Preto)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=Air%20Fryer",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=fritadeira-sem-leo-moulinex-air-fryer-easy-fry-s-3045387294045",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "frigideira": {
+      "api_total": 101,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "frigideira-wok-tefal-unlimited-premium-g25619-28-3168430302501",
+      "first_name": "Frigideira Wok TEFAL Unlimited Premium G25619 (28 cm)",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=frigideira",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=frigideira-wok-tefal-unlimited-premium-g25619-28-3168430302501",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    },
+    "RTX 5070": {
+      "api_total": 49,
+      "api_status": 200,
+      "has_intent": true,
+      "first_slug": "gr-fica-pny-geforce-rtx-5070-sff-slim-df-oc-12gb-0751492812151",
+      "first_name": "Gráfica PNY GeForce® RTX 5070 SFF Slim DF OC 12GB GDDR7 DLSS4",
+      "search_page": {
+        "url": "https://lymiar.com/search/?q=RTX%205070",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "product_page": {
+        "url": "https://lymiar.com/p/?id=gr-fica-pny-geforce-rtx-5070-sff-slim-df-oc-12gb-0751492812151",
+        "status": 200,
+        "ok": true,
+        "has_404_text": false
+      },
+      "pass": true
+    }
+  },
+  "suggest": {
+    "status": 200,
+    "engine": "p33",
+    "products": 5
+  }
+}

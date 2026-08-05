@@ -13,18 +13,46 @@ const LEAF_LABEL: Record<string, string> = {
   ssd: "SSD",
   ram: "RAM",
   laptop: "Portáteis",
+  desktop: "Desktops",
   smartphone: "Smartphones",
   smartphones: "Smartphones",
   telemoveis: "Telemóveis",
   telemóveis: "Telemóveis",
   monitor: "Monitores",
+  monitores: "Monitores",
   motherboard: "Motherboards",
   motherboards: "Motherboards",
   informatica: "Informática",
   informática: "Informática",
   componentes: "Componentes",
-  tech: "Tech",
+  computadores: "Computadores",
+  perifericos: "Periféricos",
+  armazenamento: "Armazenamento",
+  redes: "Redes",
+  impressao: "Impressão",
+  gaming: "Gaming",
+  jogos: "Jogos",
+  consoles: "Consolas",
+  console: "Consolas",
+  game_physical: "Jogos",
+  game_digital: "Jogos digitais",
+  controller: "Comandos",
+  mouse: "Ratos",
+  keyboard: "Teclados",
+  tablet: "Tablets",
+  smartwatch: "Smartwatches",
+  wearables: "Wearables",
+  headphones: "Auscultadores",
+  tv: "TVs",
+  tv_audio: "TV e Áudio",
   casa: "Casa",
+  fridge: "Frigoríficos",
+  dishwasher: "Máquinas de Lavar Loiça",
+  washing_machine: "Máquinas de Lavar",
+  vacuum: "Aspiradores",
+  fotografia: "Fotografia",
+  camera: "Câmaras",
+  tech: "Tech",
 };
 
 function slugLabel(slug: string): string {
@@ -112,28 +140,35 @@ export function buildPremiumProductBreadcrumbs(opts: {
       });
     }
   } else {
-    const legacy = buildProductBreadcrumbs({
-      category: opts.category,
-      subcategory: opts.subcategory,
-      subcategoryLabel: opts.subcategoryLabel,
-    });
-    for (const c of legacy) {
-      if (isOtherLabel(c.label)) continue;
-      const slugGuess = (opts.subcategory || opts.leafId || "")
-        .toLowerCase()
-        .replace(/\s+/g, "_");
-      pushUnique(crumbs, {
-        label: c.label,
-        href: slugGuess
-          ? `/categoria/${encodeURIComponent(slugGuess)}/`
-          : c.href,
-      });
+    // Sem taxonomy_path: leaf_id antes de subcategory legacy
+    if (opts.leafId) {
+      const leaf = opts.leafId.toLowerCase().replace(/\s+/g, "_");
+      const unusable = /^(unclassified|non_catalog|unmapped)$/i;
+      if (!unusable.test(leaf)) {
+        pushUnique(crumbs, {
+          label: slugLabel(opts.leafId),
+          href: `/categoria/${encodeURIComponent(opts.leafId)}/`,
+        });
+      }
     }
-    if (opts.leafId && crumbs.length <= 1) {
-      pushUnique(crumbs, {
-        label: slugLabel(opts.leafId),
-        href: `/categoria/${encodeURIComponent(opts.leafId)}/`,
+    if (crumbs.length <= 1) {
+      const legacy = buildProductBreadcrumbs({
+        category: opts.category,
+        subcategory: opts.subcategory,
+        subcategoryLabel: opts.subcategoryLabel,
       });
+      for (const c of legacy) {
+        if (isOtherLabel(c.label)) continue;
+        const slugGuess = (opts.leafId || opts.subcategory || "")
+          .toLowerCase()
+          .replace(/\s+/g, "_");
+        pushUnique(crumbs, {
+          label: c.label,
+          href: slugGuess
+            ? `/categoria/${encodeURIComponent(slugGuess)}/`
+            : c.href,
+        });
+      }
     }
   }
 

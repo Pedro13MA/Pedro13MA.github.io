@@ -1,0 +1,292 @@
+{
+  "aliases": {
+    "ssd": {
+      "canonical": "ssd",
+      "profile": "ssd",
+      "leaf": "ssd"
+    },
+    "ssds": {
+      "canonical": "ssd",
+      "profile": "ssd",
+      "leaf": "ssd"
+    },
+    "nvme": {
+      "canonical": "ssd",
+      "profile": "ssd",
+      "leaf": "ssd"
+    },
+    "m2": {
+      "canonical": "ssd",
+      "profile": "ssd",
+      "leaf": "ssd"
+    },
+    "disco ssd": {
+      "canonical": "ssd",
+      "profile": "ssd",
+      "leaf": "ssd"
+    },
+    "disco": {
+      "canonical": "ssd",
+      "profile": "ssd"
+    },
+    "discos": {
+      "canonical": "ssd",
+      "profile": "ssd"
+    },
+    "solid state": {
+      "canonical": "ssd",
+      "profile": "ssd",
+      "leaf": "ssd"
+    },
+    "armazenamento": {
+      "canonical": "ssd",
+      "profile": "ssd"
+    },
+    "frigideira": {
+      "canonical": "frigideira",
+      "leaf": "cookware"
+    },
+    "frigideiras": {
+      "canonical": "frigideira",
+      "leaf": "cookware"
+    },
+    "panela": {
+      "canonical": "panela",
+      "leaf": "cookware"
+    },
+    "panelas": {
+      "canonical": "panela",
+      "leaf": "cookware"
+    },
+    "air fryer": {
+      "canonical": "air_fryer",
+      "leaf": "air_fryer"
+    },
+    "airfryer": {
+      "canonical": "air_fryer",
+      "leaf": "air_fryer"
+    },
+    "fritadeira": {
+      "canonical": "air_fryer",
+      "leaf": "air_fryer"
+    },
+    "fritadeiras": {
+      "canonical": "air_fryer",
+      "leaf": "air_fryer"
+    },
+    "fritadeira ar": {
+      "canonical": "air_fryer",
+      "leaf": "air_fryer"
+    },
+    "robot aspirador": {
+      "canonical": "robot_vacuum",
+      "leaf": "robot_vacuum"
+    },
+    "aspirador robot": {
+      "canonical": "robot_vacuum",
+      "leaf": "robot_vacuum"
+    },
+    "robo aspirador": {
+      "canonical": "robot_vacuum",
+      "leaf": "robot_vacuum"
+    },
+    "robot vacuum": {
+      "canonical": "robot_vacuum",
+      "leaf": "robot_vacuum"
+    },
+    "watch": {
+      "canonical": "smartwatch",
+      "leaf": "smartwatch"
+    },
+    "smartwatch": {
+      "canonical": "smartwatch",
+      "leaf": "smartwatch"
+    },
+    "smart watch": {
+      "canonical": "smartwatch",
+      "leaf": "smartwatch"
+    },
+    "apple watch": {
+      "canonical": "apple_watch",
+      "leaf": "smartwatch",
+      "brand": "apple"
+    },
+    "galaxy watch": {
+      "canonical": "galaxy_watch",
+      "leaf": "smartwatch",
+      "brand": "samsung"
+    },
+    "rtx": {
+      "canonical": "rtx",
+      "profile": "gpu"
+    },
+    "gtx": {
+      "canonical": "gtx",
+      "profile": "gpu"
+    },
+    "monitor gaming": {
+      "canonical": "gaming_monitor",
+      "leaf": "monitor"
+    },
+    "monitor gamer": {
+      "canonical": "gaming_monitor",
+      "leaf": "monitor"
+    },
+    "tapo": {
+      "canonical": "tapo",
+      "leaf": "security_camera",
+      "brand": "tp-link"
+    },
+    "tp link": {
+      "canonical": "tp-link",
+      "brand": "tp-link"
+    },
+    "tplink": {
+      "canonical": "tp-link",
+      "brand": "tp-link"
+    },
+    "camara": {
+      "canonical": "camera",
+      "leaf": "security_camera"
+    },
+    "camera": {
+      "canonical": "camera",
+      "leaf": "security_camera"
+    },
+    "bullpadel": {
+      "canonical": "bullpadel",
+      "leaf": "padel_racket",
+      "brand": "bullpadel"
+    },
+    "raquete": {
+      "canonical": "padel_racket",
+      "leaf": "padel_racket"
+    },
+    "raquete padel": {
+      "canonical": "padel_racket",
+      "leaf": "padel_racket"
+    },
+    "padel": {
+      "canonical": "padel",
+      "leaf": "padel_gear"
+    },
+    "nox": {
+      "canonical": "nox",
+      "leaf": "padel_racket",
+      "brand": "nox"
+    },
+    "iphone": {
+      "canonical": "iphone",
+      "leaf": "smartphone",
+      "brand": "apple"
+    },
+    "telemovel": {
+      "canonical": "smartphone",
+      "leaf": "smartphone"
+    },
+    "smartphone": {
+      "canonical": "smartphone",
+      "leaf": "smartphone"
+    }
+  },
+  "synonym_groups": {
+    "ssd": [
+      "ssd",
+      "ssds",
+      "nvme",
+      "m.2",
+      "m2",
+      "disco ssd",
+      "solid state",
+      "armazenamento",
+      "disco",
+      "discos"
+    ],
+    "gpu": [
+      "gpu",
+      "gpus",
+      "rtx",
+      "gtx",
+      "geforce",
+      "radeon",
+      "placa grafica",
+      "placa gráfica",
+      "gráfica",
+      "grafica"
+    ],
+    "air_fryer": [
+      "air fryer",
+      "airfryer",
+      "fritadeira",
+      "fritadeiras",
+      "fritadeira de ar",
+      "fritadeira ar quente"
+    ],
+    "cookware": [
+      "frigideira",
+      "frigideiras",
+      "panela",
+      "panelas",
+      "wok",
+      "caçarola",
+      "cacarola"
+    ],
+    "robot_vacuum": [
+      "robot aspirador",
+      "aspirador robot",
+      "robo aspirador",
+      "robot vacuum",
+      "roborock",
+      "roomba"
+    ],
+    "smartwatch": [
+      "smartwatch",
+      "smart watch",
+      "watch",
+      "relógio inteligente",
+      "relogio inteligente",
+      "apple watch",
+      "galaxy watch"
+    ],
+    "monitor": [
+      "monitor",
+      "monitores",
+      "monitor gaming",
+      "monitor gamer",
+      "ecra",
+      "ecrã",
+      "display"
+    ],
+    "security_camera": [
+      "camara",
+      "câmara",
+      "camera",
+      "cameras",
+      "tapo",
+      "vigilancia",
+      "vigilância",
+      "ip camera"
+    ],
+    "padel_racket": [
+      "raquete",
+      "raquetes",
+      "pala",
+      "palas",
+      "padel",
+      "bullpadel"
+    ],
+    "portatil": [
+      "portatil",
+      "portátil",
+      "laptop",
+      "notebook",
+      "ultrabook"
+    ],
+    "telemovel": [
+      "telemovel",
+      "telemóvel",
+      "smartphone",
+      "iphone"
+    ]
+  }
+}

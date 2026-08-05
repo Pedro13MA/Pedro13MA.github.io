@@ -30,7 +30,7 @@ export function CategorySEO({
     for (const block of jsonLd) {
       const el = document.createElement("script");
       el.type = "application/ld+json";
-      el.setAttribute("data-limiar-seo", "1");
+      el.setAttribute("data-lymiar-seo", "1");
       el.text = JSON.stringify(block);
       document.head.appendChild(el);
       nodes.push(el);

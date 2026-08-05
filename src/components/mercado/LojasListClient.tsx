@@ -41,7 +41,7 @@ export function LojasListClient() {
           Lojas
         </h1>
         <p className="mt-2 text-sm text-slate-500">
-          Lojas com ofertas observadas no Limiar.
+          Lojas com ofertas observadas no Lymiar.
         </p>
       </div>
       {error ? <p className="text-sm text-amber-800">{error}</p> : null}

@@ -1,0 +1,15 @@
+{
+  "phase": "P3-BLOCK3",
+  "generated_at": "2026-08-05",
+  "spacing": {
+    "main": "space-y-8 sm:space-y-10 (slightly tighter rhythm than legacy space-y-10/12)",
+    "section_dividers": "border-t + pt-8 between major blocks",
+    "history_chart_wrapper": "pt-1 only — chart component untouched",
+    "hero": "unchanged ProductHero responsive gaps"
+  },
+  "breakpoints": {
+    "mobile": "px-4 py-6; placeholders wrap; similar grid 1 col",
+    "sm": "2-col similar; max-w on CTAs",
+    "lg": "hero 2-col via ProductHero"
+  }
+}

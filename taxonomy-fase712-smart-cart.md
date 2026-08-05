@@ -1,6 +1,6 @@
 # FASE 7.12 — Compra Inteligente (Smart Cart)
 
-**Assistente de compra** — não é checkout. Motor Limiar, ranking, pesquisa, taxonomy, histórico, Scheduler e Telegram **inalterados**.
+**Assistente de compra** — não é checkout. Motor Lymiar, ranking, pesquisa, taxonomy, histórico, Scheduler e Telegram **inalterados**.
 
 ## Arquitectura (pronta para FASE 8)
 

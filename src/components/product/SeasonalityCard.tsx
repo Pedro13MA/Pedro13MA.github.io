@@ -41,7 +41,7 @@ export function SeasonalityCard({ seasonality }: Props) {
       <CardHeader>
         <CardTitle>Sazonalidade &amp; Histórico</CardTitle>
         <CardDescription>
-          Com base no histórico Limiar observado para este produto.
+          Com base no histórico Lymiar observado para este produto.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">

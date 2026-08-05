@@ -64,7 +64,7 @@ function Carousel({
                     ? `Poupa ${formatEUR(Math.abs(item.deltaPrice))}`
                     : `+${formatEUR(item.deltaPrice)}`}
                   {item.deltaScore != null && item.deltaScore !== 0
-                    ? ` · ${item.deltaScore > 0 ? "+" : ""}${item.deltaScore.toFixed(0)} Limiar`
+                    ? ` · ${item.deltaScore > 0 ? "+" : ""}${item.deltaScore.toFixed(0)} Lymiar`
                     : ""}
                 </p>
               ) : null}
@@ -139,7 +139,7 @@ export function ProductDiscoverySection({ product }: Props) {
     { title: "Semelhantes", items: recs.similar || [] },
     { title: "Também pesquisados", items: recs.alsoSearched || [] },
     { title: "Mais populares", items: recs.popular || [] },
-    { title: "Recomendado Limiar", items: recs.recommended || [] },
+    { title: "Recomendado Lymiar", items: recs.recommended || [] },
   ].filter((b) => b.items.length > 0);
 
   if (!blocks.length) return null;

@@ -60,7 +60,7 @@ function baseProduct(over: Partial<Product> = {}): Product {
       feedCategory: "hardware",
       bullets: [],
       semaphore: "buy",
-      limiarIndex: {
+      lymiarIndex: {
         value: 82,
         summary: "Bom momento",
         factors: {

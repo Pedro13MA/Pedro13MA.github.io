@@ -1,4 +1,4 @@
-/** Labels PT para reference_source (Limiar v2). */
+/** Labels PT para reference_source (Lymiar v2). */
 
 export type ReferenceSource =
   | "HISTORY_30D"

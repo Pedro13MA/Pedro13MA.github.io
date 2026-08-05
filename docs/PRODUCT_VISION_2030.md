@@ -2,7 +2,7 @@
 
 # Objetivo
 
-Definir a direção de produto Limiar até 2030, pelo olhar do comprador: o que preservar, o que priorizar e o que não fazer. Domínio de produto — sem recomendações técnicas.
+Definir a direção de produto Lymiar até 2030, pelo olhar do comprador: o que preservar, o que priorizar e o que não fazer. Domínio de produto — sem recomendações técnicas.
 
 # Âmbito
 
@@ -66,7 +66,7 @@ Impacto = quanto melhora a decisão de compra já — não quanto “parece avan
 11. **“Está caro” com o mesmo peso que “está barato”** — Feed “Melhor não comprar hoje”: procura alta e preço acima do habitual.
 12. **Sazonalidade só com evidência** — Ex.: “Em anos anteriores, o preço mais baixo costumou aparecer em novembro.” Sem base → omitir a secção.
 13. **Variantes por valor** — Ex.: €/GB entre capacidades, quando útil.
-14. **Telegram com marca Limiar coerente** — Nome, tom e CTAs alinhados (“Alertas Limiar”); papéis claros: alertas pessoais vs oportunidades públicas.
+14. **Telegram com marca Lymiar coerente** — Nome, tom e CTAs alinhados (“Alertas Lymiar”); papéis claros: alertas pessoais vs oportunidades públicas.
 
 ### Futuro — paridade sem inventar features
 
@@ -94,7 +94,7 @@ Impacto = quanto melhora a decisão de compra já — não quanto “parece avan
 | Lojas monitorizadas (só logos) | Remover ou “X produtos nesta loja” |
 | Email / WhatsApp em breve | Remover até existir |
 | Histórico de Alertas do Bot | Renomear / mover para Telegram |
-| Dicas Limiar redundantes | Fundir no veredicto |
+| Dicas Lymiar redundantes | Fundir no veredicto |
 | Confiança dos Dados (cartão grande) | Reduzir a uma linha sob o veredicto |
 | Sazonalidade vazia | Esconder se sem dados |
 | Deal Score + Índice + Confiança juntos | Um veredicto |
@@ -114,7 +114,7 @@ Impacto = quanto melhora a decisão de compra já — não quanto “parece avan
 9. Feed “está caro — espera”.
 10. Cobertura compreensível (“3 de 5 lojas que seguimos”).
 11. Partilha fácil.
-12. Marca única Limiar no Telegram.
+12. Marca única Lymiar no Telegram.
 
 ## Diferenciação (factual)
 
@@ -128,7 +128,7 @@ Impacto = quanto melhora a decisão de compra já — não quanto “parece avan
 | Telegram editorial + decisão web | Dois ritmos: oportunidades vs deliberação |
 | Variantes por valor (tech) | Nicho útil se bem executado |
 
-**Posicionamento 2030:** o Limiar não compete por ser o maior comparador em Portugal; compete por impedir compras no momento errado, com resposta clara e honesta.
+**Posicionamento 2030:** o Lymiar não compete por ser o maior comparador em Portugal; compete por impedir compras no momento errado, com resposta clara e honesta.
 
 ## Ordem de execução (só produto)
 
@@ -145,7 +145,7 @@ Impacto = quanto melhora a decisão de compra já — não quanto “parece avan
 | 9 | Frescor + total com portes | Alto |
 | 10 | Watchlist + gestão de alertas | Alto (depois do 1) |
 | 11 | Sazonalidade só com base | Médio |
-| 12 | Marca Telegram Limiar | Médio |
+| 12 | Marca Telegram Lymiar | Médio |
 | 13 | Categorias Casa/Telemóveis com a mesma regra de honestidade | Crescimento |
 | 14 | Partilha / scanner / extensão | Futuro |
 
@@ -177,7 +177,7 @@ Zero scores a competir no ecrã. Zero “em breve”. Zero nomes de rede afiliad
 
 | Evitar | Preferir |
 |--------|----------|
-| Parecer técnico Limiar | A nossa leitura |
+| Parecer técnico Lymiar | A nossa leitura |
 | Score interno | (não mostrar) |
 | Histórico de Alertas do Bot | Promoções recentes no Telegram |
 | Campanha Awin activa | Campanha da loja / desconto automático |
@@ -207,7 +207,7 @@ Zero scores a competir no ecrã. Zero “em breve”. Zero nomes de rede afiliad
 | Lojas no fundo da página | Ordem veredicto → lojas → gráfico (regra 3) |
 | Homepage longa com secções sobrepostas | Homepage curta (regra 6) |
 | Jargão interno e “em breve” na UI | Linguagem humana + sem features fingidas |
-| Canal Telegram com nome legado vs marca Limiar | Coerência de marca (regra 14) |
+| Canal Telegram com nome legado vs marca Lymiar | Coerência de marca (regra 14) |
 
 # Relação com outros documentos
 

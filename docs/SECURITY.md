@@ -1,8 +1,8 @@
-# SECURITY.md — Limiar
+# SECURITY.md — Lymiar
 
 # Objetivo
 
-Definir as regras permanentes de segurança e privacidade operacional do Limiar: segredos, autenticação administrativa, superfície de API, logs, contactos e dependências.
+Definir as regras permanentes de segurança e privacidade operacional do Lymiar: segredos, autenticação administrativa, superfície de API, logs, contactos e dependências.
 
 Serve para que qualquer alteração de código, deploy ou ops não comprometa credenciais, privilégios ou dados de utilizador.
 

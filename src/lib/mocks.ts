@@ -124,7 +124,7 @@ export const MOCK_PROMOTIONS: Promotion[] = [
 /** @deprecated Use `@/lib/coupon-stores` — mantido para compat SSG legado. */
 export { COUPON_HUB_STORES } from "@/lib/coupon-stores";
 
-/** @deprecated Códigos hardcoded removidos — SSG usa API Limiar. */
+/** @deprecated Códigos hardcoded removidos — SSG usa API Lymiar. */
 export const KNOWN_COUPON_CODES: string[] = [];
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -209,7 +209,7 @@ export const MOCK_PRODUCTS: Product[] = [
         "Historicamente esteve abaixo deste valor em 0 ocasiões nos últimos 12 meses",
         "Cupão SAVE10 aplicável na PC Componentes (melhor preço multi-loja)",
       ],
-      limiarIndex: {
+      lymiarIndex: {
         value: 96,
         summary: "Menor preço dos últimos 90 dias, 16,5% abaixo da média",
         factors: {
@@ -330,7 +330,7 @@ export const MOCK_PRODUCTS: Product[] = [
         "Ainda €30 acima do mínimo histórico (€249,00)",
         "Historicamente esteve abaixo deste valor em 4 ocasiões nos últimos 12 meses",
       ],
-      limiarIndex: {
+      lymiarIndex: {
         value: 64,
         summary: "Dentro do intervalo normal de preço registado",
         factors: {
@@ -447,7 +447,7 @@ export const MOCK_PRODUCTS: Product[] = [
         "Mínimo histórico registado: €99,90",
         "Historicamente esteve abaixo deste valor em 7 ocasiões nos últimos 12 meses",
       ],
-      limiarIndex: {
+      lymiarIndex: {
         value: 32,
         summary: "Atualmente 4,4% acima da média dos últimos 30 dias",
         factors: {
@@ -566,7 +566,7 @@ export const MOCK_PRODUCTS: Product[] = [
         "Historicamente esteve abaixo deste valor em 0 ocasiões nos últimos 12 meses",
         "Cupão WORTEN15 ativo na melhor oferta",
       ],
-      limiarIndex: {
+      lymiarIndex: {
         value: 91,
         summary: "Menor preço dos últimos 90 dias, 8,6% abaixo da média",
         factors: {
@@ -683,7 +683,7 @@ export const MOCK_PRODUCTS: Product[] = [
         "Mínimo histórico registado: €1.499,00",
         "Historicamente esteve abaixo deste valor em 9 ocasiões nos últimos 12 meses",
       ],
-      limiarIndex: {
+      lymiarIndex: {
         value: 28,
         summary: "Atualmente 8,6% acima da média dos últimos 30 dias",
         factors: {
@@ -735,17 +735,17 @@ export function getProductBySlug(slug: string): Product | undefined {
   return MOCK_PRODUCTS.find((p) => p.slug === slug || p.ean === slug);
 }
 
-/** Secção 1: mínimo histórico + Índice Limiar > 85 */
+/** Secção 1: mínimo histórico + Índice Lymiar > 85 */
 export function getBuyNowProducts(): Product[] {
   return MOCK_PRODUCTS.filter(
-    (p) => p.decision.isHistoricalMin && p.decision.limiarIndex.value > 85,
-  ).sort((a, b) => b.decision.limiarIndex.value - a.decision.limiarIndex.value);
+    (p) => p.decision.isHistoricalMin && p.decision.lymiarIndex.value > 85,
+  ).sort((a, b) => b.decision.lymiarIndex.value - a.decision.lymiarIndex.value);
 }
 
-/** Secção 2: popular acima do habitual + Índice Limiar < 50 */
+/** Secção 2: popular acima do habitual + Índice Lymiar < 50 */
 export function getWaitProducts(): Product[] {
-  return MOCK_PRODUCTS.filter((p) => p.decision.limiarIndex.value < 50).sort(
-    (a, b) => a.decision.limiarIndex.value - b.decision.limiarIndex.value,
+  return MOCK_PRODUCTS.filter((p) => p.decision.lymiarIndex.value < 50).sort(
+    (a, b) => a.decision.lymiarIndex.value - b.decision.lymiarIndex.value,
   );
 }
 

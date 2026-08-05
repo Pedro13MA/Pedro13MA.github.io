@@ -14,13 +14,13 @@ import {
   setStoredToken,
   startOAuthLogin,
 } from "@/lib/auth/session";
-import type { AuthStatus, LimiarSession, LimiarUser } from "@/lib/auth/types";
+import type { AuthStatus, LymiarSession, LymiarUser } from "@/lib/auth/types";
 import type { AuthProviderId } from "@/auth.config";
 
 type SessionContextValue = {
-  data: LimiarSession | null;
+  data: LymiarSession | null;
   status: AuthStatus;
-  user: LimiarUser | null;
+  user: LymiarUser | null;
   refresh: () => Promise<void>;
   signIn: (provider: AuthProviderId) => void;
   signOut: () => Promise<void>;
@@ -30,7 +30,7 @@ type SessionContextValue = {
 const SessionContext = createContext<SessionContextValue | null>(null);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = useState<LimiarSession | null>(null);
+  const [data, setData] = useState<LymiarSession | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
 
   const refresh = useCallback(async () => {

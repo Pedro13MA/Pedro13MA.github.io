@@ -52,7 +52,7 @@ export function CanonicalPageClient({ slug }: Props) {
         brand: v.brand,
         imageUrl: v.imageUrl,
         currentPrice: v.currentPrice,
-        limiarIndex: 0,
+        lymiarIndex: 0,
         leafId: v.leafId,
       };
       if (addToCompare(item).ok) n += 1;
@@ -76,7 +76,7 @@ export function CanonicalPageClient({ slug }: Props) {
         "@type": "Product",
         name: v.name,
         sku: v.ean || v.slug,
-        url: `https://pedro13ma.github.io/p/${encodeURIComponent(v.slug)}/`,
+        url: `https://lymiar.com/p/${encodeURIComponent(v.slug)}/`,
         offers:
           v.currentPrice != null
             ? {

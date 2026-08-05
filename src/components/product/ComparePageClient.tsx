@@ -48,7 +48,7 @@ type Loaded = { slug: string; item: CompareItem; product: Product | null };
 
 const GROUP_LABEL: Record<string, string> = {
   price: "Preço",
-  decision: "Decisão Limiar",
+  decision: "Decisão Lymiar",
   history: "Histórico",
   specs: "Ficha Técnica",
   insights: "Insights",
@@ -107,7 +107,7 @@ export function ComparePageClient() {
               ean: "",
               name: slug,
               currentPrice: 0,
-              limiarIndex: 0,
+              lymiarIndex: 0,
               addedAt: Date.now(),
             };
         return { slug, item, product };
@@ -240,7 +240,7 @@ export function ComparePageClient() {
         return `<tr><th>${escapeHtml(r.label)}</th>${cells}</tr>`;
       })
       .join("");
-    const html = `<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"/><title>Comparação Limiar</title>
+    const html = `<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"/><title>Comparação Lymiar</title>
 <style>
 body{font-family:system-ui,sans-serif;margin:1.5rem;color:#0f172a}
 table{width:100%;border-collapse:collapse;font-size:12px}
@@ -250,7 +250,7 @@ h1{font-size:1.25rem}
 .meta{color:#64748b;font-size:.85rem}
 @media print{body{margin:0}}
 </style></head><body>
-<h1>Comparação Limiar</h1>
+<h1>Comparação Lymiar</h1>
 <p class="meta">${escapeHtml(shareUrl)} · ${new Date().toLocaleString("pt-PT")}</p>
 <table><thead><tr><th>Atributo</th>${header}</tr></thead><tbody>${body}</tbody></table>
 <p class="meta">Dados observados — sem previsões inventadas. Imprimir → Guardar como PDF.</p>
@@ -315,7 +315,7 @@ h1{font-size:1.25rem}
                       focus.name;
                     const res = await searchProducts(q, {
                       limit: 24,
-                      sortBy: "limiar_desc",
+                      sortBy: "lymiar_desc",
                     });
                     const pool = (res.results || []).map(summaryToProduct);
                     const tip = pickBestWithinBudget(focus, pool, budget);
@@ -437,7 +437,7 @@ h1{font-size:1.25rem}
             Telegram
           </a>
           <a
-            href={`mailto:?subject=${encodeURIComponent("Comparação Limiar")}&body=${encodeURIComponent(shareUrl)}`}
+            href={`mailto:?subject=${encodeURIComponent("Comparação Lymiar")}&body=${encodeURIComponent(shareUrl)}`}
             className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
           >
             Email

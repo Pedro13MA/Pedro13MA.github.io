@@ -185,7 +185,7 @@ export function selectionFromSearchParams(
   return out;
 }
 
-const EXPANDED_PREFIX = "limiar.taxonomyFacet.expanded.";
+const EXPANDED_PREFIX = "lymiar.taxonomyFacet.expanded.";
 
 export function readFacetExpanded(facetId: string, fallback = true): boolean {
   if (typeof window === "undefined") return fallback;

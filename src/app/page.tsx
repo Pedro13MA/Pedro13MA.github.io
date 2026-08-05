@@ -1,28 +1,42 @@
 import type { Metadata } from "next";
-import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { HomePageClient } from "@/components/home/v2/HomePageClient";
+import {
+  HomeFooter,
+  HomeHeader,
+} from "@/components/home/premium/HomeChrome";
+import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
+import { isP32NavigationEnabled } from "@/lib/nav/flags";
+import "@/components/home/premium/home-premium.css";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Limiar — Quando vale realmente a pena comprar",
+  title: "Lymiar — Quando vale realmente a pena comprar",
   description:
-    "Descobre oportunidades com histórico observado: descontos, categorias, marcas, lojas e cupões. Comprar agora, esperar, ou ainda não sabemos.",
+    "Comparamos o preço atual com o histórico observado antes de recomendar uma compra.",
   alternates: { canonical: SITE_URL },
   openGraph: {
-    title: "Limiar — Quando vale realmente a pena comprar",
+    title: "Lymiar — Quando vale realmente a pena comprar",
     description:
-      "Centro de descoberta com preços e histórico observados em Portugal.",
+      "Inteligência de compra com histórico observado em Portugal.",
     url: SITE_URL,
-    siteName: "Limiar",
+    siteName: "Lymiar",
     locale: "pt_PT",
     type: "website",
-    images: [{ url: `${SITE_URL}/og-default.svg` }],
+    images: [
+      {
+        url: `${SITE_URL}/og-default.png`,
+        width: 1200,
+        height: 630,
+        alt: "Lymiar",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Limiar — Quando vale realmente a pena comprar",
+    title: "Lymiar — Quando vale realmente a pena comprar",
     description:
       "Descobre se vale a pena comprar agora — com evidência de histórico.",
+    images: [`${SITE_URL}/og-default.png`],
   },
 };
 
@@ -30,7 +44,7 @@ function HomeJsonLd() {
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Limiar",
+    name: "Lymiar",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
@@ -44,9 +58,9 @@ function HomeJsonLd() {
   const org = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Limiar",
+    name: "Lymiar",
     url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
+    logo: `${SITE_URL}/brand/lymiar-logotipo.png`,
   };
   return (
     <>
@@ -63,14 +77,15 @@ function HomeJsonLd() {
 }
 
 export default function HomePage() {
+  const p32 = isP32NavigationEnabled();
   return (
-    <>
+    <div className="home-premium">
       <HomeJsonLd />
-      <SiteHeader />
+      {p32 ? <SiteHeader /> : <HomeHeader />}
       <main>
         <HomePageClient />
       </main>
-      <SiteFooter />
-    </>
+      {p32 ? <SiteFooter /> : <HomeFooter />}
+    </div>
   );
 }

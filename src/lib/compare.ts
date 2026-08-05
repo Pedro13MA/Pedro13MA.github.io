@@ -11,7 +11,7 @@ export type CompareItem = {
   brand?: string | null;
   imageUrl?: string | null;
   currentPrice: number;
-  limiarIndex: number;
+  lymiarIndex: number;
   leafId?: string | null;
   chipsetModel?: string | null;
   vramSpec?: string | null;
@@ -19,7 +19,7 @@ export type CompareItem = {
   addedAt: number;
 };
 
-const STORAGE_KEY = "limiar.compare.v1";
+const STORAGE_KEY = "lymiar.compare.v1";
 const MAX = 4;
 
 export function readCompareList(): CompareItem[] {
@@ -41,7 +41,7 @@ export function writeCompareList(items: CompareItem[]): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, MAX)));
-    window.dispatchEvent(new CustomEvent("limiar:compare-changed"));
+    window.dispatchEvent(new CustomEvent("lymiar:compare-changed"));
   } catch {
     /* ignore */
   }
@@ -86,7 +86,7 @@ export function productToCompareItem(product: Product): Omit<CompareItem, "added
     brand: product.brand,
     imageUrl: product.imageUrl,
     currentPrice: product.currentPrice,
-    limiarIndex: product.decision.limiarIndex.value,
+    lymiarIndex: product.decision.lymiarIndex.value,
     leafId: product.leafId,
     chipsetModel: product.chipsetModel,
     vramSpec: product.vramSpec,
@@ -111,7 +111,7 @@ export function compareIdsToParam(slugs: string[]): string {
 export function buildCompareShareUrl(slugs: string[], origin?: string): string {
   const base =
     origin ||
-    (typeof window !== "undefined" ? window.location.origin : "https://pedro13ma.github.io");
+    (typeof window !== "undefined" ? window.location.origin : "https://lymiar.com");
   const ids = compareIdsToParam(slugs);
   const path = ids ? `/comparar/?ids=${encodeURIComponent(ids)}` : "/comparar/";
   return `${base.replace(/\/$/, "")}${path}`;

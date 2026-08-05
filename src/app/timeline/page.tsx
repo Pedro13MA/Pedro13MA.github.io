@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TimelinePageClient } from "@/components/watchlists/TimelinePageClient";
 
 export const metadata: Metadata = {
-  title: "Timeline · Limiar",
+  title: "Timeline · Lymiar",
   description:
     "Acompanhe alterações observadas nos produtos, categorias e projetos que segue.",
   robots: { index: false, follow: false },

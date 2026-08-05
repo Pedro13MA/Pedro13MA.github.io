@@ -1,0 +1,32 @@
+{
+  "phase": "P3-BLOCK1",
+  "generated_at": "2026-08-05",
+  "flag": {
+    "name": "P32_NAVIGATION",
+    "env": "NEXT_PUBLIC_P32_NAVIGATION",
+    "default": false
+  },
+  "architecture": {
+    "tree_source": "GET /api/v1/taxonomy/tree (backend TreeProvider)",
+    "presentation": "src/lib/nav/elevation.ts + buildMegaMenuFromTree",
+    "header": "SiteHeader → SiteHeaderP32 | Legacy",
+    "provider": "TaxonomyTreeProvider in AppProviders when flag ON"
+  },
+  "surfaces": [
+    "desktop_megamenu",
+    "mobile_drawer",
+    "bottom_navigation",
+    "categorias_map",
+    "categoria_slug_empty_related"
+  ],
+  "out_of_scope": [
+    "smart_search",
+    "typeahead",
+    "advanced_filters",
+    "comparator",
+    "recommendations",
+    "pdp_redesign",
+    "alerts",
+    "advanced_seo"
+  ]
+}

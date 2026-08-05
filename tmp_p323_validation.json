@@ -1,0 +1,67 @@
+{
+  "all_search_pass": true,
+  "all_journeys_pass": true,
+  "suggest": {
+    "status": 200,
+    "engine": "p33",
+    "products": 5
+  },
+  "search_summary": {
+    "Apple Watch": {
+      "total": 220,
+      "pass": true
+    },
+    "SSD Samsung": {
+      "total": 24,
+      "pass": true
+    },
+    "Samsung SSD": {
+      "total": 25,
+      "pass": true
+    },
+    "melhor SSD Samsung": {
+      "total": 26,
+      "pass": true
+    },
+    "portátil gaming": {
+      "total": 118,
+      "pass": true
+    },
+    "melhor portátil gaming": {
+      "total": 118,
+      "pass": true
+    },
+    "Bullpadel": {
+      "total": 19,
+      "pass": true
+    },
+    "TP-Link Tapo": {
+      "total": 31,
+      "pass": true
+    },
+    "câmara TP-Link": {
+      "total": 31,
+      "pass": true
+    },
+    "Air Fryer": {
+      "total": 187,
+      "pass": true
+    },
+    "frigideira": {
+      "total": 101,
+      "pass": true
+    },
+    "RTX 5070": {
+      "total": 49,
+      "pass": true
+    }
+  },
+  "journey_summary": {
+    "J1_Apple_Watch": true,
+    "J2_SSD_Samsung": true,
+    "J3_TP_Link_Tapo": true,
+    "J4_Air_Fryer": true,
+    "J5_Frigideira": true,
+    "J6_Bullpadel": true
+  }
+}

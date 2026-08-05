@@ -4,7 +4,7 @@ import { CanonicalDetailQueryPage } from "@/components/catalogo/CanonicalDetailQ
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Produto canónico · Limiar",
+  title: "Produto canónico · Lymiar",
   description: "Escolhe a variante com preços observados.",
   alternates: { canonical: `${SITE_URL}/catalogo/grupo/` },
   robots: { index: true, follow: true },

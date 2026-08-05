@@ -37,7 +37,7 @@ export function snapshotFromProduct(product: {
   brand?: string | null;
   imageUrl?: string | null;
   currentPrice: number;
-  decision: { limiarIndex: { value: number }; cheapestStore?: string | null };
+  decision: { lymiarIndex: { value: number }; cheapestStore?: string | null };
   condition?: string | null;
   category?: string;
 }): ProductSnapshot {
@@ -48,7 +48,7 @@ export function snapshotFromProduct(product: {
     brand: product.brand,
     imageUrl: product.imageUrl,
     currentPrice: product.currentPrice,
-    limiarIndex: product.decision.limiarIndex.value,
+    lymiarIndex: product.decision.lymiarIndex.value,
     cheapestStore: product.decision.cheapestStore,
     condition: product.condition,
     category: product.category,
@@ -239,10 +239,10 @@ export async function setAlertActive(
 export function subscribeUserSpace(cb: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   const handler = () => cb();
-  window.addEventListener("limiar:userspace-changed", handler);
+  window.addEventListener("lymiar:userspace-changed", handler);
   window.addEventListener("storage", handler);
   return () => {
-    window.removeEventListener("limiar:userspace-changed", handler);
+    window.removeEventListener("lymiar:userspace-changed", handler);
     window.removeEventListener("storage", handler);
   };
 }

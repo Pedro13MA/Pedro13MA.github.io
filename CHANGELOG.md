@@ -1,10 +1,10 @@
-# Changelog — Limiar
+# Changelog — Lymiar
 
 ## [1.0.0-rc1] — 2026-08-03
 
 ### Release Candidate
 
-Primeira Release Candidate pública do Limiar (web + hub). Comportamento funcional consolidado das fases 7.x e 8.0–8.2.
+Primeira Release Candidate pública do Lymiar (web + hub). Comportamento funcional consolidado das fases 7.x e 8.0–8.2.
 
 ### Added (histórico 7.x–8.2)
 

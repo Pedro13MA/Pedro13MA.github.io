@@ -7,7 +7,7 @@ Lido antes: `docs/VISION.md`, `docs/PRODUCT_PRINCIPLES.md`, `docs/PRODUCT_VISION
 ## Não alterado
 
 - ranking / pesquisa / taxonomy / insights / discovery
-- scheduler / telegram / motor Limiar / histórico
+- scheduler / telegram / motor Lymiar / histórico
 - Smart Cart / Projetos / Comparador (só UI aditiva: botão Seguir + timeline)
 
 ## Arquitectura
@@ -16,7 +16,7 @@ Lido antes: `docs/VISION.md`, `docs/PRODUCT_PRINCIPLES.md`, `docs/PRODUCT_VISION
 WatchService
     ↓
 WatchStorageAdapter
-    ├─ LocalWatchAdapter   (localStorage · limiar.watchlists.v1)
+    ├─ LocalWatchAdapter   (localStorage · lymiar.watchlists.v1)
     └─ CloudWatchAdapter   (stub · FASE 8)
 
 TimelineService
@@ -107,7 +107,7 @@ Suites anteriores devem permanecer verdes.
 
 ## Próximos passos — FASE 8
 
-1. Conta Limiar + auth
+1. Conta Lymiar + auth
 2. Activar `CloudWatchAdapter.sync()`
 3. Merge local ↔ cloud sem duplicar eventos
 4. Notificações honestas ligadas a watches (sem inventar)
@@ -115,7 +115,7 @@ Suites anteriores devem permanecer verdes.
 
 ## Critérios
 
-- [x] Zero alterações ao motor Limiar / ranking / pesquisa / taxonomy / scheduler / Telegram
+- [x] Zero alterações ao motor Lymiar / ranking / pesquisa / taxonomy / scheduler / Telegram
 - [x] Apenas leitura de dados existentes
 - [x] Sem IA / sem previsões / sem inventar eventos
 - [x] Preparado para FASE 8 (adapter cloud stub)

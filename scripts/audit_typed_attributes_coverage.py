@@ -6,9 +6,9 @@ import sqlite3
 from collections import Counter, defaultdict
 from pathlib import Path
 
-DB = Path("/opt/limiar/limiar.db")
+DB = Path("/opt/lymiar/lymiar.db")
 if not DB.exists():
-    DB = Path("limiar.db")
+    DB = Path("lymiar.db")
 
 db = sqlite3.connect(str(DB))
 db.row_factory = sqlite3.Row

@@ -43,6 +43,7 @@ export function ProductHero({ product }: Props) {
   const categoryLabel = displayLeafOrBrand({
     subcategoryLabel: product.subcategoryLabel,
     leafId: product.leafId,
+    taxonomyPath: product.taxonomyPath,
     category: product.category,
     brand: product.brand,
   });
@@ -171,7 +172,7 @@ export function ProductHero({ product }: Props) {
                 className={cn(
                   "h-4 w-4 shrink-0",
                   fav && "fill-current",
-                  heartPulse && "limiar-anim-heart",
+                  heartPulse && "lymiar-anim-heart",
                 )}
                 aria-hidden
               />
@@ -202,7 +203,7 @@ export function ProductHero({ product }: Props) {
               <Bell
                 className={cn(
                   "h-4 w-4 shrink-0",
-                  bellPulse && "limiar-anim-bell",
+                  bellPulse && "lymiar-anim-bell",
                 )}
                 aria-hidden
               />

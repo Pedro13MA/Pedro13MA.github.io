@@ -51,9 +51,9 @@ import {
   savePreferencesLocal,
 } from "@/lib/sync/preferences";
 
-const DEVICE_KEY = "limiar.device.id";
-const MERGE_DONE_KEY = "limiar.sync.merge.done";
-const SYNCED_FLAG = "limiar.sync.cloudFirst";
+const DEVICE_KEY = "lymiar.device.id";
+const MERGE_DONE_KEY = "lymiar.sync.merge.done";
+const SYNCED_FLAG = "lymiar.sync.cloudFirst";
 
 type MergeListener = (needed: boolean) => void;
 const mergeListeners = new Set<MergeListener>();

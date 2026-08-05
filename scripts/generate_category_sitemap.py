@@ -8,7 +8,7 @@ root = Path(__file__).resolve().parents[1]
 text = (root / "src/lib/category-slugs.ts").read_text(encoding="utf-8")
 part = text.split("CATEGORY_MENU_L1")[0]
 ids = re.findall(r'"([a-z0-9_]+)"', part)
-origin = "https://pedro13ma.github.io"
+origin = "https://lymiar.com"
 lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

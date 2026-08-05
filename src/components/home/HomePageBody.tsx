@@ -94,7 +94,7 @@ export function HomePageBody({
         setWait(waitRes.results.map(summaryToProduct));
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Falha ao contactar a API Limiar");
+          setError(err instanceof Error ? err.message : "Falha ao contactar a API Lymiar");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -198,7 +198,7 @@ export function HomePageBody({
           >
             <DecisionHeading
               title="Sem dados suficientes"
-              subtitle="Quando o histórico é curto, o Limiar não inventa uma recomendação."
+              subtitle="Quando o histórico é curto, o Lymiar não inventa uma recomendação."
             />
             <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-6 py-8 sm:px-8">
               <p className="max-w-2xl text-[15px] leading-relaxed text-slate-600">
@@ -224,7 +224,7 @@ export function HomePageBody({
                     Acompanhar no Telegram
                   </h2>
                   <p className="mt-3 max-w-lg text-[15px] leading-relaxed text-slate-500">
-                    Oportunidades publicadas no canal Limiar — útil se quiseres um ritmo rápido,
+                    Oportunidades publicadas no canal Lymiar — útil se quiseres um ritmo rápido,
                     sem substituir a decisão na página do produto.
                   </p>
                 </div>

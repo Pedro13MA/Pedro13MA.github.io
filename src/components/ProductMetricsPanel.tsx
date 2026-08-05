@@ -86,7 +86,7 @@ export function ProductMetricsPanel({ ean, currentPrice }: Props) {
       <CardHeader>
         <CardTitle>Métricas de mercado</CardTitle>
         <CardDescription>
-          All-time low, médias e dispersão multi-loja a partir do histórico Limiar.
+          All-time low, médias e dispersão multi-loja a partir do histórico Lymiar.
         </CardDescription>
       </CardHeader>
       <CardContent>

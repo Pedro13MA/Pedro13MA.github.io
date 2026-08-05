@@ -89,7 +89,7 @@ export function AddToCartButton({
         )}
       >
         <ShoppingBag
-          className={cn("h-4 w-4 shrink-0", pulse && "limiar-anim-cart")}
+          className={cn("h-4 w-4 shrink-0", pulse && "lymiar-anim-cart")}
           aria-hidden
         />
         {inCart ? "No carrinho" : "Carrinho"}

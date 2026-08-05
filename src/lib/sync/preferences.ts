@@ -3,7 +3,7 @@
 import type { UserPreferences } from "@/lib/sync/types";
 import { DEFAULT_PREFERENCES } from "@/lib/sync/types";
 
-const KEY = "limiar.preferences.v1";
+const KEY = "lymiar.preferences.v1";
 
 export function loadPreferencesLocal(): UserPreferences {
   if (typeof window === "undefined") return { ...DEFAULT_PREFERENCES };

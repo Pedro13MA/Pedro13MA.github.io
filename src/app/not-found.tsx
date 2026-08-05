@@ -29,7 +29,7 @@ export default function NotFound() {
           Página não encontrada
         </h1>
         <p className="mt-3 text-slate-500">
-          Este link não existe ou o produto ainda não está no catálogo Limiar.
+          Este link não existe ou o produto ainda não está no catálogo Lymiar.
           Se estavas a abrir um produto, vamos tentar carregar a página correcta…
         </p>
         <Link

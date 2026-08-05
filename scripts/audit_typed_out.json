@@ -1,0 +1,396 @@
+﻿leaf_col leaf_id typed_col typed_attributes
+{
+  "db": "/opt/lymiar/lymiar.db",
+  "focus": {
+    "cpu": {
+      "products": 116,
+      "with_typed": 116,
+      "typed_pct": 100.0,
+      "attrs": {
+        "brand": {
+          "n": 116,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 100.0,
+          "examples": [
+            "AMD",
+            "Intel",
+            "Kenwood",
+            "Synology"
+          ]
+        },
+        "series": {
+          "n": 78,
+          "pct_of_typed": 67.2,
+          "pct_of_leaf": 67.2,
+          "examples": [
+            "Core Ultra 7",
+            "Ryzen 5",
+            "Ryzen 7",
+            "Ryzen 9"
+          ]
+        },
+        "model": {
+          "n": 78,
+          "pct_of_typed": 67.2,
+          "pct_of_leaf": 67.2,
+          "examples": [
+            "Core Ultra 7",
+            "Ryzen 5",
+            "Ryzen 7",
+            "Ryzen 9"
+          ]
+        },
+        "socket": {
+          "n": 38,
+          "pct_of_typed": 32.8,
+          "pct_of_leaf": 32.8,
+          "examples": [
+            "AM4",
+            "AM5",
+            "LGA1700"
+          ]
+        }
+      }
+    },
+    "motherboard": {
+      "products": 318,
+      "with_typed": 318,
+      "typed_pct": 100.0,
+      "attrs": {
+        "brand": {
+          "n": 318,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 100.0,
+          "examples": [
+            "ASRock",
+            "Asus",
+            "Gigabyte",
+            "MSI"
+          ]
+        },
+        "chipset": {
+          "n": 99,
+          "pct_of_typed": 31.1,
+          "pct_of_leaf": 31.1,
+          "examples": [
+            "B550",
+            "B650",
+            "B760",
+            "B850"
+          ]
+        },
+        "socket": {
+          "n": 15,
+          "pct_of_typed": 4.7,
+          "pct_of_leaf": 4.7,
+          "examples": [
+            "AM4",
+            "AM5",
+            "LGA1700",
+            "LGA1851"
+          ]
+        }
+      }
+    },
+    "ram": {
+      "products": 333,
+      "with_typed": 332,
+      "typed_pct": 99.7,
+      "attrs": {
+        "brand": {
+          "n": 332,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 99.7,
+          "examples": [
+            "ADATA",
+            "Corsair",
+            "G.Skill",
+            "Patriot"
+          ]
+        }
+      }
+    },
+    "gpu": {
+      "products": 248,
+      "with_typed": 248,
+      "typed_pct": 100.0,
+      "attrs": {
+        "brand": {
+          "n": 248,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 100.0,
+          "examples": [
+            "Asus",
+            "MSI",
+            "Nvidia",
+            "Sapphire"
+          ]
+        },
+        "rgb": {
+          "n": 247,
+          "pct_of_typed": 99.6,
+          "pct_of_leaf": 99.6,
+          "examples": [
+            "False",
+            "True"
+          ]
+        },
+        "chipset": {
+          "n": 216,
+          "pct_of_typed": 87.1,
+          "pct_of_leaf": 87.1,
+          "examples": [
+            "RTX 2000",
+            "RTX 5060 Ti",
+            "RTX 5080",
+            "RTX 6000"
+          ]
+        },
+        "vram_gb": {
+          "n": 201,
+          "pct_of_typed": 81.0,
+          "pct_of_leaf": 81.0,
+          "examples": [
+            "12",
+            "16",
+            "24",
+            "8"
+          ]
+        },
+        "pcie_version": {
+          "n": 2,
+          "pct_of_typed": 0.8,
+          "pct_of_leaf": 0.8,
+          "examples": [
+            "5.0"
+          ]
+        },
+        "series": {
+          "n": 1,
+          "pct_of_typed": 0.4,
+          "pct_of_leaf": 0.4,
+          "examples": [
+            "Core I5"
+          ]
+        },
+        "model": {
+          "n": 1,
+          "pct_of_typed": 0.4,
+          "pct_of_leaf": 0.4,
+          "examples": [
+            "Core I5"
+          ]
+        }
+      }
+    },
+    "ssd": {
+      "products": 288,
+      "with_typed": 288,
+      "typed_pct": 100.0,
+      "attrs": {
+        "brand": {
+          "n": 288,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 100.0,
+          "examples": [
+            "Lexar",
+            "Team Group",
+            "Tooq",
+            "Western Digital"
+          ]
+        },
+        "form_factor": {
+          "n": 256,
+          "pct_of_typed": 88.9,
+          "pct_of_leaf": 88.9,
+          "examples": [
+            "External",
+            "M.2 NVMe",
+            "SATA"
+          ]
+        },
+        "capacity_gb": {
+          "n": 217,
+          "pct_of_typed": 75.3,
+          "pct_of_leaf": 75.3,
+          "examples": [
+            "1000",
+            "2000",
+            "256",
+            "4000"
+          ]
+        },
+        "pcie_generation": {
+          "n": 173,
+          "pct_of_typed": 60.1,
+          "pct_of_leaf": 60.1,
+          "examples": [
+            "Gen2",
+            "Gen3",
+            "Gen4",
+            "Gen5"
+          ]
+        },
+        "rgb": {
+          "n": 8,
+          "pct_of_typed": 2.8,
+          "pct_of_leaf": 2.8,
+          "examples": [
+            "False"
+          ]
+        },
+        "vram_gb": {
+          "n": 3,
+          "pct_of_typed": 1.0,
+          "pct_of_leaf": 1.0,
+          "examples": [
+            "16",
+            "24"
+          ]
+        }
+      }
+    },
+    "psu": {
+      "products": 144,
+      "with_typed": 144,
+      "typed_pct": 100.0,
+      "attrs": {
+        "brand": {
+          "n": 144,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 100.0,
+          "examples": [
+            "Asus",
+            "Corsair",
+            "MSI",
+            "Seasonic"
+          ]
+        },
+        "wattage": {
+          "n": 36,
+          "pct_of_typed": 25.0,
+          "pct_of_leaf": 25.0,
+          "examples": [
+            "1000",
+            "650",
+            "700",
+            "750"
+          ]
+        }
+      }
+    },
+    "case": {
+      "products": 0,
+      "with_typed": 0,
+      "typed_pct": 0.0,
+      "attrs": {}
+    },
+    "cooler": {
+      "products": 706,
+      "with_typed": 706,
+      "typed_pct": 100.0,
+      "attrs": {
+        "brand": {
+          "n": 706,
+          "pct_of_typed": 100.0,
+          "pct_of_leaf": 100.0,
+          "examples": [
+            "Asus",
+            "Cecotec",
+            "Jonsbo",
+            "Lian Li"
+          ]
+        }
+      }
+    }
+  },
+  "other_leaves_with_typed": {
+    "unclassified": 10745,
+    "non_catalog": 6432,
+    "laptop": 5713,
+    "phone_case": 5279,
+    "warranty": 2402,
+    "unknown": 2220,
+    "smartphone": 1745,
+    "cable": 1715,
+    "headphones": 1471,
+    "game_physical": 1463,
+    "ticket": 1288,
+    "insurance": 1101,
+    "kitchen_appliance": 1036,
+    "charger": 901,
+    "phone_accessory_other": 860,
+    "screen_assembly": 803,
+    "fridge": 775,
+    "mouse": 757,
+    "ink": 604,
+    "peripherals_other": 561,
+    "installation": 559,
+    "smartwatch": 549,
+    "monitor": 540,
+    "dishwasher": 531,
+    "speakers": 518,
+    "vacuum": 516,
+    "keyboard": 503,
+    "game_digital": 481,
+    "tv": 479,
+    "spare_part": 435,
+    "printer": 405,
+    "hood": 402,
+    "screen_protector": 401,
+    "tablet": 375,
+    "hob": 345,
+    "battery_part": 344,
+    "coffee_machine": 304,
+    "oven": 303,
+    "controller": 253,
+    "components_other": 245,
+    "washing_machine": 243,
+    "casa_other": 237,
+    "pc_case": 234,
+    "wall_mount": 229,
+    "racing_wheel": 218,
+    "back_cover": 200,
+    "console": 173,
+    "mfp": 166,
+    "camera": 166,
+    "power_bank": 163,
+    "air_fryer": 160,
+    "desktop": 148,
+    "microphone": 142,
+    "car_mount": 131,
+    "headset_pc": 120,
+    "lens": 116,
+    "gaming_chair": 109,
+    "dryer": 101,
+    "sim_racing_rig": 86,
+    "docking_station": 81,
+    "remote": 78,
+    "soundbar": 74,
+    "toner": 73,
+    "pedals": 63,
+    "external_ssd": 54,
+    "router": 50,
+    "enclosure": 48,
+    "usb_flash": 43,
+    "webcam": 41,
+    "tripod": 41,
+    "paper": 34,
+    "aio": 33,
+    "mini_pc": 29,
+    "robot_vacuum": 27,
+    "photo_accessory": 19,
+    "gear_shifter": 9,
+    "cleaning_accessory": 9,
+    "freezer": 7,
+    "application_software": 6,
+    "coffee_accessory": 6,
+    "media_streamer": 5,
+    "repair_service": 3,
+    "gift_card_gaming": 3,
+    "mesh": 2,
+    "coffee_capsules": 2,
+    "tv_stand": 1,
+    "antenna": 1
+  }
+}

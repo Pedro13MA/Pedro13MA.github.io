@@ -1,0 +1,6 @@
+{
+  "intent_avg_ms": 0.0788,
+  "iterations": 100,
+  "queries": 10,
+  "note": "CPU local unit; no DB"
+}

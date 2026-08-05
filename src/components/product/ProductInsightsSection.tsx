@@ -25,7 +25,7 @@ function Stars({ n }: { n: number }) {
 }
 
 /**
- * FASE 7.16 — Insights Limiar (só interpretação factual).
+ * FASE 7.16 — Insights Lymiar (só interpretação factual).
  */
 export function ProductInsightsSection({ product }: Props) {
   const insights = resolveProductInsights(product);
@@ -35,7 +35,7 @@ export function ProductInsightsSection({ product }: Props) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold text-slate-900">
-            Insights Limiar
+            Insights Lymiar
           </h2>
           <p className="mt-1 text-sm text-slate-500">
             Leitura factual dos dados observados — sem previsões.

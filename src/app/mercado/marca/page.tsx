@@ -4,8 +4,8 @@ import { MarcaDetailClient } from "@/components/mercado/MarcaDetailClient";
 import { SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Marca | Mercado Limiar",
-  description: "Dashboard factual de marca no Limiar.",
+  title: "Marca | Mercado Lymiar",
+  description: "Dashboard factual de marca no Lymiar.",
   alternates: { canonical: `${SITE_URL}/mercado/marca/` },
 };
 
