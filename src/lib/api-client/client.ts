@@ -446,7 +446,12 @@ export const apiClient = {
 /** Compat — equivalente ao antigo apiGet interno. */
 export function apiGet<T>(
   path: string,
-  init?: RequestInit & { label?: string; bypassCache?: boolean },
+  init?: RequestInit & {
+    label?: string;
+    bypassCache?: boolean;
+    timeoutMs?: number;
+    allowStatuses?: number[];
+  },
 ): Promise<T> {
   return apiClient.get<T>(path, {
     signal: init?.signal ?? undefined,
@@ -454,6 +459,8 @@ export function apiGet<T>(
     credentials: init?.credentials,
     label: init?.label,
     bypassCache: init?.bypassCache,
+    timeoutMs: init?.timeoutMs,
+    allowStatuses: init?.allowStatuses,
   });
 }
 
