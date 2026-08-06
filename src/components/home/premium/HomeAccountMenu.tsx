@@ -21,7 +21,7 @@ export function HomeAccountMenu() {
     return (
       <Link
         href="/entrar/"
-        className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 transition-colors hover:border-blue-300 hover:text-blue-600"
+        className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 transition-colors hover:border-orange-300 hover:text-[var(--hm-brand)]"
       >
         Entrar
       </Link>
@@ -40,7 +40,7 @@ export function HomeAccountMenu() {
           onBlur={() => window.setTimeout(() => setOpen(false), 180)}
           className={cn(
             "flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-800",
-            open && "ring-2 ring-blue-500/30",
+            open && "ring-2 ring-[var(--hm-brand)]/30",
           )}
           aria-expanded={open}
           aria-haspopup="menu"

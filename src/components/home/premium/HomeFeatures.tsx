@@ -33,7 +33,7 @@ export function HomeFeatures() {
   return (
     <section id="funcionalidades" className="scroll-mt-20 border-b border-slate-200 bg-white">
       <div className="home-fade mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl">
-        <p className="text-sm font-semibold text-blue-600">Plataforma</p>
+        <p className="text-sm font-semibold text-[var(--hm-brand)]">Plataforma</p>
         <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Funcionalidades
         </h2>
@@ -41,10 +41,10 @@ export function HomeFeatures() {
           {FEATURES.map(({ href, label, Icon, ...rest }) => {
             const external = "external" in rest && rest.external;
             const className =
-              "home-card flex flex-col items-start gap-3 p-5 transition-colors hover:border-blue-200";
+              "home-card flex flex-col items-start gap-3 p-5 transition-colors hover:border-orange-200";
             const inner = (
               <>
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--hm-brand-soft)] text-[var(--hm-brand)]">
                   <Icon className="h-5 w-5" aria-hidden />
                 </span>
                 <span className="text-sm font-semibold text-slate-900">{label}</span>

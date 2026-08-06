@@ -1,6 +1,6 @@
 /** FASE 8.2 — cliente API de notificações. */
 
-import { getApiBaseUrl } from "@/lib/api";
+import { apiClient } from "@/lib/api-client";
 import { getStoredToken } from "@/lib/auth/session";
 
 export type AppNotification = {
@@ -35,15 +35,17 @@ function headers(extra?: HeadersInit): HeadersInit {
   };
 }
 
-async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...init,
+async function req<T>(path: string, init?: { method?: string; body?: unknown; headers?: HeadersInit }): Promise<T> {
+  const method = init?.method || "GET";
+  const opts = {
     headers: headers(init?.headers),
-    credentials: "include",
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`notifications_${res.status}`);
-  return (await res.json()) as T;
+    credentials: "include" as const,
+    label: "NOTIFICATIONS",
+  };
+  if (method === "POST") {
+    return apiClient.post<T>(path, init?.body, opts);
+  }
+  return apiClient.get<T>(path, opts);
 }
 
 export async function fetchNotifications(params?: {
@@ -73,11 +75,11 @@ export async function markNotificationsRead(
 ): Promise<void> {
   await req("/api/v1/notifications/read", {
     method: "POST",
-    body: JSON.stringify({
+    body: {
       ids,
       all: opts?.all ?? false,
       archive: opts?.archive ?? false,
-    }),
+    },
   });
 }
 
@@ -93,7 +95,7 @@ export async function saveNotificationPreferences(
 ): Promise<NotificationPreferences> {
   const data = await req<{ preferences: NotificationPreferences }>(
     "/api/v1/notifications/preferences",
-    { method: "POST", body: JSON.stringify(prefs) },
+    { method: "POST", body: prefs },
   );
   return data.preferences;
 }
@@ -101,16 +103,16 @@ export async function saveNotificationPreferences(
 export async function registerPushDevice(subscription: PushSubscriptionJSON): Promise<void> {
   await req("/api/v1/notifications/device", {
     method: "POST",
-    body: JSON.stringify({
+    body: {
       kind: "webpush",
       endpoint: subscription.endpoint,
       subscription,
-    }),
+    },
   });
 }
 
 export async function sendTestNotification(): Promise<void> {
-  await req("/api/v1/notifications/test", { method: "POST", body: "{}" });
+  await req("/api/v1/notifications/test", { method: "POST", body: {} });
 }
 
 export async function ingestFactualNotification(event: {
@@ -123,7 +125,7 @@ export async function ingestFactualNotification(event: {
 }): Promise<void> {
   await req("/api/v1/notifications/ingest", {
     method: "POST",
-    body: JSON.stringify(event),
+    body: event,
   });
 }
 

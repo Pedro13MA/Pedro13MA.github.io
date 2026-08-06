@@ -81,10 +81,8 @@ export function AddToCartButton({
         aria-label={`Adicionar ${product.name} ao carrinho (${count} itens)`}
         aria-pressed={inCart}
         className={cn(
-          "inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-semibold transition-all duration-200",
-          inCart
-            ? "border-sky-300 bg-sky-100 text-sky-900 shadow-sm"
-            : "border-sky-200/80 bg-sky-50 text-sky-800 hover:border-sky-300 hover:bg-sky-100",
+          "pdp-action-btn",
+          inCart && "pdp-action-btn--on",
           className,
         )}
       >

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TaxonomyFilters } from "@/components/search/TaxonomyFilters";
 import type { FacetBucket, SearchFacets, TaxonomyFacet } from "@/lib/api";
@@ -10,6 +9,7 @@ import {
   hasTaxonomyFacets,
   type TaxonomySelection,
 } from "@/lib/taxonomy-facets";
+import { storeDisplayName } from "@/lib/storeLogos";
 import { cn } from "@/lib/utils";
 
 const BRAND_PREVIEW = 5;
@@ -149,13 +149,17 @@ function FacetList({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hm-faint,#8b9aab)]">
         {title}
       </p>
       <ul className="space-y-1">
         {visible.map((item) => {
           const selected = active.toLowerCase() === item.value.toLowerCase();
           const key = itemKey ? itemKey(item) : item.value;
+          const label =
+            title === "Loja"
+              ? storeDisplayName(item.value, item.label)
+              : item.label;
           return (
             <li key={key}>
               <button
@@ -164,12 +168,12 @@ function FacetList({
                 className={cn(
                   "flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
                   selected
-                    ? "bg-sky-50 font-medium text-sky-900"
-                    : "text-slate-700 hover:bg-slate-50",
+                    ? "bg-[var(--hm-brand-soft,#fff1e8)] font-medium text-[var(--hm-brand-deep,#e2550f)]"
+                    : "text-[var(--hm-ink,#0b1220)] hover:bg-[var(--hm-bg-soft,#eef2f6)]",
                 )}
               >
-                <span className="truncate">{item.label}</span>
-                <span className="ml-2 shrink-0 text-xs text-slate-400">
+                <span className="truncate">{label}</span>
+                <span className="ml-2 shrink-0 text-xs text-[var(--hm-faint,#8b9aab)]">
                   ({item.count})
                 </span>
               </button>
@@ -181,7 +185,7 @@ function FacetList({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-xs font-medium text-sky-700 hover:underline"
+          className="text-xs font-medium text-[var(--hm-brand-deep,#e2550f)] hover:underline"
         >
           {expanded ? "Ver menos" : `Ver mais (+${hiddenCount})`}
         </button>
@@ -202,11 +206,11 @@ function SubcategoryBlock({
   if (!items.length) return null;
 
   return (
-    <div className="space-y-2 rounded-xl border border-sky-100 bg-sky-50/40 p-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-sky-800">
+    <div className="space-y-2 rounded-xl border border-[var(--hm-line,#dde3ea)] bg-[var(--hm-brand-soft,#fff1e8)]/40 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hm-brand-deep,#e2550f)]">
         Categoria
       </p>
-      <p className="text-[11px] text-slate-500">
+      <p className="text-[11px] text-[var(--hm-muted,#5b6b7c)]">
         Taxonomia Lymiar (leaf) · fallback legado se necessário
       </p>
       <ul className="space-y-1">
@@ -222,12 +226,12 @@ function SubcategoryBlock({
                 className={cn(
                   "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
                   selected
-                    ? "bg-white font-medium text-sky-900 shadow-sm ring-1 ring-sky-200"
-                    : "text-slate-700 hover:bg-white/70",
+                    ? "bg-white font-medium text-[var(--hm-ink,#0b1220)] shadow-sm ring-1 ring-[var(--hm-brand,#ff6a1a)]/30"
+                    : "text-[var(--hm-ink,#0b1220)] hover:bg-white/70",
                 )}
               >
                 <span className="truncate">{item.label}</span>
-                <span className="shrink-0 text-xs text-slate-400">
+                <span className="shrink-0 text-xs text-[var(--hm-faint,#8b9aab)]">
                   ({item.count})
                 </span>
               </button>
@@ -398,16 +402,18 @@ export function FilterSidebar({
   return (
     <aside
       className={cn(
-        "lymiar-sidebar space-y-6 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
+        "catalog-filters lymiar-sidebar space-y-6",
         "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
         "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
       )}
     >
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-sm font-semibold text-slate-900">Filtros</h2>
+        <h2 className="font-display text-sm font-semibold text-[var(--hm-ink,#0b1220)]">
+          Filtros
+        </h2>
         <button
           type="button"
-          className="text-xs text-sky-700 hover:underline"
+          className="text-xs text-[var(--hm-brand-deep,#e2550f)] hover:underline"
           onClick={handleClear}
         >
           Limpar
@@ -433,13 +439,15 @@ export function FilterSidebar({
       />
 
       {showInStock ? (
-        <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2.5">
-          <span className="text-sm font-medium text-slate-700">Apenas em Stock</span>
+        <label className="flex items-center justify-between gap-3 rounded-lg border border-[var(--hm-line,#dde3ea)] px-3 py-2.5">
+          <span className="text-sm font-medium text-[var(--hm-ink,#0b1220)]">
+            Apenas em Stock
+          </span>
           <input
             type="checkbox"
             checked={filters.inStockOnly}
             onChange={(e) => onSelect({ inStockOnly: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+            className="h-4 w-4 rounded border-[var(--hm-line,#dde3ea)] text-[var(--hm-brand,#ff6a1a)] focus:ring-[var(--hm-brand,#ff6a1a)]"
           />
         </label>
       ) : null}
@@ -473,7 +481,7 @@ export function FilterSidebar({
       ) : null}
 
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hm-faint,#8b9aab)]">
           Intervalo de preço (€)
         </p>
         <div className="flex gap-2">
@@ -492,9 +500,9 @@ export function FilterSidebar({
             className="h-9"
           />
         </div>
-        <Button type="button" variant="outline" className="w-full" onClick={onApplyPrice}>
+        <button type="button" className="catalog-cta w-full" onClick={onApplyPrice}>
           Aplicar preço
-        </Button>
+        </button>
       </div>
     </aside>
   );

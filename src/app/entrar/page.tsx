@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { EntrarPageClient } from "@/components/auth/EntrarPageClient";
 
 export const metadata: Metadata = {
-  title: "Entrar · Lymiar",
-  description: "Entra no Lymiar com Google, Apple, Microsoft ou GitHub.",
+  title: "Área pessoal · Entrar · Lymiar",
+  description:
+    "Desbloqueia a tua área pessoal no Lymiar: favoritos, alertas, timeline, carrinho inteligente, projetos, listas e histórico — sincronizado entre dispositivos.",
   robots: { index: false, follow: false },
   alternates: { canonical: "/entrar/" },
 };

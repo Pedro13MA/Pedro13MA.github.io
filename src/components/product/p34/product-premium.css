@@ -1,0 +1,147 @@
+/* PDP — tokens alinhados à homepage (coral, buy/wait) */
+
+.product-premium {
+  --hm-bg: #f4f6f8;
+  --hm-brand: #ff6a1a;
+  --hm-brand-soft: #fff1e8;
+  --hm-brand-deep: #e2550f;
+  --hm-buy: #12b76a;
+  --hm-buy-soft: #ecfdf3;
+  --hm-wait: #f5a524;
+  --hm-wait-soft: #fff8eb;
+  --hm-line: #dde3ea;
+
+  background: var(--hm-bg);
+  color: #5b6b7c;
+  min-height: 100vh;
+}
+
+.product-premium .pdp-kicker {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hm-brand);
+}
+
+.product-premium .pdp-cta,
+.pdp-cta {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: #ff6a1a;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.product-premium .pdp-cta:hover,
+.pdp-cta:hover {
+  background: #e2550f;
+}
+
+.product-premium .pdp-actions {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  gap: 0.5rem;
+}
+
+.product-premium .pdp-actions-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.product-premium .pdp-action-btn,
+.pdp-action-btn {
+  display: inline-flex;
+  height: 2.75rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.product-premium .pdp-action-btn:hover,
+.pdp-action-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.product-premium .pdp-action-btn--on,
+.pdp-action-btn--on {
+  border-color: color-mix(in srgb, var(--hm-brand, #f0601c) 35%, #e2e8f0);
+  background: color-mix(in srgb, var(--hm-brand, #f0601c) 8%, #fff);
+  color: #9a3412;
+}
+
+.product-premium .pdp-verdict {
+  border-radius: 1rem;
+  border: 1px solid var(--hm-line);
+  background: #fff;
+  overflow: hidden;
+}
+
+.product-premium .pdp-verdict-buy {
+  --pdp-tone: var(--hm-buy);
+  --pdp-tone-soft: var(--hm-buy-soft);
+}
+
+.product-premium .pdp-verdict-wait {
+  --pdp-tone: var(--hm-wait);
+  --pdp-tone-soft: var(--hm-wait-soft);
+}
+
+.product-premium .pdp-verdict-unknown {
+  --pdp-tone: #64748b;
+  --pdp-tone-soft: #f1f5f9;
+}
+
+.product-premium .pdp-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background: var(--pdp-tone-soft);
+  color: var(--pdp-tone);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  ring: 1px solid color-mix(in srgb, var(--pdp-tone) 25%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pdp-tone) 22%, transparent);
+}
+
+.product-premium .pdp-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 2rem;
+  scroll-margin-top: 7rem;
+}
+
+.product-premium .pdp-telegram {
+  border-radius: 1rem;
+  border: 1px solid var(--hm-line);
+  background: #fff;
+  padding: 1.25rem 1.25rem;
+}
+
+.product-premium .pdp-telegram a {
+  color: var(--hm-brand);
+  font-weight: 600;
+}
+
+.product-premium .pdp-telegram a:hover {
+  color: var(--hm-brand-deep);
+}

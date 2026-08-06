@@ -1,8 +1,9 @@
 /** Cliente de sessão — JWT em sessionStorage + cookie cross-origin no Hub. */
 
-import { getApiBaseUrl } from "@/lib/api";
+import { apiClient } from "@/lib/api-client";
 import type { LymiarSession, LymiarUser } from "@/lib/auth/types";
 import type { AuthProviderId } from "@/auth.config";
+import { getApiBaseUrl } from "@/lib/api-base-url";
 
 const TOKEN_KEY = "lymiar_session_token";
 
@@ -31,38 +32,40 @@ function authHeaders(): HeadersInit {
 }
 
 export async function fetchSession(): Promise<LymiarSession> {
-  const url = `${getApiBaseUrl()}/api/v1/session`;
-  const res = await fetch(url, {
-    headers: { Accept: "application/json", ...authHeaders() },
-    credentials: "include",
-    cache: "no-store",
-  });
-  if (!res.ok) {
+  try {
+    return await apiClient.get<LymiarSession>("/api/v1/session", {
+      headers: authHeaders(),
+      credentials: "include",
+      label: "SESSION",
+    });
+  } catch {
     return { authenticated: false, user: null };
   }
-  return (await res.json()) as LymiarSession;
 }
 
 export async function fetchMe(): Promise<LymiarUser | null> {
-  const url = `${getApiBaseUrl()}/api/v1/me`;
-  const res = await fetch(url, {
-    headers: { Accept: "application/json", ...authHeaders() },
-    credentials: "include",
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
-  return (await res.json()) as LymiarUser;
+  try {
+    return await apiClient.get<LymiarUser>("/api/v1/me", {
+      headers: authHeaders(),
+      credentials: "include",
+      label: "ME",
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function logoutRemote(): Promise<void> {
-  const url = `${getApiBaseUrl()}/api/v1/logout`;
   try {
-    await fetch(url, {
-      method: "POST",
-      headers: { Accept: "application/json", ...authHeaders() },
-      credentials: "include",
-      cache: "no-store",
-    });
+    await apiClient.post(
+      "/api/v1/logout",
+      undefined,
+      {
+        headers: authHeaders(),
+        credentials: "include",
+        label: "LOGOUT",
+      },
+    );
   } finally {
     setStoredToken(null);
   }

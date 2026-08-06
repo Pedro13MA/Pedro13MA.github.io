@@ -111,15 +111,6 @@ export function MobileNavDrawer({ id, open, onClose, model }: Props) {
                   Ver mapa completo
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/mercado/"
-                  onClick={onClose}
-                  className="block rounded-lg px-3 py-3 text-slate-700"
-                >
-                  Mercado
-                </Link>
-              </li>
             </ul>
           ) : (
             <ul>

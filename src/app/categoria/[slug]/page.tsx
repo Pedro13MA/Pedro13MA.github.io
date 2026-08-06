@@ -5,6 +5,7 @@ import { SearchBar } from "@/components/layout/SearchBar";
 import { CategoryPage } from "@/components/categoria/CategoryPage";
 import { CATEGORY_STATIC_SLUGS } from "@/lib/category-slugs";
 import { SITE_URL } from "@/lib/constants";
+import "@/components/catalogo/catalog-premium.css";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -53,23 +54,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CategoriaSlugPage({ params }: PageProps) {
   const { slug } = await params;
   return (
-    <>
+    <div className="catalog-premium">
       <SiteHeader />
-      <div className="border-b border-slate-200/80 bg-gradient-to-b from-white to-slate-50">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <div className="border-b border-[var(--hm-line)] bg-[var(--hm-bg-elevated)]">
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:max-w-7xl">
           <SearchBar />
         </div>
       </div>
       <Suspense
         fallback={
-          <main className="mx-auto max-w-6xl px-4 py-10">
-            <div className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+          <main className="mx-auto max-w-6xl px-4 py-10 lg:max-w-7xl">
+            <div className="h-40 animate-pulse rounded-2xl bg-[var(--hm-bg-soft)]" />
           </main>
         }
       >
         <CategoryPage slug={slug} />
       </Suspense>
       <SiteFooter />
-    </>
+    </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   type SearchSortBy,
   type TaxonomyFacet,
 } from "@/lib/api";
+import { apiClient, isAbortError } from "@/lib/api-client";
 import { formatEUR } from "@/lib/utils";
 import { isP33SearchEnabled } from "@/lib/search/flags";
 import { SearchEmptyState } from "@/components/search/SearchEmptyState";
@@ -225,11 +226,12 @@ export function SearchPageClient() {
       setTaxonomyFacets([]);
       return;
     }
-    let cancelled = false;
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
     const offset = (filters.page - 1) * PAGE_SIZE;
     const tax = taxonomySelection;
+    const renderT0 = performance.now();
     searchProducts(q, {
       limit: PAGE_SIZE,
       offset,
@@ -254,9 +256,9 @@ export function SearchPageClient() {
       inStockOnly: filters.inStockOnly || undefined,
       subcategory: filters.subcategory || undefined,
       taxonomyFilters: countSelected(tax) > 0 ? tax : undefined,
+      signal: controller.signal,
     })
       .then((res) => {
-        if (cancelled) return;
         const mapped: Product[] = [];
         for (const row of res.results) {
           try {
@@ -275,25 +277,32 @@ export function SearchPageClient() {
         setDidYouMean(res.didYouMean ?? []);
         setRelatedQueries(res.relatedQueries ?? []);
         setCategoryRedirect(res.categoryRedirect ?? null);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            apiClient.markRenderForLabel(
+              "SEARCH",
+              performance.now() - renderT0,
+            );
+          });
+        });
       })
       .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Falha na pesquisa");
-          setProducts([]);
-          setTotal(0);
-          setTaxonomyFacets([]);
-          setCanonicalHighlight(null);
-          setIntent(null);
-          setDidYouMean([]);
-          setRelatedQueries([]);
-          setCategoryRedirect(null);
-        }
+        if (isAbortError(err)) return;
+        setError(err instanceof Error ? err.message : "Falha na pesquisa");
+        setProducts([]);
+        setTotal(0);
+        setTaxonomyFacets([]);
+        setCanonicalHighlight(null);
+        setIntent(null);
+        setDidYouMean([]);
+        setRelatedQueries([]);
+        setCategoryRedirect(null);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       });
     return () => {
-      cancelled = true;
+      controller.abort();
     };
     // queryKey / filtersKey / taxonomyKey: strings estáveis (evita cancel loop)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- filters/taxonomy derivados das keys
@@ -304,10 +313,11 @@ export function SearchPageClient() {
   if (!q) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-slate-900">
+        <p className="catalog-kicker">Pesquisar</p>
+        <h1 className="mt-2 font-display text-2xl font-bold text-[var(--hm-ink)]">
           Pesquisa Lymiar
         </h1>
-        <p className="mt-3 text-slate-500">
+        <p className="mt-3 text-[var(--hm-muted)]">
           Escreve um termo (ex: SSD, CPU AMD, placa gráfica) e carrega Enter.
         </p>
       </main>
@@ -315,13 +325,14 @@ export function SearchPageClient() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:max-w-7xl">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-slate-900">
-            Resultados para “{q}”
+          <p className="catalog-kicker">Resultados</p>
+          <h1 className="mt-2 font-display text-3xl font-bold text-[var(--hm-ink)]">
+            Resultados para «{q}»
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-[var(--hm-muted)]">
             {loading
               ? "A carregar…"
               : `${total} produto${total === 1 ? "" : "s"} encontrados`}
@@ -342,14 +353,14 @@ export function SearchPageClient() {
             ) : null}
           </p>
         </div>
-        <label className="flex flex-col gap-1 text-sm text-slate-600">
+        <label className="flex flex-col gap-1 text-sm text-[var(--hm-muted)]">
           Ordenar por
           <select
             value={filters.sortBy}
             onChange={(e) =>
               pushFilters({ sortBy: e.target.value as SearchSortBy })
             }
-            className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-slate-900 shadow-sm"
+            className="catalog-select"
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -418,23 +429,21 @@ export function SearchPageClient() {
                 canonicalHighlight.href ||
                 `/catalogo/grupo/?id=${encodeURIComponent(canonicalHighlight.slug)}`
               }
-              className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/70 px-5 py-4 hover:border-sky-300"
+              className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--hm-brand)]/25 bg-[var(--hm-brand-soft)]/70 px-5 py-4 hover:border-[var(--hm-brand)]/40"
             >
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-sky-700">
-                  Produto canónico
-                </p>
-                <p className="font-display text-lg font-bold text-slate-900">
+                <p className="catalog-kicker">Produto canónico</p>
+                <p className="mt-1 font-display text-lg font-bold text-[var(--hm-ink)]">
                   {canonicalHighlight.title}
                 </p>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-[var(--hm-muted)]">
                   {canonicalHighlight.variantCount} variantes
                   {canonicalHighlight.minPrice != null
                     ? ` · desde ${formatEUR(canonicalHighlight.minPrice)}`
                     : ""}
                 </p>
               </div>
-              <span className="text-sm font-semibold text-sky-800">
+              <span className="text-sm font-semibold text-[var(--hm-brand-deep)]">
                 Escolher variante →
               </span>
             </Link>
@@ -442,7 +451,7 @@ export function SearchPageClient() {
           {isP33SearchEnabled() &&
           (didYouMean.length > 0 || relatedQueries.length > 0) &&
           products.length > 0 ? (
-            <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[var(--hm-muted)]">
               {didYouMean.length > 0 ? (
                 <span>
                   Quis dizer{" "}
@@ -451,7 +460,7 @@ export function SearchPageClient() {
                       {i > 0 ? ", " : null}
                       <Link
                         href={buildSearchUrl({ q: t })}
-                        className="font-medium text-sky-700 hover:underline"
+                        className="font-medium text-[var(--hm-brand-deep)] hover:underline"
                       >
                         {t}
                       </Link>
@@ -463,7 +472,7 @@ export function SearchPageClient() {
                 <Link
                   key={t}
                   href={buildSearchUrl({ q: t })}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs hover:border-sky-200"
+                  className="rounded-lg border border-[var(--hm-line)] px-2.5 py-1 text-xs hover:border-[var(--hm-brand)]/40"
                 >
                   {t}
                 </Link>
@@ -475,7 +484,7 @@ export function SearchPageClient() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-72 animate-pulse rounded-xl border border-slate-200/80 bg-slate-100"
+                  className="h-72 animate-pulse rounded-xl border border-[var(--hm-line)] bg-[var(--hm-bg-soft)]"
                 />
               ))}
             </div>
@@ -496,7 +505,7 @@ export function SearchPageClient() {
                   >
                     Anterior
                   </Button>
-                  <span className="text-sm text-slate-500">
+                  <span className="text-sm text-[var(--hm-muted)]">
                     Página {filters.page} / {totalPages}
                   </span>
                   <Button

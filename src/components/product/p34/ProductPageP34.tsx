@@ -5,23 +5,19 @@ import { PriceHistoryChartLazy as PriceHistoryChart } from "@/components/PriceHi
 import { ProductHero } from "@/components/product/ProductHero";
 import { ProductJsonLd } from "@/components/product/ProductJsonLd";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";
-import {
-  ProductActionPlaceholders,
-  ProductTelegramStrip,
-} from "@/components/product/p34/ProductActionPlaceholders";
+import { ProductTelegramStrip } from "@/components/product/p34/ProductActionPlaceholders";
 import {
   ProductCouponsSection,
   ProductHistoryHint,
   ProductStoresEmpty,
 } from "@/components/product/p34/ProductCouponsSection";
-import {
-  ProductRelatedInterestSection,
-  ProductSimilarSection,
-} from "@/components/product/p34/ProductDiscoveryPlaceholders";
+import { ProductSimilarSection } from "@/components/product/p34/ProductDiscoveryPlaceholders";
 import type { DiscoveryCard } from "@/lib/product-discovery";
 import type { BreadcrumbCrumb } from "@/lib/product-breadcrumb";
-import type { Product } from "@/lib/types";
+import type { DecisionSemaphore, Product } from "@/lib/types";
 import { MIN_HISTORY_SPAN_DAYS } from "@/lib/product-insights";
+import { formatEUR } from "@/lib/utils";
+import "@/components/product/p34/product-premium.css";
 
 type Verdict = { title: string; lines: string[] };
 
@@ -39,23 +35,23 @@ type Props = {
   spanDays: number;
   storeCount: number;
   observations: number;
-  histMin: number;
-  histMax: number;
   similar: DiscoveryCard[];
 };
 
-function Stars({ stars }: { stars: number }) {
-  const s = Math.max(0, Math.min(5, Math.round(stars)));
-  return (
-    <span className="tracking-tight text-amber-500" aria-hidden>
-      {"★".repeat(s)}
-      <span className="text-slate-300">{"☆".repeat(Math.max(0, 5 - s))}</span>
-    </span>
-  );
+function verdictTone(sem: DecisionSemaphore | undefined): "buy" | "wait" | "unknown" {
+  if (sem === "buy") return "buy";
+  if (sem === "wait") return "wait";
+  return "unknown";
+}
+
+function verdictBadge(tone: "buy" | "wait" | "unknown"): string {
+  if (tone === "buy") return "Vale a pena comprar";
+  if (tone === "wait") return "Espera mais um pouco";
+  return "Ainda não sabemos";
 }
 
 /**
- * PDP P34 — mesma identidade visual, hierarquia e espaçamento melhorados.
+ * PDP P34 — hierarquia canónica + linguagem visual da homepage.
  * Não altera gráfico interno, URLs, SEO nem contratos API.
  */
 export function ProductPageP34({
@@ -63,12 +59,9 @@ export function ProductPageP34({
   slug,
   breadcrumbs,
   verdict,
-  confidence,
   spanDays,
   storeCount,
   observations,
-  histMin,
-  histMax,
   similar,
 }: Props) {
   const thinHistory = spanDays < Math.min(14, MIN_HISTORY_SPAN_DAYS / 2);
@@ -76,114 +69,122 @@ export function ProductPageP34({
     label: c.label,
     href: c.href,
   }));
+  const tone = verdictTone(product.decision?.semaphore);
+  const reason =
+    verdict.lines.find((l) => l.trim().length > 0) ||
+    "Com base no histórico observado.";
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:space-y-10 sm:px-6 sm:py-10">
-      <ProductJsonLd product={product} />
+    <div className="product-premium">
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:space-y-10 sm:px-6 sm:py-10 lg:max-w-7xl">
+        <ProductJsonLd product={product} />
 
-      <BreadcrumbNav items={navItems} className="text-sm" />
+        <BreadcrumbNav items={navItems} className="text-sm" />
 
-      {/* Hierarquia: marca · título · preço · loja · CTA (ProductHero) */}
-      <ProductHero product={product} />
+        <ProductHero product={product} />
 
-      <ProductActionPlaceholders className="sm:pl-0" />
-
-      {/* Veredicto */}
-      <section
-        id="porque"
-        aria-labelledby="p34-verdict-heading"
-        className="scroll-mt-28 space-y-3 border-t border-slate-100 pt-8"
-      >
-        <h2
-          id="p34-verdict-heading"
-          className="font-display text-2xl font-bold tracking-tight text-slate-900"
+        {/* 1. Veredicto */}
+        <section
+          id="porque"
+          aria-labelledby="p34-verdict-heading"
+          className="pdp-section"
         >
-          {verdict.title}
-        </h2>
-        <div className="max-w-2xl space-y-2 text-[15px] leading-relaxed text-slate-600">
-          {verdict.lines.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
+          <p className="pdp-kicker">Decisão</p>
+          <article
+            className={`pdp-verdict mt-4 pdp-verdict-${tone}`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+              <span className="pdp-badge">{verdictBadge(tone)}</span>
+              <p className="font-display text-2xl font-bold tabular-nums tracking-tight text-slate-900 sm:text-3xl">
+                {formatEUR(product.currentPrice)}
+              </p>
+            </div>
+            <div className="space-y-3 px-5 py-5 sm:px-6 sm:py-6">
+              <h2
+                id="p34-verdict-heading"
+                className="font-display text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                {verdict.title}
+              </h2>
+              <p className="max-w-2xl text-[15px] leading-relaxed text-slate-600">
+                {reason}
+              </p>
+              {verdict.lines.length > 1 ? (
+                <ul className="max-w-2xl space-y-1.5 text-sm text-slate-500">
+                  {verdict.lines.slice(1).map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              ) : null}
+              <p className="pt-1 text-sm text-slate-500">
+                Baseado em {spanDays} dias observados · {storeCount}{" "}
+                {storeCount === 1 ? "loja" : "lojas"} · {observations}{" "}
+                {observations === 1 ? "observação" : "observações"}
+              </p>
+            </div>
+          </article>
+        </section>
+
+        {/* 2. Lojas */}
+        <section
+          id="lojas"
+          className="pdp-section space-y-4"
+          aria-labelledby="p34-stores-heading"
+        >
+          <div>
+            <p className="pdp-kicker">Onde comprar</p>
+            <h2
+              id="p34-stores-heading"
+              className="mt-2 font-display text-xl font-bold text-slate-900 sm:text-2xl"
+            >
+              Lojas observadas
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Preço actual por loja — sem misturar cupões no valor.
+            </p>
+          </div>
+          {product.offers?.length ? (
+            <StoreCompareTable offers={product.offers} />
+          ) : (
+            <ProductStoresEmpty />
+          )}
+        </section>
+
+        {/* 3. Histórico */}
+        <section
+          id="historico"
+          className="pdp-section space-y-4"
+          aria-labelledby="p34-history-heading"
+        >
+          <div>
+            <p className="pdp-kicker">Histórico</p>
+            <h2
+              id="p34-history-heading"
+              className="mt-2 font-display text-xl font-bold text-slate-900 sm:text-2xl"
+            >
+              Como o preço evoluiu
+            </h2>
+          </div>
+          <ProductHistoryHint thin={thinHistory} />
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 sm:p-4">
+            <PriceHistoryChart
+              productId={slug}
+              currentPrice={product.currentPrice}
+              fallbackHistory={product.history}
+              hideTitle
+            />
+          </div>
+        </section>
+
+        {/* 4. Cupões — só se alguma loja do produto tiver campanha/cupão */}
+        <ProductCouponsSection product={product} />
+
+        <ProductTelegramStrip className="pdp-telegram" />
+
+        <div className="pdp-section">
+          <ProductSimilarSection products={similar} />
         </div>
-      </section>
-
-      {/* Confiança */}
-      <section
-        aria-labelledby="p34-confidence-heading"
-        className="max-w-md rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm"
-      >
-        <h2
-          id="p34-confidence-heading"
-          className="text-sm font-semibold text-slate-800"
-        >
-          Confiança dos dados
-        </h2>
-        <div className="mt-2 flex items-baseline gap-3">
-          <Stars stars={confidence.stars} />
-          <span className="font-display text-2xl font-bold tabular-nums text-slate-900">
-            {confidence.score}%
-          </span>
-        </div>
-        <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Baseado em
-        </p>
-        <ul className="mt-2 space-y-1 text-sm text-slate-600">
-          <li>· {spanDays} dias observados</li>
-          <li>· {storeCount} lojas</li>
-          <li>· {observations} alterações de preço</li>
-        </ul>
-      </section>
-
-      {/* Histórico — só espaçamento à volta; gráfico intacto */}
-      <section
-        id="historico"
-        className="scroll-mt-28 space-y-4 border-t border-slate-100 pt-8"
-        aria-labelledby="p34-history-heading"
-      >
-        <h2
-          id="p34-history-heading"
-          className="sr-only"
-        >
-          Histórico de preços
-        </h2>
-        <ProductHistoryHint thin={thinHistory} />
-        <div className="pt-1">
-          <PriceHistoryChart
-            productId={slug}
-            currentPrice={product.currentPrice}
-            fallbackHistory={product.history}
-            fallbackMin={histMin}
-            fallbackMax={histMax}
-          />
-        </div>
-      </section>
-
-      {/* Cupões — nunca misturados com preço */}
-      <ProductCouponsSection product={product} />
-
-      {/* Lojas */}
-      <section
-        id="lojas"
-        className="scroll-mt-28 space-y-4 border-t border-slate-100 pt-8"
-        aria-labelledby="p34-stores-heading"
-      >
-        <h2
-          id="p34-stores-heading"
-          className="font-display text-xl font-bold text-slate-900"
-        >
-          Onde comprar
-        </h2>
-        {product.offers?.length ? (
-          <StoreCompareTable offers={product.offers} />
-        ) : (
-          <ProductStoresEmpty />
-        )}
-      </section>
-
-      <ProductTelegramStrip />
-
-      <ProductSimilarSection products={similar} />
-      <ProductRelatedInterestSection />
-    </main>
+      </main>
+    </div>
   );
 }

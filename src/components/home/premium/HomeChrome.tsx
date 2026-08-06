@@ -5,11 +5,15 @@ import { TELEGRAM_CHANNEL, BRAND_TAGLINE } from "@/lib/constants";
 import { CATEGORY_MENU_L1 } from "@/lib/category-slugs";
 import { LymiarLogo } from "@/components/ui/LymiarLogo";
 import { HomeAccountMenu } from "@/components/home/premium/HomeAccountMenu";
+import { SearchTypeahead } from "@/components/search/SearchTypeahead";
+import { useHeaderSearchVisibility } from "@/hooks/useHeaderSearchVisibility";
 
 export function HomeHeader() {
+  const { showHeaderSearch } = useHeaderSearchVisibility();
+
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:max-w-7xl">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16 sm:px-6 lg:max-w-7xl lg:gap-4">
         <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="Lymiar — início">
           <LymiarLogo size={40} alt="Lymiar" priority className="rounded-xl ring-1 ring-slate-200" />
           <span className="hidden font-display text-base font-semibold text-slate-900 sm:inline">
@@ -17,33 +21,36 @@ export function HomeHeader() {
           </span>
         </Link>
         <nav
-          className="flex min-w-0 items-center gap-3 text-sm text-slate-500 sm:gap-5"
+          className="hidden items-center gap-4 text-sm text-slate-500 lg:flex"
           aria-label="Principal"
         >
-          <div className="hidden items-center gap-5 md:flex">
-            <Link href="/categorias/" className="hover:text-blue-600">
-              Categorias
-            </Link>
-            <Link href="/mercado/" className="hover:text-blue-600">
-              Mercado
-            </Link>
-            <Link href="/catalogo/" className="hover:text-blue-600">
-              Catálogo
-            </Link>
-            <Link href="/search/" className="hover:text-blue-600">
-              Pesquisa
-            </Link>
-          </div>
+          <Link href="/categorias/" className="hover:text-[var(--hm-brand)]">
+            Categorias
+          </Link>
+        </nav>
+        <div
+          className={`header-search-slot ${
+            showHeaderSearch
+              ? "header-search-slot--in"
+              : "header-search-slot--out"
+          }`}
+          role={showHeaderSearch ? "search" : undefined}
+          aria-hidden={!showHeaderSearch}
+        >
+          <SearchTypeahead compact placeholder="Pesquisar produto…" />
+        </div>
+        {!showHeaderSearch ? <div className="min-w-0 flex-1" aria-hidden /> : null}
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <HomeAccountMenu />
           <a
             href={TELEGRAM_CHANNEL}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden text-slate-500 hover:text-blue-600 lg:inline"
+            className="hidden text-slate-500 hover:text-[var(--hm-brand)] lg:inline"
           >
             Telegram
           </a>
-        </nav>
+        </div>
       </div>
     </header>
   );
@@ -109,14 +116,14 @@ export function HomeFooter() {
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[15px] text-slate-600 hover:text-blue-600"
+                          className="text-[15px] text-slate-600 hover:text-[var(--hm-brand)]"
                         >
                           {link.label}
                         </a>
                       ) : (
                         <Link
                           href={link.href}
-                          className="text-[15px] text-slate-600 hover:text-blue-600"
+                          className="text-[15px] text-slate-600 hover:text-[var(--hm-brand)]"
                         >
                           {link.label}
                         </Link>

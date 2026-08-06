@@ -5,12 +5,14 @@ import Link from "next/link";
 import { getCategories, type CategorySummary } from "@/lib/api";
 import { CATEGORY_MENU_L1 } from "@/lib/category-slugs";
 import { isP32NavigationEnabled } from "@/lib/nav/flags";
-import { flattenTreeForMap } from "@/lib/nav/build-menu";
 import { useTaxonomyNavOptional } from "@/components/nav/TaxonomyTreeProvider";
 import {
-  CategoryGrid,
-  CategoryHero,
-} from "@/components/nav/CategoryLayout";
+  MegaMenuBrands,
+  MegaMenuColumn,
+  MegaMenuQuickLinks,
+} from "@/components/nav/MegaMenuParts";
+import { CategoryHero } from "@/components/nav/CategoryLayout";
+import type { NavL1Column } from "@/lib/nav/types";
 
 function LegacyHub() {
   const [categories, setCategories] = useState<CategorySummary[]>([]);
@@ -49,11 +51,12 @@ function LegacyHub() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-3xl font-bold text-slate-900">
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:max-w-7xl">
+      <p className="catalog-kicker">Explorar</p>
+      <h1 className="mt-2 font-display text-3xl font-bold text-[var(--hm-ink)]">
         Categorias
       </h1>
-      <p className="mt-2 text-slate-500">
+      <p className="mt-2 text-[var(--hm-muted)]">
         Navega o catálogo Lymiar sem escrever pesquisa.
       </p>
       {loading ? (
@@ -61,7 +64,7 @@ function LegacyHub() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-2xl bg-slate-100"
+              className="h-28 animate-pulse rounded-2xl bg-[var(--hm-bg-soft)]"
             />
           ))}
         </div>
@@ -71,12 +74,12 @@ function LegacyHub() {
             <li key={c.slug}>
               <Link
                 href={`/categoria/${c.slug}/`}
-                className="block rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md"
+                className="catalog-card block p-5"
               >
-                <p className="font-display text-lg font-semibold text-slate-900">
+                <p className="font-display text-lg font-semibold text-[var(--hm-ink)]">
                   {c.display_name}
                 </p>
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-[var(--hm-faint)]">
                   {c.children_count} subcategorias
                 </p>
               </Link>
@@ -88,17 +91,36 @@ function LegacyHub() {
   );
 }
 
+/** Página = o mesmo mapa do mega-menu (Categorias no header). */
 function P32Hub() {
   const nav = useTaxonomyNavOptional();
-  const sections = useMemo(
-    () => (nav?.tree?.length ? flattenTreeForMap(nav.tree) : []),
-    [nav?.tree],
+  const model = nav?.megaMenu;
+  const columns = model?.columns ?? [];
+  const [activeId, setActiveId] = useState("");
+
+  useEffect(() => {
+    if (!activeId && columns[0]?.id) setActiveId(columns[0].id);
+  }, [columns, activeId]);
+
+  const active: NavL1Column | undefined = useMemo(
+    () => columns.find((c) => c.id === activeId) || columns[0],
+    [columns, activeId],
   );
 
   if (nav?.loading) {
     return (
       <main className="mx-auto max-w-6xl px-4 py-10">
-        <div className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+        <div className="h-56 animate-pulse rounded-2xl bg-slate-100" />
+      </main>
+    );
+  }
+
+  if (!columns.length) {
+    return (
+      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <p className="text-sm text-amber-700">
+          Não foi possível carregar as categorias. Tenta mais tarde.
+        </p>
       </main>
     );
   }
@@ -107,74 +129,53 @@ function P32Hub() {
     <>
       <CategoryHero
         title="Categorias"
-        description="Mapa completo do catálogo. Pesquisa continua a ser o caminho principal — isto é exploração."
+        description="O mesmo mapa do menu — escolhe a área e aprofunda nas subcategorias."
         breadcrumbs={[
           { label: "Início", href: "/" },
           { label: "Categorias" },
         ]}
       />
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        {nav?.error ? (
-          <p className="text-sm text-amber-700">
-            Não foi possível carregar a árvore. A mostrar atalhos do menu.
-          </p>
-        ) : null}
-        {sections.length ? (
-          <div className="space-y-14">
-            {sections.map(({ l1, l2, leaves }) => (
-              <section key={l1.slug} id={l1.slug}>
-                <div className="flex items-baseline justify-between gap-4">
-                  <h2 className="font-display text-2xl font-bold text-slate-900">
-                    <Link
-                      href={`/categoria/${l1.slug}/`}
-                      className="hover:text-sky-700"
-                    >
-                      {l1.display_name}
-                    </Link>
-                  </h2>
-                  <Link
-                    href={`/categoria/${l1.slug}/`}
-                    className="text-sm text-sky-700 hover:underline"
+      <main className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:max-w-7xl">
+        <div className="catalog-panel overflow-hidden">
+          <div className="flex flex-col md:flex-row">
+            <div
+              className="flex shrink-0 flex-row gap-1 overflow-x-auto border-b border-[var(--hm-line)] p-3 md:w-52 md:flex-col md:overflow-visible md:border-b-0 md:border-r md:border-[var(--hm-line)] md:p-4"
+              role="tablist"
+              aria-label="Categorias principais"
+            >
+              {columns.map((col) => {
+                const selected = col.id === active?.id;
+                return (
+                  <button
+                    key={col.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    className={`shrink-0 rounded-lg px-3 py-2.5 text-left text-sm ${
+                      selected
+                        ? "bg-[var(--hm-brand-soft)] font-medium text-[var(--hm-brand-deep)]"
+                        : "text-[var(--hm-muted)] hover:bg-[var(--hm-bg-soft)]"
+                    }`}
+                    onClick={() => setActiveId(col.id)}
+                    onMouseEnter={() => setActiveId(col.id)}
                   >
-                    Ver tudo
-                  </Link>
+                    {col.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="min-w-0 flex-1 p-5 sm:p-6">
+              {active ? (
+                <div className="flex flex-col gap-8 sm:flex-row sm:gap-10">
+                  <MegaMenuColumn column={active} />
+                  <MegaMenuQuickLinks links={model?.quickLinks ?? []} />
+                  <MegaMenuBrands brands={active.brands} />
                 </div>
-                {l2.length ? (
-                  <div className="mt-4">
-                    <CategoryGrid
-                      items={l2.map((c) => ({
-                        href: `/categoria/${c.slug}/`,
-                        title: c.display_name,
-                        subtitle: `${c.children?.length || 0} subcategorias`,
-                      }))}
-                    />
-                  </div>
-                ) : null}
-                {leaves.length ? (
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {leaves.slice(0, 24).map((leaf) => (
-                      <li key={leaf.slug}>
-                        <Link
-                          href={`/categoria/${leaf.slug}/`}
-                          className="rounded-full bg-slate-50 px-3 py-1 text-xs text-slate-600 ring-1 ring-slate-200 hover:bg-white"
-                        >
-                          {leaf.display_name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </section>
-            ))}
+              ) : null}
+            </div>
           </div>
-        ) : (
-          <CategoryGrid
-            items={(nav?.megaMenu?.columns || []).map((c) => ({
-              href: c.href,
-              title: c.label,
-            }))}
-          />
-        )}
+        </div>
       </main>
     </>
   );

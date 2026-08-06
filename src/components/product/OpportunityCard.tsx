@@ -9,7 +9,7 @@ import { AddToCartButton } from "@/components/smart-cart/AddToCartButton";
 import { AddToProjectButton } from "@/components/projects/AddToProjectButton";
 import { buildDecisionReason, getOpportunitySeal } from "@/lib/opportunity-seal";
 import { referenceSourceTooltip } from "@/lib/referenceSource";
-import { formatEUR, formatPct, SEMAPHORE_LABEL } from "@/lib/utils";
+import { formatEUR, formatPct, SEMAPHORE_LABEL, cn } from "@/lib/utils";
 
 type Props = {
   product: Product;
@@ -73,9 +73,9 @@ export const OpportunityCard = memo(function OpportunityCard({
     const reason = buildDecisionReason(product);
     const habitual = product.referencePrice ?? product.avg30d;
     return (
-      <Card interactive className="flex h-full flex-col overflow-hidden">
+      <article className="catalog-card flex h-full flex-col overflow-hidden">
         <Link href={href} className="group block flex-1">
-          <div className="relative flex h-40 w-full items-center justify-center border-b border-slate-100 bg-slate-50 p-5 sm:h-44">
+          <div className="relative flex h-40 w-full items-center justify-center border-b border-[var(--hm-line,#dde3ea)] bg-[var(--hm-bg-soft,#eef2f6)] p-5 sm:h-44">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -87,53 +87,59 @@ export const OpportunityCard = memo(function OpportunityCard({
               />
             ) : null}
           </div>
-          <CardContent className="flex flex-col gap-3 p-5 pt-4">
+          <div className="flex flex-col gap-3 p-5 pt-4">
             <p
-              className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[13px] font-semibold leading-snug ${seal.className}`}
+              className={cn(
+                "inline-flex w-fit max-w-full items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold leading-snug",
+                seal.kind === "buy"
+                  ? "catalog-badge-buy"
+                  : seal.kind === "wait"
+                    ? "catalog-badge-wait"
+                    : seal.className,
+              )}
             >
-              <span aria-hidden>{seal.emoji}</span>
               <span className="truncate">{seal.label}</span>
             </p>
             {seal.showHistoricalMin ? (
-              <p className="text-xs font-medium text-orange-800">
+              <p className="text-xs font-medium text-[var(--hm-brand-deep,#e2550f)]">
                 Perto do mínimo histórico observado
               </p>
             ) : null}
-            <p className="line-clamp-2 min-h-[2.75rem] text-[15px] font-medium leading-snug text-slate-800">
+            <p className="line-clamp-2 min-h-[2.75rem] text-[15px] font-medium leading-snug text-[var(--hm-ink,#0b1220)]">
               {product.name}
             </p>
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <p className="font-display text-[1.75rem] font-bold leading-none tracking-tight tabular-nums text-slate-900">
+              <p className="font-display text-[1.75rem] font-bold leading-none tracking-tight tabular-nums text-[var(--hm-ink,#0b1220)]">
                 {formatEUR(currentPrice)}
               </p>
               {seal.kind === "wait" && habitual != null && habitual > 0 ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[var(--hm-muted,#5b6b7c)]">
                   Habitual ~{formatEUR(habitual)}
                 </p>
               ) : null}
             </div>
-            <p className="line-clamp-3 text-sm leading-relaxed text-slate-500">
+            <p className="line-clamp-3 text-sm leading-relaxed text-[var(--hm-muted,#5b6b7c)]">
               {reason}
             </p>
-          </CardContent>
+          </div>
         </Link>
         <div className="flex flex-col gap-2 px-5 pb-5">
           <Link
             href={`${href}#lojas`}
-            className="flex h-11 w-full items-center justify-center rounded-xl bg-sky-700 text-sm font-semibold text-white transition-colors duration-150 hover:bg-sky-800"
+            className="catalog-cta w-full"
           >
             Ver lojas
           </Link>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
             <Link
               href={`${href}#porque`}
-              className="flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition-colors duration-150 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900"
+              className="flex h-10 items-center justify-center rounded-xl border border-[var(--hm-line,#dde3ea)] bg-white text-sm font-semibold text-[var(--hm-ink,#0b1220)] transition-colors hover:border-[var(--hm-brand,#ff6a1a)]/40 hover:bg-[var(--hm-brand-soft,#fff1e8)]"
             >
               Porque?
             </Link>
             <Link
               href={`${href}#historico`}
-              className="flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition-colors duration-150 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900"
+              className="flex h-10 items-center justify-center rounded-xl border border-[var(--hm-line,#dde3ea)] bg-white text-sm font-semibold text-[var(--hm-ink,#0b1220)] transition-colors hover:border-[var(--hm-brand,#ff6a1a)]/40 hover:bg-[var(--hm-brand-soft,#fff1e8)]"
             >
               Histórico
             </Link>
@@ -142,7 +148,7 @@ export const OpportunityCard = memo(function OpportunityCard({
             <AddToProjectButton product={product} compact className="h-10 w-full" />
           </div>
         </div>
-      </Card>
+      </article>
     );
   }
 

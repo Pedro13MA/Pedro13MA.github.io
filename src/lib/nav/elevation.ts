@@ -123,7 +123,7 @@ export const NAV_ELEVATION: NavElevationSpec[] = [
     id: "tv_audio",
     label: "TV e Áudio",
     anchorSlug: "tv_audio",
-    leafShortcuts: ["tv", "soundbar", "headphones", "speakers", "projector"],
+    leafShortcuts: ["tv", "soundbar", "headphones", "speakers", "projector", "media_streamer"],
     brands: [
       { label: "Samsung", brand: "samsung" },
       { label: "LG", brand: "lg" },
@@ -135,7 +135,15 @@ export const NAV_ELEVATION: NavElevationSpec[] = [
     id: "fotografia",
     label: "Fotografia",
     anchorSlug: "fotografia",
-    leafShortcuts: ["camera", "action_cam", "lens", "drone", "gimbal"],
+    leafShortcuts: [
+      "camera",
+      "action_cam",
+      "lens",
+      "drone",
+      "gimbal",
+      "tripod",
+      "camera_bag",
+    ],
     brands: [
       { label: "DJI", brand: "dji" },
       { label: "Sony", brand: "sony" },
@@ -169,6 +177,11 @@ export const NAV_ELEVATION: NavElevationSpec[] = [
       "air_fryer",
       "coffee_machine",
       "cookware",
+      "fridge",
+      "freezer",
+      "washing_machine",
+      "dishwasher",
+      "oven",
       "vacuum",
       "robot_vacuum",
       "iron",
@@ -203,6 +216,8 @@ export const POPULAR_LEAF_FALLBACK = [
   "security_camera",
   "padel_gear",
   "air_fryer",
+  "fridge",
+  "camera",
 ] as const;
 
 /** Extra SSG slugs for elevated / v1.2 leaves (FE only). */

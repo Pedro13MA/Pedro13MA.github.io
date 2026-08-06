@@ -17,7 +17,7 @@ export function Breadcrumbs({ items, className }: Props) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("text-sm text-slate-500", className)}
+      className={cn("text-sm text-[var(--hm-muted,#5b6b7c)]", className)}
     >
       <ol className="flex flex-wrap items-center gap-1.5">
         {crumbs.map((item, i) => {
@@ -31,16 +31,19 @@ export function Breadcrumbs({ items, className }: Props) {
           return (
             <li key={`${item.slug || "home"}-${i}`} className="flex items-center gap-1.5">
               {i > 0 ? (
-                <span className="text-slate-300" aria-hidden>
+                <span className="text-[var(--hm-line,#dde3ea)]" aria-hidden>
                   /
                 </span>
               ) : null}
               {last ? (
-                <span className="font-medium text-slate-800">
+                <span className="font-medium text-[var(--hm-ink,#0b1220)]">
                   {item.display_name}
                 </span>
               ) : (
-                <Link href={linkHref} className="hover:text-sky-700">
+                <Link
+                  href={linkHref}
+                  className="hover:text-[var(--hm-brand-deep,#e2550f)]"
+                >
                   {item.display_name}
                 </Link>
               )}

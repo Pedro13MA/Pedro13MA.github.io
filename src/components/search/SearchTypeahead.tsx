@@ -10,6 +10,7 @@ import {
   type ApiProductSummary,
   type SearchSuggestResponse,
 } from "@/lib/api";
+import { isAbortError } from "@/lib/api-client";
 import { isP33SearchEnabled } from "@/lib/search/flags";
 import { cn, formatEUR } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ export function SearchTypeahead({
   const [suggest, setSuggest] = useState<SearchSuggestResponse | null>(null);
   const p33 = isP33SearchEnabled();
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const requestSeq = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setQuery(defaultQuery);
@@ -49,36 +50,40 @@ export function SearchTypeahead({
   useEffect(() => {
     const q = query.trim();
     if (q.length < 2) {
+      abortRef.current?.abort();
       setLegacy([]);
       setSuggest(null);
       setLoading(false);
       return;
     }
     setLoading(true);
-    const seq = ++requestSeq.current;
     const handle = window.setTimeout(() => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
       const run = p33
-        ? suggestSearch(q, { limit: 8 }).then((res) => {
-            if (seq !== requestSeq.current) return;
+        ? suggestSearch(q, { limit: 8, signal: controller.signal }).then((res) => {
             setSuggest(res);
             setLegacy([]);
           })
-        : searchProducts(q, { limit: 8 }).then((res) => {
-            if (seq !== requestSeq.current) return;
+        : searchProducts(q, { limit: 8, signal: controller.signal }).then((res) => {
             setLegacy(res.results);
             setSuggest(null);
           });
       run
-        .catch(() => {
-          if (seq !== requestSeq.current) return;
+        .catch((err) => {
+          if (isAbortError(err)) return;
           setLegacy([]);
           setSuggest(null);
         })
         .finally(() => {
-          if (seq === requestSeq.current) setLoading(false);
+          if (!controller.signal.aborted) setLoading(false);
         });
     }, 280);
-    return () => window.clearTimeout(handle);
+    return () => {
+      window.clearTimeout(handle);
+      abortRef.current?.abort();
+    };
   }, [query, p33]);
 
   function go(href: string) {
@@ -147,6 +152,7 @@ export function SearchTypeahead({
         placeholder={placeholder}
         autoFocus={autoFocus}
         className={cn(
+          "w-full",
           compact
             ? "h-10 rounded-xl border-slate-200 bg-white pl-9 text-sm"
             : "h-14 rounded-2xl border-slate-200 bg-white pl-12 text-base shadow-lg",
@@ -239,34 +245,6 @@ function SuggestGroups({
 
   return (
     <div className="divide-y divide-slate-100">
-      {suggest.categories.length > 0 ? (
-        <Group title="Categorias">
-          {suggest.categories.map((c) => (
-            <Row
-              key={c.slug || c.label}
-              label={c.label || c.slug || ""}
-              hint="Categoria"
-              onPick={() => onPick(c.url || `/categoria/${c.slug}/`)}
-            />
-          ))}
-        </Group>
-      ) : null}
-      {suggest.brands.length > 0 ? (
-        <Group title="Marcas">
-          {suggest.brands.map((b) => (
-            <Row
-              key={b.name}
-              label={b.name || ""}
-              hint="Marca"
-              onPick={() =>
-                onPick(
-                  b.url || `/search/?q=${encodeURIComponent(b.name || "")}`,
-                )
-              }
-            />
-          ))}
-        </Group>
-      ) : null}
       {suggest.products.length > 0 ? (
         <Group title="Produtos">
           {suggest.products.map((p) => (
@@ -303,6 +281,34 @@ function SuggestGroups({
                 </span>
               ) : null}
             </button>
+          ))}
+        </Group>
+      ) : null}
+      {suggest.categories.length > 0 ? (
+        <Group title="Categorias">
+          {suggest.categories.map((c) => (
+            <Row
+              key={c.slug || c.label}
+              label={c.label || c.slug || ""}
+              hint="Categoria"
+              onPick={() => onPick(c.url || `/categoria/${c.slug}/`)}
+            />
+          ))}
+        </Group>
+      ) : null}
+      {suggest.brands.length > 0 ? (
+        <Group title="Marcas">
+          {suggest.brands.map((b) => (
+            <Row
+              key={b.name}
+              label={b.name || ""}
+              hint="Marca"
+              onPick={() =>
+                onPick(
+                  b.url || `/search/?q=${encodeURIComponent(b.name || "")}`,
+                )
+              }
+            />
           ))}
         </Group>
       ) : null}

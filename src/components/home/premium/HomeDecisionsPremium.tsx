@@ -4,25 +4,63 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useHomeDeals } from "@/components/home/premium/HomeDealsProvider";
 import { formatEUR } from "@/lib/utils";
-import type { Product } from "@/lib/types";
+import type { DecisionSemaphore, Product } from "@/lib/types";
 import { MiniSparkline } from "@/components/home/premium/illustrations";
 
-function takeUnique(products: Product[], used: Set<string>, limit: number): Product[] {
-  const out: Product[] = [];
-  for (const p of products) {
-    if (!p.ean || used.has(p.ean)) continue;
-    used.add(p.ean);
-    out.push(p);
-    if (out.length >= limit) break;
+function pickMatching(
+  pools: Product[][],
+  semaphores: DecisionSemaphore[],
+  used: Set<string>,
+): Product | null {
+  for (const pool of pools) {
+    for (const p of pool) {
+      if (!p.ean || used.has(p.ean)) continue;
+      if (semaphores.includes(p.decision?.semaphore)) {
+        used.add(p.ean);
+        return p;
+      }
+    }
   }
-  return out;
+  return null;
+}
+
+function looksLikeMerchantPromo(text: string): boolean {
+  return /pvpr|preço\s*de\s*venda|promoção\s*imediata|%\s*abaixo\s*do/i.test(
+    text,
+  );
 }
 
 function summary(p: Product): string {
-  const raw =
-    p.decision.lymiarIndex?.summary || p.decision.reason || p.decision.bullets?.[0] || "";
-  const t = raw.trim();
-  return t || "Com base no histórico observado.";
+  const candidates = [
+    p.decision.lymiarIndex?.summary,
+    p.decision.reason,
+    p.decision.bullets?.[0],
+  ];
+  for (const c of candidates) {
+    const t = (c || "").trim();
+    if (t && !looksLikeMerchantPromo(t)) return t;
+  }
+  const avg = p.avg30d;
+  const min = p.historicalMin;
+  if (min != null && min > 0 && p.currentPrice <= min * 1.02) {
+    return `Perto do mínimo observado (${formatEUR(min)}).`;
+  }
+  if (avg != null && avg > 0) {
+    return `Face à média de 30 dias (${formatEUR(avg)}).`;
+  }
+  return "Com base no histórico observado.";
+}
+
+function histLine(p: Product): string | null {
+  const min = p.historicalMin;
+  const avg = p.avg30d;
+  if (min != null && min > 0) {
+    return `Mín. observado ${formatEUR(min)}`;
+  }
+  if (avg != null && avg > 0) {
+    return `Média 30d ${formatEUR(avg)}`;
+  }
+  return null;
 }
 
 function BigCard({
@@ -30,24 +68,26 @@ function BigCard({
   tone,
   badge,
   whyLabel,
+  emptyHint,
 }: {
   product: Product | null;
   tone: "buy" | "wait" | "unknown";
   badge: string;
   whyLabel: string;
+  emptyHint: string;
 }) {
   const [failed, setFailed] = useState(false);
   const styles =
     tone === "buy"
       ? {
-          badge: "bg-green-50 text-green-700 ring-green-200",
-          btn: "bg-green-600 hover:bg-green-700 text-white",
+          badge: "bg-[var(--hm-buy-soft)] text-[var(--hm-buy)] ring-green-200",
+          btn: "bg-[var(--hm-buy)] hover:bg-green-700 text-white",
           spark: "green" as const,
         }
       : tone === "wait"
         ? {
-            badge: "bg-amber-50 text-amber-800 ring-amber-200",
-            btn: "bg-amber-500 hover:bg-amber-600 text-white",
+            badge: "bg-[var(--hm-wait-soft)] text-amber-800 ring-amber-200",
+            btn: "bg-[var(--hm-wait)] hover:bg-amber-600 text-white",
             spark: "amber" as const,
           }
         : {
@@ -55,6 +95,8 @@ function BigCard({
             btn: "bg-slate-900 hover:bg-slate-800 text-white",
             spark: "blue" as const,
           };
+
+  const hist = product ? histLine(product) : null;
 
   return (
     <article className="home-card flex h-full flex-col overflow-hidden">
@@ -88,9 +130,7 @@ function BigCard({
             />
           ) : (
             <p className="px-4 text-center text-sm text-slate-400">
-              {tone === "unknown"
-                ? "Precisamos de mais histórico"
-                : "Sem imagem"}
+              {product ? "Sem imagem" : emptyHint}
             </p>
           )}
         </div>
@@ -99,35 +139,41 @@ function BigCard({
             <h3 className="font-display text-lg font-semibold leading-snug text-slate-900 sm:text-xl">
               {product.name}
             </h3>
-            <p className="mt-2 text-2xl font-bold text-slate-900">
+            <p className="home-price-pop mt-3 font-display text-3xl font-bold tabular-nums tracking-tight text-slate-900 sm:text-4xl">
               {formatEUR(product.currentPrice)}
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+            {hist ? (
+              <p className="mt-1.5 text-sm text-slate-500">{hist}</p>
+            ) : null}
+            <p className="mt-4 text-sm leading-relaxed text-slate-500">
               <span className="font-medium text-slate-700">{whyLabel}</span>{" "}
               {summary(product)}
             </p>
-            <Link
-              href={`/p/?id=${encodeURIComponent(product.slug)}`}
-              className={`mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors ${styles.btn}`}
-            >
-              Ver produto
-            </Link>
+            <div className="mt-auto pt-6">
+              <Link
+                href={`/p/?id=${encodeURIComponent(product.slug)}`}
+                className={`inline-flex h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold leading-none transition-colors ${styles.btn}`}
+              >
+                Ver decisão
+              </Link>
+            </div>
           </>
         ) : (
           <>
             <h3 className="font-display text-lg font-semibold text-slate-900 sm:text-xl">
-              Ainda não sabemos
+              {badge}
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-500">
-              Quando o histórico é curto, não inventamos uma recomendação.
-              Pesquisa um produto concreto para ver a evidência disponível.
+              {emptyHint}
             </p>
-            <Link
-              href="/search/"
-              className={`mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold transition-colors ${styles.btn}`}
-            >
-              Ir à pesquisa
-            </Link>
+            <div className="mt-auto pt-6">
+              <Link
+                href="/search/"
+                className={`inline-flex h-12 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold leading-none transition-colors ${styles.btn}`}
+              >
+                Ir à pesquisa
+              </Link>
+            </div>
           </>
         )}
       </div>
@@ -135,29 +181,38 @@ function BigCard({
   );
 }
 
-/** “O que diz o histórico?” — 3 cartões grandes. */
+/** Três cartões — cada um com um produto que corresponde ao veredicto. */
 export function HomeDecisionsPremium() {
-  const { dealsNow, dealsWait, loading } = useHomeDeals();
+  const { dealsNow, dealsWait, dealsFair, loading } = useHomeDeals();
 
-  const { buyOne, waitOne } = useMemo(() => {
+  const { buyOne, waitOne, unknownOne } = useMemo(() => {
     const used = new Set<string>();
-    return {
-      buyOne: takeUnique(dealsNow, used, 1)[0] ?? null,
-      waitOne: takeUnique(dealsWait, used, 1)[0] ?? null,
-    };
-  }, [dealsNow, dealsWait]);
+    const buyOne = pickMatching([dealsNow], ["buy"], used);
+    const waitOne = pickMatching([dealsWait, dealsNow], ["wait"], used);
+    const unknownOne = pickMatching(
+      [dealsFair, dealsNow, dealsWait],
+      ["fair"],
+      used,
+    );
+    return { buyOne, waitOne, unknownOne };
+  }, [dealsNow, dealsWait, dealsFair]);
 
   return (
-    <section id="decisoes" className="scroll-mt-20 bg-slate-50">
+    <section id="decisoes" className="scroll-mt-20 bg-[var(--hm-bg)]">
       <div className="home-fade mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl">
-        <p className="text-sm font-semibold text-blue-600">Evidência</p>
-        <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          O que diz o histórico?
-        </h2>
-        <p className="mt-4 max-w-2xl text-base text-slate-500">
-          Três leituras possíveis — comprar, esperar, ou admitir que ainda não há
-          dados suficientes.
-        </p>
+        <div className="max-w-2xl">
+          <p className="home-section-kicker text-sm font-semibold uppercase tracking-[0.14em]">
+            Decisão
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            Três respostas possíveis.{" "}
+            <span className="text-[var(--hm-brand)]">Sem teatro.</span>
+          </h2>
+          <p className="mt-4 text-base text-slate-500 sm:text-lg">
+            Cada cartão mostra um produto real com esse veredicto — comprar,
+            esperar, ou ainda não sabemos.
+          </p>
+        </div>
         {loading ? (
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
@@ -169,20 +224,23 @@ export function HomeDecisionsPremium() {
             <BigCard
               product={buyOne}
               tone="buy"
-              badge="🟢 Vale a pena comprar"
+              badge="Vale a pena comprar"
               whyLabel="Porque recomendamos:"
+              emptyHint="Neste momento não há um produto com veredicto de comprar para mostrar."
             />
             <BigCard
               product={waitOne}
               tone="wait"
-              badge="🟡 Espera mais um pouco"
+              badge="Espera mais um pouco"
               whyLabel="O histórico sugere:"
+              emptyHint="Neste momento não há um produto com veredicto de esperar para mostrar."
             />
             <BigCard
-              product={null}
+              product={unknownOne}
               tone="unknown"
-              badge="⚪ Ainda não sabemos"
-              whyLabel=""
+              badge="Ainda não sabemos"
+              whyLabel="O que vemos:"
+              emptyHint="Quando o histórico é curto, não inventamos certeza — pesquisa um produto concreto."
             />
           </div>
         )}

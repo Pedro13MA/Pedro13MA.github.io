@@ -4,12 +4,63 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useHomeDeals } from "@/components/home/premium/HomeDealsProvider";
 import { formatEUR } from "@/lib/utils";
-import type { Product } from "@/lib/types";
+import type { DecisionSemaphore, Product } from "@/lib/types";
 import { MiniSparkline } from "@/components/home/premium/illustrations";
 
+function looksLikeMerchantPromo(text: string): boolean {
+  return /pvpr|preço\s*de\s*venda|promoção\s*imediata|%\s*abaixo\s*do/i.test(
+    text,
+  );
+}
+
+function semaphoreLabel(sem: DecisionSemaphore | undefined): string {
+  if (sem === "buy") return "Comprar";
+  if (sem === "wait") return "Esperar";
+  if (sem === "fair") return "Neutro";
+  return "Ver evidência";
+}
+
+/** Razão honesta — nunca PVPR / “promoção imediata” do merchant. */
+function honestReason(p: Product): string {
+  const candidates = [
+    p.decision.lymiarIndex?.summary,
+    p.decision.reason,
+    p.decision.bullets?.[0],
+  ];
+  for (const c of candidates) {
+    const t = (c || "").trim();
+    if (t && !looksLikeMerchantPromo(t)) return t;
+  }
+
+  const min = p.historicalMin;
+  const avg = p.avg30d;
+  const sem = p.decision.semaphore;
+
+  if (sem === "buy") {
+    if (min != null && min > 0 && p.currentPrice <= min * 1.02) {
+      return `Perto do mínimo observado (${formatEUR(min)}).`;
+    }
+    if (avg != null && avg > 0) {
+      return `Face à média de 30 dias (${formatEUR(avg)}).`;
+    }
+    return "Momento favorável face ao histórico observado.";
+  }
+  if (sem === "wait") {
+    if (avg != null && avg > 0) {
+      return `Acima do que o histórico recente mostrou (média 30d ${formatEUR(avg)}).`;
+    }
+    return "O histórico observado sugere esperar.";
+  }
+  if (min != null || avg != null) {
+    return "Há histórico — abre a página para ver a evidência.";
+  }
+  return "Ainda sem evidência suficiente para um veredicto firme.";
+}
+
 function ExampleCard({ p }: { p: Product }) {
+  const sem = p.decision.semaphore;
   return (
-    <li key={p.ean}>
+    <li>
       <Link
         href={`/p/?id=${encodeURIComponent(p.slug)}`}
         className="home-card group block overflow-hidden"
@@ -25,7 +76,7 @@ function ExampleCard({ p }: { p: Product }) {
         </div>
         <div className="border-t border-slate-100 p-5">
           <div className="flex items-start justify-between gap-2">
-            <p className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-blue-600">
+            <p className="line-clamp-2 text-sm font-semibold text-slate-900 group-hover:text-[var(--hm-brand)]">
               {p.name}
             </p>
             <MiniSparkline
@@ -36,11 +87,16 @@ function ExampleCard({ p }: { p: Product }) {
               className="h-7 w-11 shrink-0"
             />
           </div>
-          <p className="mt-2 text-lg font-bold text-slate-900">
-            {formatEUR(p.currentPrice)}
-          </p>
-          <p className="mt-2 line-clamp-2 text-xs text-slate-500">
-            {p.decision.lymiarIndex?.summary || p.decision.reason}
+          <div className="mt-3 flex items-baseline justify-between gap-2">
+            <p className="text-lg font-bold text-slate-900">
+              {formatEUR(p.currentPrice)}
+            </p>
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              {semaphoreLabel(sem)}
+            </span>
+          </div>
+          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-500">
+            {honestReason(p)}
           </p>
         </div>
       </Link>
@@ -63,23 +119,25 @@ function ExampleSkeleton({ id }: { id: string }) {
 }
 
 export function HomeExamples() {
-  const { dealsNow, loading } = useHomeDeals();
+  const { dealsNow, loading, isPreview } = useHomeDeals();
   const items = useMemo(
     () => dealsNow.filter((p) => p.imageUrl).slice(0, 4),
     [dealsNow],
   );
 
+  // Pré-visualização local ≠ “casos reais” — não fingir.
+  if (isPreview) return null;
   if (!items.length && !loading) return null;
 
   return (
     <section id="exemplos" className="scroll-mt-20 bg-slate-50">
       <div className="home-fade mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl">
-        <p className="text-sm font-semibold text-blue-600">Casos reais</p>
+        <p className="text-sm font-semibold text-[var(--hm-brand)]">Agora</p>
         <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Exemplos reais
+          Observados neste momento
         </h2>
         <p className="mt-4 max-w-xl text-base text-slate-500">
-          Produtos observados agora — com preço, histórico e decisão.
+          Preço actual e leitura face ao histórico — sem comparar a PVPR da loja.
         </p>
         <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {items.length

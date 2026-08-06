@@ -23,7 +23,12 @@ function NodeList({
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
   return (
-    <ul className={cn("space-y-0.5", depth > 0 && "ml-3 border-l border-slate-100 pl-2")}>
+    <ul
+      className={cn(
+        "space-y-0.5",
+        depth > 0 && "ml-3 border-l border-[var(--hm-line,#dde3ea)] pl-2",
+      )}
+    >
       {nodes.map((node) => {
         const active = node.slug === activeSlug;
         const hasKids = (node.children_count ?? 0) > 0 && depth < 1;
@@ -38,7 +43,7 @@ function NodeList({
                   onClick={() =>
                     setOpen((s) => ({ ...s, [node.slug]: !expanded }))
                   }
-                  className="h-6 w-6 shrink-0 text-xs text-slate-400 hover:text-slate-700"
+                  className="h-6 w-6 shrink-0 text-xs text-[var(--hm-faint,#8b9aab)] hover:text-[var(--hm-ink,#0b1220)]"
                 >
                   {expanded ? "▾" : "▸"}
                 </button>
@@ -50,8 +55,8 @@ function NodeList({
                 className={cn(
                   "flex-1 truncate rounded-lg px-2 py-1.5 text-sm transition-colors",
                   active
-                    ? "bg-sky-50 font-medium text-sky-900"
-                    : "text-slate-700 hover:bg-slate-50",
+                    ? "bg-[var(--hm-brand-soft,#fff1e8)] font-medium text-[var(--hm-brand-deep,#e2550f)]"
+                    : "text-[var(--hm-ink,#0b1220)] hover:bg-[var(--hm-bg-soft,#eef2f6)]",
                 )}
               >
                 {node.display_name}
@@ -75,18 +80,16 @@ export function CategorySidebar({ category, siblings }: Props) {
   return (
     <aside
       className={cn(
-        "lymiar-sidebar space-y-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm",
+        "catalog-filters lymiar-sidebar space-y-4",
         "lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] lg:self-start",
         "lg:overflow-y-auto lg:overscroll-contain lg:pr-2",
       )}
     >
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Navegação
-        </p>
+        <p className="catalog-kicker">Navegação</p>
         <Link
           href="/categorias/"
-          className="mt-1 block text-sm text-sky-700 hover:underline"
+          className="mt-2 block text-sm font-medium text-[var(--hm-brand-deep,#e2550f)] hover:underline"
         >
           Todas as categorias
         </Link>
@@ -94,13 +97,13 @@ export function CategorySidebar({ category, siblings }: Props) {
 
       {nodes.length ? (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--hm-faint,#8b9aab)]">
             {category.level < 3 ? "Subcategorias" : "Relacionadas"}
           </p>
           <NodeList nodes={nodes} activeSlug={category.slug} />
         </div>
       ) : (
-        <p className="text-xs text-slate-400">Sem subcategorias.</p>
+        <p className="text-xs text-[var(--hm-faint,#8b9aab)]">Sem subcategorias.</p>
       )}
     </aside>
   );

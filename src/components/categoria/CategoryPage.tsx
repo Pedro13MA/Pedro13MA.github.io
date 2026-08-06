@@ -272,10 +272,10 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
   if (!category && !loading) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-slate-900">
+        <h1 className="font-display text-2xl font-bold text-[var(--hm-ink)]">
           Categoria não encontrada
         </h1>
-        <p className="mt-3 text-slate-500">
+        <p className="mt-3 text-[var(--hm-muted)]">
           Esta categoria não existe ou está reservada.
         </p>
       </main>
@@ -283,24 +283,33 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <Breadcrumbs items={category?.breadcrumbs || []} className="mb-4" />
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:max-w-7xl">
+      <Breadcrumbs items={category?.breadcrumbs || []} className="mb-5" />
 
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-slate-900">
+      <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0 space-y-3">
+          <p className="catalog-kicker">Categoria</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--hm-ink)] sm:text-4xl">
             {category?.display_name || (loading ? "A carregar" : "Categoria")}
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="text-sm text-[var(--hm-muted)]">
             {loading
               ? "A carregar…"
               : `${total} produto${total === 1 ? "" : "s"}`}
-            {q ? (
-              <span className="ml-1">
-                · filtro “{q}”
-              </span>
-            ) : null}
+            {q ? <span className="ml-1">· filtro «{q}»</span> : null}
           </p>
+          {category?.seo ? (
+            <CategorySEO
+              seo={category.seo}
+              jsonLd={jsonLd.length ? jsonLd : category.json_ld}
+              description={
+                category.seo.meta_description || category.seo.description
+              }
+              updatedHint={category.updated_hint}
+              productCount={loading ? null : total}
+              compact
+            />
+          ) : null}
         </div>
         <div className="flex flex-wrap items-end gap-3">
           {category ? (
@@ -311,31 +320,29 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
                 label: category.display_name,
                 href: `/categoria/${encodeURIComponent(slug)}/`,
               }}
-              baseline={
-                stats ? baselineFromCategoryStats(stats) : null
-              }
+              baseline={stats ? baselineFromCategoryStats(stats) : null}
             />
           ) : null}
-          <label className="flex flex-col gap-1 text-sm text-slate-600">
-          Ordenar por
-          <select
-            value={sortBy}
-            onChange={(e) =>
-              router.push(
-                buildUrl({ sortBy: e.target.value as SearchSortBy, page: 1 }),
-              )
-            }
-            className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-slate-900 shadow-sm"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          <label className="flex flex-col gap-1 text-sm text-[var(--hm-muted)]">
+            Ordenar por
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                router.push(
+                  buildUrl({ sortBy: e.target.value as SearchSortBy, page: 1 }),
+                )
+              }
+              className="catalog-select"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
-      </div>
+      </header>
 
       {error ? (
         <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -343,57 +350,42 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
         </p>
       ) : null}
 
-      {category?.seo ? (
-        <div className="mb-8">
-          <CategorySEO
-            seo={category.seo}
-            jsonLd={jsonLd.length ? jsonLd : category.json_ld}
-            description={category.seo.meta_description || category.seo.description}
-            updatedHint={category.updated_hint}
-            productCount={loading ? null : total}
-          />
-        </div>
-      ) : null}
-
       {stats ? (
-        <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-              Produtos
-            </p>
-            <p className="mt-1 font-display text-lg font-bold">{stats.products}</p>
+        <dl className="catalog-stat-strip mb-6">
+          <div>
+            <dt>Produtos</dt>
+            <dd>{stats.products}</dd>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-              Marcas
-            </p>
-            <p className="mt-1 font-display text-lg font-bold">{stats.brands}</p>
+          <div>
+            <dt>Marcas</dt>
+            <dd>{stats.brands}</dd>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-              Lojas
-            </p>
-            <p className="mt-1 font-display text-lg font-bold">{stats.stores}</p>
+          <div>
+            <dt>Lojas</dt>
+            <dd>{stats.stores}</dd>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-              Preço médio
-            </p>
-            <p className="mt-1 font-display text-lg font-bold tabular-nums">
+          <div>
+            <dt>Preço médio</dt>
+            <dd>
               {stats.avgPrice != null
                 ? new Intl.NumberFormat("pt-PT", {
                     style: "currency",
                     currency: "EUR",
                   }).format(stats.avgPrice)
                 : "—"}
-            </p>
+            </dd>
           </div>
-        </div>
+        </dl>
       ) : null}
 
-      <div className="mb-8">
-        <EntityActivityTimeline kind="CATEGORY" targetKey={slug} />
-      </div>
+      <details className="catalog-panel mb-8 px-4 py-3">
+        <summary className="cursor-pointer text-sm font-medium text-[var(--hm-ink)]">
+          Atividade observada nesta categoria
+        </summary>
+        <div className="mt-3 border-t border-[var(--hm-line)] pt-3">
+          <EntityActivityTimeline kind="CATEGORY" targetKey={slug} />
+        </div>
+      </details>
 
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <div className="space-y-6">
@@ -455,13 +447,14 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
         <section>
           <CategoryFamilies leafHint={slug} />
           {!loading && recommended.length ? (
-            <div className="mb-8 space-y-3">
-              <h2 className="font-display text-lg font-bold text-slate-900">
-                Produtos recomendados
+            <div className="catalog-section mb-8 space-y-3">
+              <p className="catalog-kicker">Decisão</p>
+              <h2 className="font-display text-xl font-bold text-[var(--hm-ink)]">
+                Melhor momento nesta categoria
               </h2>
-              <p className="text-sm text-slate-500">
-                Melhor momento observado nesta página — sem alterar a
-                listagem.
+              <p className="text-sm text-[var(--hm-muted)]">
+                Produtos com sinal favorável observado nesta página — a listagem
+                completa continua abaixo.
               </p>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {recommended.map((product) => (
@@ -479,12 +472,20 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-72 animate-pulse rounded-xl border border-slate-200/80 bg-slate-100"
+                  className="h-72 animate-pulse rounded-xl border border-[var(--hm-line)] bg-[var(--hm-bg-soft)]"
                 />
               ))}
             </div>
           ) : products.length ? (
             <>
+              <div className="mb-4 flex items-baseline justify-between gap-3">
+                <h2 className="font-display text-lg font-bold text-[var(--hm-ink)]">
+                  Produtos
+                </h2>
+                <p className="text-sm text-[var(--hm-faint)]">
+                  {total} observados
+                </p>
+              </div>
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {gridProducts.map((product) => (
                   <OpportunityCard
@@ -504,7 +505,7 @@ export function CategoryPage({ slug, initialCategory = null }: Props) {
                   >
                     Anterior
                   </Button>
-                  <span className="text-sm text-slate-500">
+                  <span className="text-sm text-[var(--hm-muted)]">
                     Página {page} / {totalPages}
                   </span>
                   <Button

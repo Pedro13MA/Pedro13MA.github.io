@@ -1,20 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   fetchPriceHistory,
   type HistoryGranularity,
   type PriceHistoryOut,
 } from "@/lib/api";
 import type { PricePoint } from "@/lib/types";
-import { PriceHistoryChart as Chart } from "@/components/charts/PriceHistoryChart";
+import {
+  PriceHistoryChart as Chart,
+  type ChartPoint,
+} from "@/components/charts/PriceHistoryChart";
+import {
+  bestPriceExtremes,
+  fillPeriodWindow,
+} from "@/lib/price-history-chart";
 import { cn, formatEUR } from "@/lib/utils";
 
 const PERIODS = [
+  { days: 7, label: "1 semana" },
+  { days: 14, label: "2 semanas" },
   { days: 30, label: "30 dias" },
   { days: 90, label: "90 dias" },
   { days: 365, label: "1 ano" },
-  { days: 1825, label: "Tudo" },
+  { days: 730, label: "2 anos" },
+  { days: 1095, label: "3 anos" },
 ] as const;
 
 type PeriodDays = (typeof PERIODS)[number]["days"];
@@ -22,22 +32,22 @@ type PeriodDays = (typeof PERIODS)[number]["days"];
 type Props = {
   productId: string;
   currentPrice: number;
+  /** Só usado se /history falhar — nunca merge cego com a série API. */
   fallbackHistory?: PricePoint[];
-  fallbackMin?: number;
-  fallbackMax?: number;
+  hideTitle?: boolean;
 };
 
 function ChartSkeleton() {
   return (
     <div className="space-y-3" aria-hidden>
       <div className="h-8 w-48 animate-pulse rounded-lg bg-slate-100" />
-      <div className="h-96 w-full animate-pulse rounded-xl bg-slate-100" />
+      <div className="h-80 w-full animate-pulse rounded-xl bg-slate-100 sm:h-96" />
     </div>
   );
 }
 
 function autoGranularity(days: number): HistoryGranularity {
-  return days >= 180 ? "weekly" : "daily";
+  return days > 90 ? "weekly" : "daily";
 }
 
 function SummaryCard({
@@ -51,10 +61,10 @@ function SummaryCard({
 }) {
   const dot =
     tone === "current"
-      ? "bg-sky-600"
+      ? "bg-orange-600"
       : tone === "min"
         ? "bg-emerald-600"
-        : "bg-rose-600";
+        : "bg-rose-700";
 
   return (
     <li className="rounded-2xl border border-slate-200/70 bg-white px-3.5 py-3">
@@ -69,14 +79,49 @@ function SummaryCard({
   );
 }
 
+function pickDefaultPeriod(fallbackLen: number): PeriodDays {
+  if (fallbackLen >= 60) return 90;
+  if (fallbackLen >= 20) return 30;
+  if (fallbackLen >= 10) return 14;
+  return 7;
+}
+
+/** Série API: price = melhor oferta; maxPrice = tecto de mercado (só banda). */
+function toChartPoints(
+  raw: PriceHistoryOut["points"] | null | undefined,
+): ChartPoint[] {
+  if (!raw?.length) return [];
+  return raw
+    .filter((p) => p.price > 0 && p.date)
+    .map((p) => ({
+      date: String(p.date).slice(0, 10),
+      price: p.price,
+      maxMarketPrice:
+        p.maxPrice != null && p.maxPrice > p.price ? p.maxPrice : null,
+      isImputed: false,
+    }));
+}
+
+function fallbackToChart(points: PricePoint[]): ChartPoint[] {
+  return points
+    .filter((p) => p.price > 0 && p.date)
+    .map((p) => ({
+      date: String(p.date).slice(0, 10),
+      price: p.price,
+      maxMarketPrice: null,
+      isImputed: false,
+    }));
+}
+
 export function PriceHistoryChart({
   productId,
   currentPrice,
   fallbackHistory = [],
-  fallbackMin,
-  fallbackMax,
+  hideTitle = false,
 }: Props) {
-  const [days, setDays] = useState<PeriodDays>(30);
+  const [days, setDays] = useState<PeriodDays>(() =>
+    pickDefaultPeriod(fallbackHistory.length),
+  );
   const [data, setData] = useState<PriceHistoryOut | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,27 +151,42 @@ export function PriceHistoryChart({
     };
   }, [productId, days, granularity]);
 
-  const points: PricePoint[] =
-    data?.points?.map((p) => ({ date: p.date, price: p.price })) ??
-    (error && fallbackHistory.length > 1 ? fallbackHistory : []);
+  const points = useMemo(() => {
+    const apiPoints = toChartPoints(data?.points);
+    // Sem merge com detail.history: só fallback se a API não trouxe série.
+    const base =
+      apiPoints.length > 0 ? apiPoints : fallbackToChart(fallbackHistory);
+    return fillPeriodWindow(base, days, currentPrice);
+  }, [data, fallbackHistory, days, currentPrice]);
 
-  const histMin =
-    data?.historicalMin ??
-    fallbackMin ??
-    (points.length ? Math.min(...points.map((p) => p.price)) : 0);
-  const histMax =
-    data?.historicalMax ??
-    fallbackMax ??
-    (points.length ? Math.max(...points.map((p) => p.price)) : 0);
+  const extremes = useMemo(() => bestPriceExtremes(points), [points]);
+
+  // Cards / marcadores: só Melhor Oferta no período (nunca spread nem stats cross-store).
+  const safeMin = extremes.min ?? currentPrice;
+  const safeMax = extremes.max ?? currentPrice;
+  const displayCurrent =
+    points.length && points[points.length - 1].price > 0
+      ? points[points.length - 1].price
+      : currentPrice;
+
+  const canChart = points.length >= 2;
+  const showMaxCard = safeMax > safeMin + 0.05;
 
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <h2 className="font-display text-xl font-bold text-slate-900">
-          Histórico de preço
-        </h2>
+        {!hideTitle ? (
+          <h2 className="font-display text-xl font-bold text-slate-900">
+            Histórico de preço
+          </h2>
+        ) : (
+          <span className="sr-only">Histórico de preço</span>
+        )}
         <div
-          className="flex flex-wrap gap-1 rounded-xl bg-slate-100/80 p-1"
+          className={cn(
+            "flex flex-wrap gap-1 rounded-xl bg-slate-100/80 p-1",
+            hideTitle && "sm:ml-auto",
+          )}
           role="group"
           aria-label="Período do gráfico"
         >
@@ -136,7 +196,7 @@ export function PriceHistoryChart({
               type="button"
               onClick={() => setDays(p.days)}
               className={cn(
-                "inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-xs font-medium transition-colors",
+                "inline-flex min-h-10 items-center justify-center rounded-lg px-2.5 text-xs font-medium transition-colors sm:px-3",
                 days === p.days
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-800",
@@ -150,18 +210,46 @@ export function PriceHistoryChart({
 
       {loading ? <ChartSkeleton /> : null}
 
-      {!loading && points.length > 1 ? (
+      {!loading && canChart ? (
         <>
-          <Chart history={points} currentPrice={currentPrice} />
+          <Chart
+            history={points}
+            currentPrice={displayCurrent}
+            historicalMin={safeMin}
+            historicalMax={safeMax}
+            minDate={extremes.minDate}
+            maxDate={extremes.maxDate}
+          />
           <ul className="grid gap-3 sm:grid-cols-3">
-            <SummaryCard tone="current" label="Preço atual" value={currentPrice} />
-            <SummaryCard tone="min" label="Mínimo observado" value={histMin} />
-            <SummaryCard tone="max" label="Máximo observado" value={histMax} />
+            <SummaryCard
+              tone="current"
+              label="Melhor oferta atual"
+              value={displayCurrent}
+            />
+            <SummaryCard
+              tone="min"
+              label="Mínimo (melhor oferta)"
+              value={safeMin}
+            />
+            <SummaryCard
+              tone="max"
+              label={
+                showMaxCard
+                  ? "Máximo (melhor oferta)"
+                  : "Máximo (sem variação)"
+              }
+              value={safeMax}
+            />
           </ul>
+          <p className="text-xs text-slate-500">
+            A linha mostra só a loja mais barata em cada dia. Preços de outras
+            lojas, se existirem, aparecem só na faixa clara — não entram no
+            mínimo/máximo histórico.
+          </p>
         </>
       ) : null}
 
-      {!loading && points.length <= 1 ? (
+      {!loading && !canChart ? (
         <p className="py-12 text-center text-sm text-slate-500">
           {error
             ? "Não foi possível carregar o histórico para este período."

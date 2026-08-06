@@ -7,10 +7,7 @@ import { cn } from "@/lib/utils";
 export function ProductActionPlaceholders({ className }: { className?: string }) {
   return (
     <div
-      className={cn(
-        "flex flex-wrap gap-2 sm:max-w-md",
-        className,
-      )}
+      className={cn("flex flex-wrap gap-2 sm:max-w-md", className)}
       role="group"
       aria-label="Acções futuras"
     >
@@ -31,24 +28,25 @@ export function ProductActionPlaceholders({ className }: { className?: string })
 export function ProductTelegramStrip({ className }: { className?: string }) {
   return (
     <aside
-      className={cn(
-        "rounded-2xl border border-slate-200/80 bg-white px-4 py-4 sm:px-5",
-        className,
-      )}
+      className={cn("pdp-telegram", className)}
       aria-label="Telegram Lymiar"
     >
-      <p className="text-sm font-semibold text-slate-800">Telegram</p>
-      <p className="mt-1 text-sm leading-relaxed text-slate-600">
-        Recebe oportunidades seleccionadas no canal Lymiar — sem misturar com o
-        preço desta página.
+      <p className="pdp-kicker">Canal</p>
+      <h2 className="mt-2 font-display text-lg font-bold text-slate-900">
+        Também no Telegram
+      </h2>
+      <p className="mt-2 text-sm leading-relaxed text-slate-600">
+        O canal avisa promoções que o radar marca com mínimo histórico
+        observado — de todas as categorias. Não substitui a decisão nesta
+        página.
       </p>
       <a
         href={TELEGRAM_CHANNEL}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 inline-flex text-sm font-medium text-sky-700 underline-offset-2 hover:underline"
+        className="mt-3 inline-flex text-sm underline-offset-2 hover:underline"
       >
-        Abrir canal Telegram
+        Abrir canal →
       </a>
     </aside>
   );

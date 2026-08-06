@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -46,6 +47,11 @@ export function useSnackbar(): Ctx {
 
 export function SnackbarProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<SnackbarMessage[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const push = useCallback(
     (text: string, opts?: { action?: SnackbarAction; durationMs?: number }) => {
@@ -69,7 +75,7 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
   return (
     <SnackbarContext.Provider value={value}>
       {children}
-      {typeof document !== "undefined"
+      {mounted
         ? createPortal(
             <div
               className="pointer-events-none fixed inset-x-0 bottom-20 z-[90] flex flex-col items-center gap-2 px-4 sm:bottom-4"

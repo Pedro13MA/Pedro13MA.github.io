@@ -14,14 +14,17 @@ export function CategoryHero({
   breadcrumbs: BreadcrumbItem[];
 }) {
   return (
-    <header className="border-b border-slate-200/80 bg-gradient-to-b from-white to-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <header className="border-b border-[var(--hm-line,#dde3ea)] bg-[var(--hm-bg-elevated,#fff)]">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:max-w-7xl">
         <BreadcrumbNav items={breadcrumbs} />
-        <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+        <p className="catalog-kicker mt-5">Explorar</p>
+        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-[var(--hm-ink,#0b1220)] sm:text-4xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-2 max-w-2xl text-base text-slate-500">{description}</p>
+          <p className="mt-2 max-w-2xl text-base text-[var(--hm-muted,#5b6b7c)]">
+            {description}
+          </p>
         ) : null}
       </div>
     </header>
@@ -40,7 +43,7 @@ export function CategoryCard({
   return (
     <Link
       href={href}
-      className="block rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md"
+      className="catalog-card block p-5 transition hover:border-[var(--hm-brand,#ff6a1a)]/40"
     >
       <p className="font-display text-lg font-semibold text-slate-900">{title}</p>
       {subtitle ? (

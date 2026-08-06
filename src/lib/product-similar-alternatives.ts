@@ -1,9 +1,6 @@
 /**
- * FASE 8.5.1 — filtrar alternativas leaf-first.
+ * FASE 8.5.1 — filtrar alternativas leaf-first + família de produto.
  * Não altera Discovery/API ranking; só composição na página de produto.
- *
- * Regra: se o produto actual tem leaf utilizável, só aceitar cards com o
- * mesmo leaf_id. Nunca misturar por subcategory legacy (ex.: console).
  */
 
 import type { DiscoveryCard, ProductRecommendations } from "@/lib/product-discovery";
@@ -29,23 +26,52 @@ function usableLeaf(raw: string | null | undefined): string {
   return leaf;
 }
 
+/** Família de produto a partir do nome (iphone, galaxy, rtx 40xx, etc.). */
+function productFamily(name: string): string {
+  const n = fold(name);
+  if (/\biphone\b/.test(n)) return "iphone";
+  if (/\b(galaxy\s?s|galaxy\s?z|galaxy\s?a)\b/.test(n) || /\bsamsung\b/.test(n) && /\bgalaxy\b/.test(n))
+    return "galaxy";
+  if (/\bpixel\b/.test(n)) return "pixel";
+  if (/\bredmi\b|\bxiaomi\b/.test(n) && /\b(note|redmi|poco)\b/.test(n)) return "xiaomi_phone";
+  if (/\bmacbook\b/.test(n)) return "macbook";
+  if (/\brtx\s?50/.test(n)) return "rtx50";
+  if (/\brtx\s?40/.test(n)) return "rtx40";
+  if (/\brtx\s?30/.test(n)) return "rtx30";
+  if (/\b(rx\s?7|radeon)\b/.test(n)) return "radeon";
+  if (/\b(990\s?pro|9100|sn850|crucial\s?t700)\b/.test(n) || /\bssd\b/.test(n)) {
+    if (/\bnvme|m\.?2|ssd\b/.test(n)) return "ssd";
+  }
+  if (/\bair\s?fryer\b|\bfritadeira\b/.test(n)) return "air_fryer";
+  if (/\bfrigor|\bfridge|\brefrigerador\b/.test(n)) return "fridge";
+  return "";
+}
+
+function sameFamily(currentName: string, cardName: string): boolean {
+  const a = productFamily(currentName);
+  const b = productFamily(cardName);
+  if (!a) return true; // sem família detectada → não bloquear
+  return a === b;
+}
+
 function sameCategory(current: Product, card: DiscoveryCard): boolean {
   const curLeaf = usableLeaf(current.leafId);
   const cardLeaf = usableLeaf(card.leafId);
+  const curName = current.name || "";
+  const cardName = card.name || "";
 
-  // Leaf-first: ambos com leaf → exigir igualdade exacta (game ≠ controller ≠ storage)
+  if (!sameFamily(curName, cardName)) return false;
+
   if (curLeaf && cardLeaf) {
     return curLeaf === cardLeaf;
   }
 
-  // Produto actual com leaf; cartão sem leaf → rejeitar (não misturar por subcategory)
   if (curLeaf && !cardLeaf) {
     return false;
   }
 
-  // Sem leaf no produto: fallback legado controlado (só sinais de nome)
-  const legacyKey = fold(current.subcategory || "");
-  const name = fold(card.name || "");
+  const legacyKey = fold(current.subcategory || current.category || "");
+  const name = fold(cardName);
   if (!legacyKey) return !ABSURD_RE.test(name);
 
   if (legacyKey.includes("smartphone") || legacyKey.includes("telemov")) {
@@ -67,14 +93,17 @@ function sameCategory(current: Product, card: DiscoveryCard): boolean {
   if (legacyKey.includes("monitor")) {
     return /\b(monitor|ultrawide|\d{2}["']?\s?(led|oled|ips|va))\b/i.test(name);
   }
+  if (legacyKey.includes("ssd") || legacyKey.includes("armazen")) {
+    return /\b(ssd|nvme|m\.?2|disco)\b/i.test(name);
+  }
 
   return !ABSURD_RE.test(name);
 }
 
 function priceClose(current: number, other: number): boolean {
   if (!(current > 0) || !(other > 0)) return false;
-  const lo = current * 0.55;
-  const hi = current * 1.55;
+  const lo = current * 0.45;
+  const hi = current * 1.75;
   return other >= lo && other <= hi;
 }
 
@@ -96,7 +125,9 @@ export function pickSimilarAlternatives(
       const key = (item.slug || item.ean || item.name || "").toLowerCase();
       if (!key || seen.has(key)) continue;
       if (key === product.slug.toLowerCase()) continue;
-      if (ABSURD_RE.test(item.name || "")) continue;
+      if (ABSURD_RE.test(item.name || "") && !sameFamily(product.name, item.name || "")) {
+        continue;
+      }
       if (!sameCategory(product, item)) continue;
       if (!priceClose(product.currentPrice, item.currentPrice)) continue;
       seen.add(key);
@@ -104,11 +135,12 @@ export function pickSimilarAlternatives(
     }
   };
 
-  // Preferir semelhantes / alternativas; ignorar popular/alsoSearched/upgrade soltos.
   push(recs.similar);
   push(recs.alternatives);
   push(recs.savings);
   push(recs.upgrades);
+  push(recs.alsoSearched);
+  push(recs.recommended);
 
   return pool
     .sort(

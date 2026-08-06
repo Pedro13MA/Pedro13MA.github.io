@@ -13,7 +13,7 @@ export function HomeMethod() {
   return (
     <section id="metodo" className="scroll-mt-20 bg-slate-50">
       <div className="home-fade mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl">
-        <p className="text-sm font-semibold text-blue-600">Método</p>
+        <p className="text-sm font-semibold text-[var(--hm-brand)]">Método</p>
         <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Como tomamos uma decisão
         </h2>
@@ -31,7 +31,7 @@ export function HomeMethod() {
               key={label}
               className="border-t border-slate-200 py-6 md:border-t-0 md:px-2"
             >
-              <span className="font-display text-sm font-semibold text-blue-600">
+              <span className="font-display text-sm font-semibold text-[var(--hm-brand)]">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="mt-2 text-[15px] font-medium text-slate-800">{label}</p>
@@ -53,7 +53,7 @@ export function HomeWhyName() {
     <section id="nome" className="scroll-mt-20 border-b border-slate-200 bg-white">
       <div className="home-fade mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:grid-cols-2 lg:gap-16">
         <div>
-          <p className="text-sm font-semibold text-blue-600">Identidade</p>
+          <p className="text-sm font-semibold text-[var(--hm-brand)]">Identidade</p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Porque se chama Lymiar?
           </h2>

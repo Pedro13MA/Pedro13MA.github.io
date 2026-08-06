@@ -119,7 +119,7 @@ function buildColumn(
     label: spec.label,
     href: categoryHref(hubSlug),
     anchorSlug: hubSlug,
-    items: items.slice(0, 14),
+    items: items.slice(0, 16),
     seeAll: {
       label: `Ver ${spec.label}`,
       slug: hubSlug,

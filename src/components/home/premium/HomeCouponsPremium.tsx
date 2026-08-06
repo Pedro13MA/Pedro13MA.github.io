@@ -8,14 +8,18 @@ import {
   smartCouponToPromotion,
 } from "@/lib/api";
 import { storeLogoUrl } from "@/lib/coupon-stores";
-import { normalizeCouponStoreSlug, resolveStoreLabel } from "@/lib/coupon-utils";
+import {
+  formatCouponValidity,
+  normalizeCouponStoreSlug,
+  resolveStoreLabel,
+} from "@/lib/coupon-utils";
 import type { Promotion } from "@/lib/types";
 
 function StoreMark({ slug, name }: { slug: string; name: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-600">
+      <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-[10px] font-bold text-slate-600">
         {name.slice(0, 2).toUpperCase()}
       </span>
     );
@@ -25,13 +29,32 @@ function StoreMark({ slug, name }: { slug: string; name: string }) {
     <img
       src={storeLogoUrl(slug)}
       alt=""
-      width={36}
-      height={36}
+      width={40}
+      height={40}
       loading="lazy"
-      className="h-9 w-9 rounded-lg bg-white object-contain p-0.5 ring-1 ring-slate-200"
+      className="h-10 w-10 rounded-lg bg-white object-contain p-0.5 ring-1 ring-slate-200"
       onError={() => setFailed(true)}
     />
   );
+}
+
+function campaignHref(p: Promotion): { href: string; external: boolean } {
+  const url = (p.url || "").trim();
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return { href: url, external: true };
+  }
+  const storeSlug = normalizeCouponStoreSlug(p.storeSlug);
+  const code = (p.code || "").trim();
+  if (code) {
+    return {
+      href: `/cupoes/${encodeURIComponent(storeSlug)}/${encodeURIComponent(code)}/`,
+      external: false,
+    };
+  }
+  return {
+    href: `/cupoes/${encodeURIComponent(storeSlug)}/`,
+    external: false,
+  };
 }
 
 export function HomeCouponsPremium() {
@@ -68,13 +91,13 @@ export function HomeCouponsPremium() {
   return (
     <section id="cupoes" className="scroll-mt-20 border-b border-slate-200 bg-white">
       <div className="home-fade mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:max-w-7xl">
-        <p className="text-sm font-semibold text-blue-600">Complemento</p>
+        <p className="text-sm font-semibold text-[var(--hm-brand)]">Complemento</p>
         <h2 className="mt-3 font-display text-2xl font-bold text-slate-900 sm:text-3xl">
           Cupões
         </h2>
         <p className="mt-3 max-w-lg text-sm text-slate-500">
-          Campanhas disponíveis. O preço Lymiar continua factual — o cupão nunca
-          é misturado como se já estivesse aplicado.
+          Campanhas à parte do preço observado. O cupão nunca entra no histórico
+          como se já estivesse aplicado.
         </p>
         {loading ? (
           <div className="mt-8 h-24 animate-pulse rounded-2xl bg-slate-50" />
@@ -85,20 +108,47 @@ export function HomeCouponsPremium() {
             {items.map((p) => {
               const storeSlug = normalizeCouponStoreSlug(p.storeSlug);
               const code = (p.code || "").trim() || "CAMPANHA";
+              const validity = formatCouponValidity(p);
+              const { href, external } = campaignHref(p);
+              const className =
+                "flex items-center gap-4 px-4 py-4 hover:bg-slate-50 sm:px-5";
+              const body = (
+                <>
+                  <StoreMark slug={storeSlug} name={p.storeName} />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="text-sm font-semibold text-slate-900">
+                        {p.storeName}
+                      </span>
+                      <span className="font-mono text-xs font-semibold text-slate-500">
+                        {code}
+                      </span>
+                    </span>
+                    <span className="mt-1 block text-sm text-slate-500">
+                      {validity}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs font-semibold text-[var(--hm-brand)]">
+                    Ver na loja →
+                  </span>
+                </>
+              );
               return (
                 <li key={`${storeSlug}-${code}-${p.externalId}`}>
-                  <Link
-                    href={`/cupoes/${encodeURIComponent(storeSlug)}/${encodeURIComponent(code)}/`}
-                    className="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 sm:px-5"
-                  >
-                    <StoreMark slug={storeSlug} name={p.storeName} />
-                    <span className="min-w-0 flex-1 truncate text-sm text-slate-600">
-                      {p.storeName}
-                    </span>
-                    <span className="font-mono text-sm font-semibold text-slate-900">
-                      {code}
-                    </span>
-                  </Link>
+                  {external ? (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className={className}
+                    >
+                      {body}
+                    </a>
+                  ) : (
+                    <Link href={href} className={className}>
+                      {body}
+                    </Link>
+                  )}
                 </li>
               );
             })}

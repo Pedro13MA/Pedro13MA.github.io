@@ -1,5 +1,7 @@
 /** Cliente HTTP para a API FastAPI Lymiar (VPS). */
 
+import { getApiBaseUrl } from "@/lib/api-base-url";
+import { apiGet, isAbortError } from "@/lib/api-client";
 import type {
   DecisionScore,
   DecisionSemaphore,
@@ -17,32 +19,7 @@ import type {
   StoreCampaign,
 } from "@/lib/types";
 
-/**
- * Host oficial da API Lymiar.
- * Override: NEXT_PUBLIC_API_URL
- */
-const DEFAULT_API_URL = "https://api.lymiar.com";
-
-export function getApiBaseUrl(): string {
-  const raw = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).trim();
-  return raw.replace(/\/$/, "");
-}
-
-async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = `${getApiBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    throw new Error(`API ${res.status} ${path}`);
-  }
-  return (await res.json()) as T;
-}
+export { getApiBaseUrl } from "@/lib/api-base-url";
 
 /* ——— shapes from FastAPI ——— */
 
@@ -346,6 +323,8 @@ export type SearchParams = {
   subcategory?: string;
   /** FASE 7.4 — filtros taxonomy (multi-value por chave) */
   taxonomyFilters?: Record<string, string[]>;
+  /** AbortController — cancela pedidos obsoletos (typeahead / pesquisa). */
+  signal?: AbortSignal;
 };
 
 export type ApiPaymentMethod = {
@@ -1054,23 +1033,28 @@ export async function searchProducts(
       }
     }
   }
-  return apiGet<SearchResponse>(`/api/v1/search?${params}`);
+  return apiGet<SearchResponse>(`/api/v1/search?${params}`, {
+    signal: opts?.signal,
+    label: "SEARCH",
+  });
 }
 
 /** P3 Block 2 — typeahead agrupado (fallback legado se suggest indisponível). */
 export async function suggestSearch(
   q: string,
-  opts?: { limit?: number },
+  opts?: { limit?: number; signal?: AbortSignal },
 ): Promise<SearchSuggestResponse> {
   const limit = opts?.limit ?? 8;
   const params = new URLSearchParams({ q, limit: String(limit) });
   try {
     return await apiGet<SearchSuggestResponse>(
       `/api/v1/search/suggest?${params}`,
+      { signal: opts?.signal, label: "SUGGEST" },
     );
-  } catch {
+  } catch (err) {
+    if (isAbortError(err)) throw err;
     // Integração: API sem /suggest → não zerar typeahead
-    const legacy = await searchProducts(q, { limit });
+    const legacy = await searchProducts(q, { limit, signal: opts?.signal });
     return {
       query: q,
       normalized: q,
@@ -1169,12 +1153,41 @@ export async function getCategoryProducts(
   );
 }
 
-export async function getDealsNow(limit = 24): Promise<DealsResponse> {
-  return apiGet<DealsResponse>(`/api/v1/deals/now?limit=${limit}`);
+export async function getDealsNow(
+  limit = 24,
+  opts?: { signal?: AbortSignal },
+): Promise<DealsResponse> {
+  return apiGet<DealsResponse>(`/api/v1/deals/now?limit=${limit}`, {
+    signal: opts?.signal,
+    label: "DEALS_NOW",
+  });
 }
 
-export async function getDealsWait(limit = 24): Promise<DealsResponse> {
-  return apiGet<DealsResponse>(`/api/v1/deals/wait?limit=${limit}`);
+export async function getDealsWait(
+  limit = 24,
+  opts?: { signal?: AbortSignal },
+): Promise<DealsResponse> {
+  return apiGet<DealsResponse>(`/api/v1/deals/wait?limit=${limit}`, {
+    signal: opts?.signal,
+    label: "DEALS_WAIT",
+  });
+}
+
+export async function getDealsFair(
+  limit = 24,
+  opts?: { signal?: AbortSignal },
+): Promise<DealsResponse> {
+  // allowStatuses: rota ainda ausente em api.lymiar.com (hub local já tem /deals/fair).
+  const data = await apiGet<DealsResponse | null>(
+    `/api/v1/deals/fair?limit=${limit}`,
+    {
+      signal: opts?.signal,
+      label: "DEALS_FAIR",
+      allowStatuses: [404],
+    },
+  );
+  if (!data) return { count: 0, results: [] };
+  return data;
 }
 
 /** Alertas efetivamente enviados ao Telegram (ledger de publish confirmado). */

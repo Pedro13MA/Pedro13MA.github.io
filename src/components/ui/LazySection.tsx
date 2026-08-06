@@ -23,6 +23,13 @@ export function LazySection({
     const el = ref.current;
     if (!el) return;
 
+    // Já no viewport (ou webviews sem IO fiável): montar já.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight + 280) {
+      setVisible(true);
+      return;
+    }
+
     if (typeof IntersectionObserver === "undefined") {
       setVisible(true);
       return;

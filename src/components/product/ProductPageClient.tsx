@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   detailToProduct,
+  fetchPriceHistory,
   fetchProductMetrics,
   getProductBySlug,
   type ProductMetricsOut,
 } from "@/lib/api";
-import type { Product } from "@/lib/types";
+import type { Product, PricePoint } from "@/lib/types";
 import {
   computeDataConfidence,
   estimateSeasonality,
@@ -15,7 +16,12 @@ import {
   isAbsoluteHistoricalMin,
   MIN_HISTORY_SPAN_DAYS,
 } from "@/lib/product-insights";
-import { recommendationsFromApi } from "@/lib/product-discovery";
+import {
+  fetchClientRecommendations,
+  recommendationsFromApi,
+  type DiscoveryCard,
+  type ProductRecommendations,
+} from "@/lib/product-discovery";
 import { pickSimilarAlternatives } from "@/lib/product-similar-alternatives";
 import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
 import { isP34ProductPageEnabled } from "@/lib/product/flags";
@@ -44,6 +50,48 @@ function Stars({ stars }: { stars: number }) {
   );
 }
 
+/** Dias reais observados — nunca inventa 1 dia a partir de histórico vazio. */
+function observedSpanDays(history: PricePoint[]): number {
+  if (!history.length) return 0;
+  if (history.length === 1) return 1;
+  return Math.max(1, Math.round(historySpanDays(history)));
+}
+
+function mergeHistory(
+  primary: PricePoint[],
+  fallback: PricePoint[],
+): PricePoint[] {
+  const byDate = new Map<string, number>();
+  for (const p of [...fallback, ...primary]) {
+    if (!(p.price > 0) || !p.date) continue;
+    byDate.set(String(p.date).slice(0, 10), p.price);
+  }
+  return [...byDate.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, price]) => ({ date, price }));
+}
+
+function mergeRecs(
+  a: ProductRecommendations | null,
+  b: ProductRecommendations | null,
+): ProductRecommendations | null {
+  if (!a && !b) return null;
+  const pick = <T,>(x: T[] | null | undefined, y: T[] | null | undefined) => {
+    const out = [...(x || []), ...(y || [])];
+    return out.length ? out : null;
+  };
+  return {
+    alternatives: pick(a?.alternatives, b?.alternatives),
+    upgrades: pick(a?.upgrades, b?.upgrades),
+    savings: pick(a?.savings, b?.savings),
+    similar: pick(a?.similar, b?.similar),
+    alsoSearched: pick(a?.alsoSearched, b?.alsoSearched),
+    popular: pick(a?.popular, b?.popular),
+    recommended: pick(a?.recommended, b?.recommended),
+    meta: a?.meta || b?.meta,
+  };
+}
+
 function buildVerdictCopy(opts: {
   spanDays: number;
   storeCount: number;
@@ -51,6 +99,7 @@ function buildVerdictCopy(opts: {
   currentIsMin: boolean;
   confidenceScore: number;
   bestStoreLabel: string | null;
+  observations: number;
 }): { title: string; lines: string[] } {
   const {
     spanDays,
@@ -59,16 +108,28 @@ function buildVerdictCopy(opts: {
     currentIsMin,
     confidenceScore,
     bestStoreLabel,
+    observations,
   } = opts;
 
   const thinHistory =
-    spanDays < Math.min(14, MIN_HISTORY_SPAN_DAYS / 2) || confidenceScore < 35;
+    spanDays < Math.min(14, MIN_HISTORY_SPAN_DAYS / 2) ||
+    confidenceScore < 35 ||
+    observations < 3;
+
+  const spanLabel =
+    spanDays <= 0
+      ? "ainda sem série de preços suficiente"
+      : spanDays === 1
+        ? "há 1 dia"
+        : `há ${spanDays} dias`;
 
   if (thinHistory) {
     return {
       title: "O Lymiar ainda está a observar este produto",
       lines: [
-        `Acompanhamos este produto há apenas ${spanDays} dia${spanDays === 1 ? "" : "s"}.`,
+        spanDays <= 0
+          ? "Ainda não temos uma série de preços fiável para este produto."
+          : `Acompanhamos este produto ${spanLabel}.`,
         "Ainda não existe informação suficiente para recomendar a compra.",
         storeCount > 0
           ? `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`
@@ -79,7 +140,7 @@ function buildVerdictCopy(opts: {
 
   if (currentIsMin || (!aboveAvg && confidenceScore >= 50)) {
     const lines = [
-      `O Lymiar acompanha este produto há ${spanDays} dias.`,
+      `O Lymiar acompanha este produto ${spanLabel}.`,
       `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`,
       currentIsMin
         ? "O preço actual corresponde ao mínimo observado."
@@ -97,7 +158,7 @@ function buildVerdictCopy(opts: {
   }
 
   const lines = [
-    `O Lymiar acompanha este produto há ${spanDays} dias.`,
+    `O Lymiar acompanha este produto ${spanLabel}.`,
     `Neste momento existem ${storeCount} loja${storeCount === 1 ? "" : "s"} com oferta.`,
     aboveAvg
       ? "O preço encontra-se acima da média observada."
@@ -117,6 +178,8 @@ function buildVerdictCopy(opts: {
 export function ProductPageClient({ slug }: Props) {
   const [product, setProduct] = useState<Product | null>(null);
   const [metrics, setMetrics] = useState<ProductMetricsOut | null>(null);
+  const [seriesHistory, setSeriesHistory] = useState<PricePoint[]>([]);
+  const [similar, setSimilar] = useState<DiscoveryCard[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -126,6 +189,8 @@ export function ProductPageClient({ slug }: Props) {
     setError(null);
     setProduct(null);
     setMetrics(null);
+    setSeriesHistory([]);
+    setSimilar([]);
 
     getProductBySlug(slug)
       .then(async (detail) => {
@@ -133,9 +198,41 @@ export function ProductPageClient({ slug }: Props) {
         const mapped = detailToProduct(detail);
         setProduct(mapped);
 
-        const metricsRes = await fetchProductMetrics(mapped.ean).catch(() => null);
+        const [metricsRes, historyRes] = await Promise.all([
+          fetchProductMetrics(mapped.ean).catch(() => null),
+          fetchPriceHistory(mapped.slug || mapped.ean, 365, "daily").catch(
+            () => null,
+          ),
+        ]);
         if (cancelled) return;
         setMetrics(metricsRes);
+
+        const fromSeries =
+          historyRes?.points?.map((p) => ({
+            date: p.date,
+            price: p.price,
+          })) ?? [];
+        const merged = mergeHistory(fromSeries, mapped.history);
+        setSeriesHistory(merged);
+        if (merged.length > mapped.history.length) {
+          setProduct({ ...mapped, history: merged });
+        }
+
+        const apiRecs = recommendationsFromApi(mapped.recommendations);
+        let picked = pickSimilarAlternatives(mapped, apiRecs, 6);
+        if (picked.length < 4) {
+          const clientRecs = await fetchClientRecommendations(mapped, {
+            forceSearch: true,
+          }).catch(() => null);
+          if (!cancelled) {
+            picked = pickSimilarAlternatives(
+              mapped,
+              mergeRecs(apiRecs, clientRecs),
+              6,
+            );
+          }
+        }
+        if (!cancelled) setSimilar(picked);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -152,25 +249,33 @@ export function ProductPageClient({ slug }: Props) {
     };
   }, [slug]);
 
+  const historyForInsights = useMemo(() => {
+    if (!product) return [];
+    return seriesHistory.length ? seriesHistory : product.history;
+  }, [product, seriesHistory]);
+
   const seasonality = useMemo(() => {
     if (!product) return null;
     return estimateSeasonality(
-      product.history,
+      historyForInsights,
       product.currentPrice,
       product.seasonality.timesBelowCurrent12m,
     );
-  }, [product]);
+  }, [product, historyForInsights]);
 
   const confidence = useMemo(() => {
     if (!product) return null;
     return computeDataConfidence({
-      history: product.history,
+      history: historyForInsights,
       storeCount: metrics?.storeCount ?? product.offers.length,
       samples30d: metrics?.samples30d,
-      samples90d: metrics?.samples90d,
+      samples90d: Math.max(
+        metrics?.samples90d ?? 0,
+        historyForInsights.length,
+      ),
       volatilityPct: metrics?.volatilityPct,
     });
-  }, [product, metrics]);
+  }, [product, metrics, historyForInsights]);
 
   if (loading) {
     if (isP34ProductPageEnabled()) {
@@ -205,12 +310,27 @@ export function ProductPageClient({ slug }: Props) {
     );
   }
 
-  const histMin = product.historicalMin;
-  const histMax = product.historicalMax;
-  const storeCount = metrics?.storeCount ?? product.offers.length;
-  const spanDays = Math.max(1, historySpanDays(product.history));
+  const histMin =
+    historyForInsights.length > 0
+      ? Math.min(
+          product.historicalMin,
+          ...historyForInsights.map((p) => p.price),
+        )
+      : product.historicalMin;
+  const histMax =
+    historyForInsights.length > 0
+      ? Math.max(
+          product.historicalMax,
+          ...historyForInsights.map((p) => p.price),
+        )
+      : product.historicalMax;
+  const storeCount = Math.max(
+    metrics?.storeCount ?? 0,
+    product.offers.length,
+  );
+  const spanDays = observedSpanDays(historyForInsights);
   const observations = Math.max(
-    product.history.length,
+    historyForInsights.length,
     metrics?.samples90d ?? 0,
     metrics?.samples30d ?? 0,
   );
@@ -218,7 +338,7 @@ export function ProductPageClient({ slug }: Props) {
   const avgObserved = metrics?.avg30d ?? product.avg30d;
   const currentIsMin = isAbsoluteHistoricalMin(
     product.currentPrice,
-    product.historicalMin,
+    histMin,
   );
   const aboveAvg = product.currentPrice > avgObserved;
 
@@ -236,13 +356,8 @@ export function ProductPageClient({ slug }: Props) {
     currentIsMin,
     confidenceScore: confidence.score,
     bestStoreLabel,
+    observations,
   });
-
-  const similar = pickSimilarAlternatives(
-    product,
-    recommendationsFromApi(product.recommendations),
-    6,
-  );
 
   const breadcrumbs = buildPremiumProductBreadcrumbs({
     category: product.category,
@@ -255,10 +370,15 @@ export function ProductPageClient({ slug }: Props) {
     chipsetModel: product.chipsetModel,
   });
 
+  const productWithHistory =
+    historyForInsights.length > product.history.length
+      ? { ...product, history: historyForInsights }
+      : product;
+
   if (isP34ProductPageEnabled()) {
     return (
       <ProductPageP34
-        product={product}
+        product={productWithHistory}
         slug={slug}
         breadcrumbs={breadcrumbs}
         verdict={verdict}
@@ -266,8 +386,6 @@ export function ProductPageClient({ slug }: Props) {
         spanDays={spanDays}
         storeCount={storeCount}
         observations={observations}
-        histMin={histMin}
-        histMax={histMax}
         similar={similar}
       />
     );
@@ -275,12 +393,11 @@ export function ProductPageClient({ slug }: Props) {
 
   return (
     <main className="mx-auto max-w-6xl space-y-10 px-4 py-6 sm:space-y-12 sm:px-6 sm:py-10">
-      <ProductJsonLd product={product} />
+      <ProductJsonLd product={productWithHistory} />
       <ProductBreadcrumb crumbs={breadcrumbs} />
 
-      <ProductHero product={product} />
+      <ProductHero product={productWithHistory} />
 
-      {/* Veredicto Lymiar */}
       <section
         id="porque"
         aria-label="Veredicto Lymiar"
@@ -294,87 +411,54 @@ export function ProductPageClient({ slug }: Props) {
             <p key={line}>{line}</p>
           ))}
         </div>
+        <p className="text-sm text-slate-500">
+          Baseado em {spanDays} dias observados · {storeCount}{" "}
+          {storeCount === 1 ? "loja" : "lojas"} · {observations}{" "}
+          {observations === 1 ? "observação" : "observações"}
+        </p>
       </section>
 
-      {/* Confiança */}
-      <section
-        aria-label="Confiança dos dados"
-        className="max-w-md rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm"
-      >
-        <p className="text-sm font-semibold text-slate-800">
-          Confiança dos dados
-        </p>
-        <div className="mt-2 flex items-baseline gap-3">
+      <section className="space-y-2">
+        <h2 className="font-display text-xl font-bold text-slate-900">
+          Confiança nos dados
+        </h2>
+        <p className="flex items-center gap-2 text-sm text-slate-600">
           <Stars stars={confidence.stars} />
-          <span className="font-display text-2xl font-bold tabular-nums text-slate-900">
-            {confidence.score}%
-          </span>
-        </div>
-        <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Baseado em
+          <span>{confidence.label}</span>
         </p>
-        <ul className="mt-2 space-y-1 text-sm text-slate-600">
-          <li>· {spanDays} dias observados</li>
-          <li>· {storeCount} lojas</li>
-          <li>· {observations} alterações de preço</li>
-        </ul>
       </section>
 
-      {/* Histórico */}
-      <section id="historico" className="scroll-mt-28 space-y-4">
+      <section id="lojas" className="scroll-mt-28 space-y-3">
+        <h2 className="font-display text-xl font-bold text-slate-900">
+          Lojas observadas
+        </h2>
+        <StoreCompareTable offers={product.offers} />
+      </section>
+
+      <section id="historico" className="scroll-mt-28 space-y-3">
         <PriceHistoryChart
           productId={slug}
           currentPrice={product.currentPrice}
-          fallbackHistory={product.history}
-          fallbackMin={histMin}
-          fallbackMax={histMax}
+          fallbackHistory={historyForInsights}
         />
       </section>
 
-      {/* Onde comprar */}
-      {product.offers?.length ? (
-        <section id="lojas" className="scroll-mt-28 space-y-4">
+      {similar.length > 0 ? (
+        <section className="space-y-3">
           <h2 className="font-display text-xl font-bold text-slate-900">
-            Onde comprar
-          </h2>
-          <StoreCompareTable offers={product.offers} />
-        </section>
-      ) : null}
-
-      {/* Alternativas */}
-      {similar.length ? (
-        <section id="alternativas" className="scroll-mt-20 space-y-4">
-          <h2 className="font-display text-xl font-bold text-slate-900">
-            Alternativas semelhantes
+            Produtos semelhantes
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {similar.map((p) => (
-              <li key={`alt-${p.slug}`}>
+              <li key={p.slug}>
                 <Link
                   href={`/p/?id=${encodeURIComponent(p.slug)}`}
-                  className="flex h-full items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 transition-colors hover:border-slate-300"
+                  className="block rounded-xl border border-slate-200 p-3 hover:border-orange-200"
                 >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-slate-50">
-                    {p.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={p.imageUrl}
-                        alt=""
-                        className="h-12 w-12 object-contain"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="text-xs text-slate-400">—</span>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-sm font-medium text-slate-900">
-                      {p.name}
-                    </p>
-                    <p className="mt-1 text-sm font-bold tabular-nums text-slate-900">
-                      {formatEUR(p.currentPrice)}
-                    </p>
-                  </div>
+                  <p className="line-clamp-2 text-sm font-medium">{p.name}</p>
+                  <p className="mt-1 text-sm font-bold tabular-nums">
+                    {formatEUR(p.currentPrice)}
+                  </p>
                 </Link>
               </li>
             ))}

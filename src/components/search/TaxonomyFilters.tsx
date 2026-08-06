@@ -34,16 +34,18 @@ export const TaxonomyFilters = memo(function TaxonomyFilters({
   return (
     <div className="space-y-5" data-testid="taxonomy-filters">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--hm-faint,#8b9aab)]">
           Filtros
           {selectedTotal > 0 ? (
-            <span className="ml-1 text-sky-700">({selectedTotal})</span>
+            <span className="ml-1 text-[var(--hm-brand-deep,#e2550f)]">
+              ({selectedTotal})
+            </span>
           ) : null}
         </p>
         {selectedTotal > 0 ? (
           <button
             type="button"
-            className="text-[11px] text-sky-700 hover:underline"
+            className="text-[11px] text-[var(--hm-brand-deep,#e2550f)] hover:underline"
             onClick={onClearSelection}
           >
             Limpar selecção

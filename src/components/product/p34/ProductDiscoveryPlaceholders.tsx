@@ -17,26 +17,24 @@ export function ProductSimilarSection({ products }: Props) {
       aria-labelledby="p34-similar-heading"
     >
       <div>
+        <p className="pdp-kicker">Explorar</p>
         <h2
           id="p34-similar-heading"
-          className="font-display text-xl font-bold text-slate-900"
+          className="mt-2 font-display text-xl font-bold text-slate-900 sm:text-2xl"
         >
           Produtos semelhantes
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          Alternativas próximas no catálogo. Recomendações inteligentes no Bloco 5.
+          Alternativas próximas no catálogo.
         </p>
       </div>
       {products.length === 0 ? (
         <div
-          className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-8 text-center"
+          className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center"
           role="status"
         >
           <p className="text-sm text-slate-600">
             Ainda não temos semelhantes suficientes para este produto.
-          </p>
-          <p className="mt-2 text-xs text-slate-400">
-            Esta secção será alimentada pelo motor de recomendações (Bloco 5).
           </p>
         </div>
       ) : (
@@ -45,7 +43,7 @@ export function ProductSimilarSection({ products }: Props) {
             <li key={`sim-${p.slug}`}>
               <Link
                 href={`/p/?id=${encodeURIComponent(p.slug)}`}
-                className="flex h-full items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 transition-colors hover:border-slate-300"
+                className="flex h-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 transition-colors hover:border-orange-200"
               >
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-slate-50">
                   {p.imageUrl ? (
@@ -97,14 +95,11 @@ export function ProductRelatedInterestSection() {
         </p>
       </div>
       <div
-        className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-8 text-center"
+        className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center"
         role="status"
       >
         <p className="text-sm text-slate-600">
           Em breve: produtos relacionados por uso e categoria.
-        </p>
-        <p className="mt-2 text-xs text-slate-400">
-          Placeholder para o Bloco 5 — sem recomendações nesta fase.
         </p>
       </div>
     </section>

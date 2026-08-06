@@ -44,7 +44,7 @@ export function HomeDifference() {
   return (
     <section id="diferenca" className="scroll-mt-20 border-b border-slate-200 bg-white">
       <div className="home-fade mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl">
-        <p className="text-sm font-semibold text-blue-600">Produto</p>
+        <p className="text-sm font-semibold text-[var(--hm-brand)]">Produto</p>
         <h2 className="mt-3 max-w-2xl font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Porque o Lymiar é diferente?
         </h2>

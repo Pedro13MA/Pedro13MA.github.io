@@ -41,8 +41,8 @@ function ValueRow({
         className={cn(
           "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
           selected
-            ? "bg-sky-50 font-medium text-sky-900"
-            : "text-slate-700 hover:bg-slate-50",
+            ? "bg-[var(--hm-brand-soft,#fff1e8)] font-medium text-[var(--hm-brand-deep,#e2550f)]"
+            : "text-[var(--hm-ink,#0b1220)] hover:bg-[var(--hm-bg-soft,#eef2f6)]",
         )}
       >
         <span
@@ -50,8 +50,8 @@ function ValueRow({
           className={cn(
             "flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px]",
             selected
-              ? "border-sky-600 bg-sky-600 text-white"
-              : "border-slate-300 bg-white text-transparent",
+              ? "border-[var(--hm-brand,#ff6a1a)] bg-[var(--hm-brand,#ff6a1a)] text-white"
+              : "border-[var(--hm-line,#dde3ea)] bg-white text-transparent",
           )}
         >
           ✓
@@ -135,7 +135,7 @@ function BooleanSwitch({
         onClick={() => onChange(setBooleanFacet(selection, facet.id, !on, trueValue))}
         className={cn(
           "relative h-6 w-11 shrink-0 rounded-full transition-colors",
-          on ? "bg-sky-600" : "bg-slate-300",
+          on ? "bg-[var(--hm-brand,#ff6a1a)]" : "bg-slate-300",
         )}
       >
         <span
@@ -167,7 +167,7 @@ function RangePlaceholder({ facet }: { facet: TaxonomyFacet }) {
         ) : null}
       </p>
       <div className="relative h-2 rounded-full bg-slate-200">
-        <div className="absolute inset-y-0 left-[10%] right-[15%] rounded-full bg-sky-300/80" />
+        <div className="absolute inset-y-0 left-[10%] right-[15%] rounded-full bg-[var(--hm-brand,#ff6a1a)]/40" />
       </div>
       <p className="text-[11px] text-slate-400">
         Slider activo na próxima fase — valores abaixo para pré-selecção.
@@ -220,7 +220,7 @@ export const TaxonomyFacetPanel = memo(function TaxonomyFacetPanel({
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
           {facet.label}
           {selectedCount > 0 ? (
-            <span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold normal-case tracking-normal text-sky-800">
+            <span className="ml-1.5 rounded-full bg-[var(--hm-brand-soft,#fff1e8)] px-1.5 py-0.5 text-[10px] font-bold normal-case tracking-normal text-[var(--hm-brand-deep,#e2550f)]">
               {selectedCount}
             </span>
           ) : null}
@@ -259,7 +259,7 @@ export const TaxonomyFacetPanel = memo(function TaxonomyFacetPanel({
               <button
                 type="button"
                 onClick={() => setValuesOpen((v) => !v)}
-                className="text-xs font-medium text-sky-700 hover:underline"
+                className="text-xs font-medium text-[var(--hm-brand-deep,#e2550f)] hover:underline"
               >
                 {valuesOpen ? "Ver menos" : `Ver mais (+${facet.values.length - PREVIEW})`}
               </button>
@@ -289,7 +289,7 @@ export const TaxonomyFacetPanel = memo(function TaxonomyFacetPanel({
             <button
               type="button"
               onClick={() => setValuesOpen((v) => !v)}
-              className="text-xs font-medium text-sky-700 hover:underline"
+              className="text-xs font-medium text-[var(--hm-brand-deep,#e2550f)] hover:underline"
             >
               {valuesOpen ? "Ver menos" : `Ver mais (+${facet.values.length - PREVIEW})`}
             </button>

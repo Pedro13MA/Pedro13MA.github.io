@@ -7,7 +7,6 @@ import { AddToCartButton } from "@/components/smart-cart/AddToCartButton";
 import { AlertRuleModal } from "@/components/user-space/AlertRuleModal";
 import { FavoritesListsDrawer } from "@/components/user-space/FavoritesListsDrawer";
 import { useSnackbar } from "@/components/user-space/Snackbar";
-import { buttonVariants } from "@/components/ui/button";
 import {
   getAlertForProduct,
   isFavorite,
@@ -109,7 +108,7 @@ export function ProductHero({ product }: Props) {
             {product.name}
           </h1>
 
-          <p className="font-display text-4xl font-bold tabular-nums tracking-tight text-slate-900 sm:text-5xl">
+          <p className="font-display text-4xl font-bold tabular-nums tracking-tight text-slate-900 sm:text-[2.75rem]">
             {formatEUR(product.currentPrice)}
           </p>
 
@@ -136,79 +135,74 @@ export function ProductHero({ product }: Props) {
             </p>
           </div>
 
-          {buyUrl ? (
-            <a
-              href={buyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                buttonVariants({ variant: "default", size: "default" }),
-                "mt-1 h-12 w-full justify-center text-base font-semibold sm:max-w-xs",
-              )}
-            >
-              Comprar
-            </a>
-          ) : null}
+          <div className="pdp-actions mt-2 w-full max-w-md">
+            {buyUrl ? (
+              <a
+                href={buyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pdp-cta"
+              >
+                Ver na loja
+              </a>
+            ) : null}
 
-          <div className="grid grid-cols-3 gap-2 sm:max-w-md">
-            <button
-              type="button"
-              aria-pressed={fav}
-              onClick={() => {
-                setListOpen(true);
-                if (!fav) {
-                  setHeartPulse(true);
-                  window.setTimeout(() => setHeartPulse(false), 450);
-                }
-              }}
-              className={cn(
-                "inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-semibold transition-all duration-200",
-                fav
-                  ? "border-rose-300 bg-rose-100 text-rose-900 shadow-sm"
-                  : "border-rose-200/80 bg-rose-50 text-rose-800 hover:border-rose-300 hover:bg-rose-100",
-              )}
-            >
-              <Heart
+            <div className="pdp-actions-row">
+              <button
+                type="button"
+                aria-pressed={fav}
+                onClick={() => {
+                  setListOpen(true);
+                  if (!fav) {
+                    setHeartPulse(true);
+                    window.setTimeout(() => setHeartPulse(false), 450);
+                  }
+                }}
                 className={cn(
-                  "h-4 w-4 shrink-0",
-                  fav && "fill-current",
-                  heartPulse && "lymiar-anim-heart",
+                  "pdp-action-btn",
+                  fav && "pdp-action-btn--on",
                 )}
-                aria-hidden
+              >
+                <Heart
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    fav && "fill-current",
+                    heartPulse && "lymiar-anim-heart",
+                  )}
+                  aria-hidden
+                />
+                {fav ? "Guardado" : "Favorito"}
+              </button>
+
+              <AddToCartButton
+                product={product}
+                heroTone
+                className="pdp-action-btn"
               />
-              {fav ? "Guardado" : "Favorito"}
-            </button>
 
-            <AddToCartButton
-              product={product}
-              heroTone
-              className="h-11 w-full"
-            />
-
-            <button
-              type="button"
-              aria-pressed={alertActive}
-              onClick={() => {
-                setAlertOpen(true);
-                setBellPulse(true);
-                window.setTimeout(() => setBellPulse(false), 550);
-              }}
-              className={cn(
-                "inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-semibold transition-all duration-200",
-                alertActive
-                  ? "border-amber-300 bg-amber-100 text-amber-950 shadow-sm"
-                  : "border-amber-200/80 bg-amber-50 text-amber-900 hover:border-amber-300 hover:bg-amber-100",
-              )}
-            >
-              <Bell
+              <button
+                type="button"
+                aria-pressed={alertActive}
+                onClick={() => {
+                  setAlertOpen(true);
+                  setBellPulse(true);
+                  window.setTimeout(() => setBellPulse(false), 550);
+                }}
                 className={cn(
-                  "h-4 w-4 shrink-0",
-                  bellPulse && "lymiar-anim-bell",
+                  "pdp-action-btn",
+                  alertActive && "pdp-action-btn--on",
                 )}
-                aria-hidden
-              />
-              {alertActive ? "A seguir" : "Alerta"}
-            </button>
+              >
+                <Bell
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    bellPulse && "lymiar-anim-bell",
+                  )}
+                  aria-hidden
+                />
+                {alertActive ? "A seguir" : "Alerta"}
+              </button>
+            </div>
           </div>
         </div>
       </header>

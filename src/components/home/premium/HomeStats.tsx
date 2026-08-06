@@ -1,21 +1,18 @@
 "use client";
 
+/**
+ * Contagens de catálogo — só exactas, sem arredondar com “+”.
+ * Não usadas na homepage (métricas de vaidade confundem transparência).
+ * Mantido para eventual página Mercado / sobre o catálogo.
+ */
 import { useEffect, useState } from "react";
 import { getHome, type HomepageMarketSummary } from "@/lib/api";
 
-function formatCount(n: number): string {
+function formatExact(n: number): string {
   if (!Number.isFinite(n) || n < 0) return "—";
-  if (n >= 1_000_000) {
-    const m = n / 1_000_000;
-    return `${m >= 10 ? Math.round(m) : m.toFixed(1).replace(/\.0$/, "")} M+`;
-  }
-  if (n >= 1000) {
-    return `${new Intl.NumberFormat("pt-PT").format(Math.round(n / 100) * 100)}+`;
-  }
-  return new Intl.NumberFormat("pt-PT").format(n);
+  return new Intl.NumberFormat("pt-PT").format(Math.trunc(n));
 }
 
-/** Stats honestas a partir de /api/v1/home — sem inventar números. */
 export function HomeStats() {
   const [summary, setSummary] = useState<HomepageMarketSummary | null>(null);
 
@@ -36,10 +33,10 @@ export function HomeStats() {
   if (!summary) return null;
 
   const items = [
-    { value: formatCount(summary.products), label: "Produtos" },
-    { value: formatCount(summary.stores), label: "Lojas" },
-    { value: formatCount(summary.brands), label: "Marcas" },
-    { value: formatCount(summary.categories), label: "Categorias" },
+    { value: formatExact(summary.products), label: "Produtos observados" },
+    { value: formatExact(summary.stores), label: "Lojas" },
+    { value: formatExact(summary.brands), label: "Marcas" },
+    { value: formatExact(summary.categories), label: "Categorias" },
   ];
 
   return (
@@ -63,7 +60,7 @@ export function HomeStats() {
           ))}
         </div>
         <p className="mt-8 text-xs text-slate-400">
-          Contagens observadas no catálogo Lymiar · actualização contínua
+          Contagens exactas do catálogo no momento do pedido — sem arredondar.
         </p>
       </div>
     </section>

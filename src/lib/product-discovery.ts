@@ -238,21 +238,44 @@ export function recommendationsFromApi(
   return raw as ProductRecommendations;
 }
 
+/** Extrai query de família (iphone, rtx 4070, ssd…) para semelhantes reais. */
+export function similarSearchQuery(product: Product): string {
+  const name = (product.name || "").toLowerCase();
+  const chip = (product.chipsetModel || "").trim();
+  if (chip) return chip;
+
+  const familyMatch = name.match(
+    /\b(iphone\s*\d+\s*(pro\s*max|pro|plus|mini)?|galaxy\s*[asz]?\d+\w*|pixel\s*\d+[a]?\w*|macbook\s*(air|pro)?|rtx\s*\d{3,4}\s*(ti|super)?|rx\s*\d{3,4}\s*(xt)?|ssd|nvme|air\s*fryer|fritadeira)\b/i,
+  );
+  if (familyMatch) return familyMatch[0].replace(/\s+/g, " ").trim();
+
+  if (/\biphone\b/i.test(name)) return "iphone";
+  if (/\bgalaxy\b/i.test(name)) return [product.brand, "galaxy"].filter(Boolean).join(" ");
+  if (/\brtx\b/i.test(name)) return "rtx";
+
+  const brandLeaf = [product.brand, product.leafId || product.subcategory]
+    .filter(Boolean)
+    .join(" ");
+  if (brandLeaf.trim()) return brandLeaf.trim();
+
+  return product.name.split(/\s+/).slice(0, 4).join(" ");
+}
+
 /** Lazy: 1 pesquisa semelhante quando a API não trouxe recommendations. */
 export async function fetchClientRecommendations(
   product: Product,
+  opts?: { forceSearch?: boolean },
 ): Promise<ProductRecommendations | null> {
-  const fromApi = recommendationsFromApi(product.recommendations);
-  if (fromApi) return fromApi;
+  if (!opts?.forceSearch) {
+    const fromApi = recommendationsFromApi(product.recommendations);
+    if (fromApi) return fromApi;
+  }
 
-  const q =
-    product.chipsetModel ||
-    [product.brand, product.leafId || product.subcategory].filter(Boolean).join(" ") ||
-    product.name.split(" ").slice(0, 4).join(" ");
+  const q = similarSearchQuery(product);
   if (!q.trim()) return null;
   try {
     const res = await searchProducts(q.trim(), {
-      limit: 24,
+      limit: 32,
       sortBy: "lymiar_desc",
       category: product.leafId || product.subcategory || undefined,
     });

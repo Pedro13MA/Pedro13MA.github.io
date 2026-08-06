@@ -1,6 +1,6 @@
 /** FASE 8.1 — cliente HTTP autenticado para /api/v1/user/*. */
 
-import { getApiBaseUrl } from "@/lib/api";
+import { apiClient, apiFetchRaw } from "@/lib/api-client";
 import { getStoredToken } from "@/lib/auth/session";
 
 export type CloudCollectionResponse<T = unknown> = {
@@ -23,14 +23,13 @@ export async function cloudGet<T>(
   collection: string,
   etag?: string | null,
 ): Promise<{ status: number; data: CloudCollectionResponse<T> | null }> {
-  const url = `${getApiBaseUrl()}/api/v1/user/${collection}`;
-  const headers = authHeaders(
-    etag ? { "If-None-Match": `"${etag}"` } : undefined,
-  );
-  const res = await fetch(url, {
-    headers,
+  const path = `/api/v1/user/${collection}`;
+  const res = await apiFetchRaw(path, {
+    headers: authHeaders(
+      etag ? { "If-None-Match": `"${etag}"` } : undefined,
+    ),
     credentials: "include",
-    cache: "no-store",
+    label: "CLOUD_GET",
   });
   if (res.status === 304) {
     return { status: 304, data: null };
@@ -38,41 +37,39 @@ export async function cloudGet<T>(
   if (!res.ok) {
     throw new Error(`cloud_get_${res.status}`);
   }
-  return { status: res.status, data: (await res.json()) as CloudCollectionResponse<T> };
+  return {
+    status: res.status,
+    data: (await res.json()) as CloudCollectionResponse<T>,
+  };
 }
 
 export async function cloudPut<T>(
   collection: string,
   body: unknown,
 ): Promise<CloudCollectionResponse<T>> {
-  const url = `${getApiBaseUrl()}/api/v1/user/${collection}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: authHeaders(),
-    credentials: "include",
-    cache: "no-store",
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    throw new Error(`cloud_put_${res.status}`);
-  }
-  return (await res.json()) as CloudCollectionResponse<T>;
+  return apiClient.post<CloudCollectionResponse<T>>(
+    `/api/v1/user/${collection}`,
+    body,
+    {
+      headers: authHeaders(),
+      credentials: "include",
+      label: "CLOUD_PUT",
+    },
+  );
 }
 
 export async function cloudDelete(
   collection: string,
   itemId: string,
 ): Promise<void> {
-  const url = `${getApiBaseUrl()}/api/v1/user/${collection}/${encodeURIComponent(itemId)}`;
-  const res = await fetch(url, {
-    method: "DELETE",
-    headers: authHeaders(),
-    credentials: "include",
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    throw new Error(`cloud_delete_${res.status}`);
-  }
+  await apiClient.delete(
+    `/api/v1/user/${collection}/${encodeURIComponent(itemId)}`,
+    {
+      headers: authHeaders(),
+      credentials: "include",
+      label: "CLOUD_DELETE",
+    },
+  );
 }
 
 export async function cloudSyncStatus(): Promise<{
@@ -81,28 +78,26 @@ export async function cloudSyncStatus(): Promise<{
   etags: Record<string, string>;
   cloudEmpty: boolean;
 }> {
-  const url = `${getApiBaseUrl()}/api/v1/user/sync/status`;
-  const res = await fetch(url, {
+  return apiClient.get("/api/v1/user/sync/status", {
     headers: authHeaders(),
     credentials: "include",
-    cache: "no-store",
+    label: "SYNC_STATUS",
   });
-  if (!res.ok) throw new Error(`sync_status_${res.status}`);
-  return res.json();
 }
 
 export async function cloudRegisterDevice(
   deviceId: string,
   label?: string,
 ): Promise<void> {
-  const url = `${getApiBaseUrl()}/api/v1/user/sync/device`;
-  await fetch(url, {
-    method: "POST",
-    headers: authHeaders(),
-    credentials: "include",
-    cache: "no-store",
-    body: JSON.stringify({ deviceId, label }),
-  });
+  await apiClient.post(
+    "/api/v1/user/sync/device",
+    { deviceId, label },
+    {
+      headers: authHeaders(),
+      credentials: "include",
+      label: "SYNC_DEVICE",
+    },
+  );
 }
 
 const ETAG_KEY = "lymiar.sync.etags.v1";

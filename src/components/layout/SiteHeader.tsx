@@ -9,11 +9,15 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { isP32NavigationEnabled } from "@/lib/nav/flags";
 import { SiteHeaderP32 } from "@/components/nav/SiteHeaderP32";
 import { BottomNavigation } from "@/components/nav/BottomNavigation";
+import { SearchTypeahead } from "@/components/search/SearchTypeahead";
+import { useHeaderSearchVisibility } from "@/hooks/useHeaderSearchVisibility";
 
 function SiteHeaderLegacy() {
+  const { showHeaderSearch } = useHeaderSearchVisibility();
+
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:gap-4">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-slate-900"
@@ -25,49 +29,37 @@ function SiteHeaderLegacy() {
           </span>
         </Link>
         <nav
-          className="flex min-w-0 items-center gap-3 text-sm text-slate-500 sm:gap-4"
+          className="hidden items-center gap-3 text-sm text-slate-500 md:flex"
           aria-label="Principal"
         >
-          <div className="flex min-w-0 flex-1 items-center gap-3 overflow-x-auto sm:gap-4">
-            <Link href="/categorias/" className="shrink-0 hover:text-slate-900">
-              Categorias
-            </Link>
-            <Link href="/mercado/" className="shrink-0 hover:text-slate-900">
-              Mercado
-            </Link>
-            <Link href="/catalogo/" className="shrink-0 hover:text-slate-900">
-              Catálogo
-            </Link>
-            {CATEGORY_MENU_L1.slice(0, 3).map((c) => (
-              <Link
-                key={c.slug}
-                href={`/categoria/${c.slug}/`}
-                className="hidden shrink-0 hover:text-slate-900 md:inline"
-              >
-                {c.label}
-              </Link>
-            ))}
-            <Link
-              href="/catalog/"
-              className="hidden shrink-0 hover:text-slate-900 lg:inline"
-            >
-              Explorar
-            </Link>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <NotificationBell />
-            <UserMenu />
-            <a
-              href={TELEGRAM_CHANNEL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md sm:inline-flex"
-            >
-              Telegram
-            </a>
-          </div>
+          <Link href="/categorias/" className="hover:text-slate-900">
+            Categorias
+          </Link>
         </nav>
+        <div
+          className={`header-search-slot ${
+            showHeaderSearch
+              ? "header-search-slot--in"
+              : "header-search-slot--out"
+          }`}
+          role={showHeaderSearch ? "search" : undefined}
+          aria-hidden={!showHeaderSearch}
+        >
+          <SearchTypeahead compact placeholder="Pesquisar produto…" />
+        </div>
+        {!showHeaderSearch ? <div className="min-w-0 flex-1" aria-hidden /> : null}
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <NotificationBell />
+          <UserMenu />
+          <a
+            href={TELEGRAM_CHANNEL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:shadow-md sm:inline-flex"
+          >
+            Telegram
+          </a>
+        </div>
       </div>
     </header>
   );

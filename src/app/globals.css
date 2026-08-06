@@ -157,11 +157,57 @@ body {
   animation: lymiar-bell-wiggle 0.55s ease;
 }
 
+/* Pesquisa homepage → header: efeito de “engolir” no topo */
+@keyframes header-search-ingest {
+  0% {
+    opacity: 0;
+    transform: translateY(36px) scale(1.22);
+    filter: blur(4px);
+  }
+  70% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.header-search-slot {
+  transform-origin: top center;
+  min-width: 0;
+}
+
+.header-search-slot--in {
+  flex: 1 1 auto;
+  max-width: none;
+  opacity: 1;
+  pointer-events: auto;
+  overflow: visible;
+  animation: header-search-ingest 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.header-search-slot--out {
+  flex: 0 0 0;
+  max-width: 0;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  margin-left: 0 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lymiar-flame-badge,
   .lymiar-anim-heart,
   .lymiar-anim-cart,
   .lymiar-anim-bell {
+    animation: none;
+  }
+
+  .header-search-slot--in {
     animation: none;
   }
 }

@@ -3,6 +3,7 @@ import { SiteFooter, SiteHeader } from "@/components/layout/SiteHeader";
 import { SearchBar } from "@/components/layout/SearchBar";
 import CategoriasHubClient from "./CategoriasHubClient";
 import { SITE_URL } from "@/lib/constants";
+import "@/components/catalogo/catalog-premium.css";
 
 export const metadata: Metadata = {
   title: "Categorias | Lymiar",
@@ -12,15 +13,15 @@ export const metadata: Metadata = {
 
 export default function CategoriasPage() {
   return (
-    <>
+    <div className="catalog-premium">
       <SiteHeader />
-      <div className="border-b border-slate-200/80 bg-gradient-to-b from-white to-slate-50">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <div className="border-b border-[var(--hm-line)] bg-[var(--hm-bg-elevated)]">
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:max-w-7xl">
           <SearchBar />
         </div>
       </div>
       <CategoriasHubClient />
       <SiteFooter />
-    </>
+    </div>
   );
 }
