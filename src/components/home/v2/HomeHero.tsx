@@ -17,7 +17,7 @@ export function HomeHero() {
     <section className="relative overflow-visible border-b border-slate-200/60 bg-gradient-to-b from-white via-sky-50/60 to-white">
       <div className="relative mx-auto max-w-6xl overflow-visible px-4 pb-10 pt-14 sm:px-6 sm:pb-14 sm:pt-20">
         <div className="mb-6">
-          <LymiarLogo size={64} alt="Lymiar" priority />
+          <LymiarLogo size={88} variant="primary" alt="Lymiar" priority />
         </div>
         <h1 className="font-display max-w-2xl text-[2.1rem] font-bold leading-[1.12] tracking-tight text-slate-900 sm:text-5xl">
           {BRAND_TAGLINE}

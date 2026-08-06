@@ -20,13 +20,10 @@ function SiteHeaderLegacy() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:gap-4">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-slate-900"
+          className="flex shrink-0 items-center font-display text-lg font-semibold tracking-tight text-slate-900"
           aria-label="Lymiar — início"
         >
-          <LymiarLogo size={36} alt="Lymiar" priority />
-          <span className="hidden text-xs font-normal text-sky-700 sm:inline">
-            Quando comprar
-          </span>
+          <LymiarLogo size={36} variant="horizontal" alt="Lymiar" priority />
         </Link>
         <nav
           className="hidden items-center gap-3 text-sm text-slate-500 md:flex"
@@ -128,7 +125,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="flex flex-col gap-12 lg:flex-row lg:justify-between lg:gap-16">
           <div className="max-w-xs shrink-0">
-            <LymiarLogo size={44} alt="Lymiar" />
+            <LymiarLogo size={48} variant="horizontal" alt="Lymiar" />
             <p className="mt-4 text-[15px] leading-relaxed text-slate-500">
               {BRAND_TAGLINE}
             </p>

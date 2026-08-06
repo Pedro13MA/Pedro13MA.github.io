@@ -60,7 +60,7 @@ function HomeJsonLd() {
     "@type": "Organization",
     name: "Lymiar",
     url: SITE_URL,
-    logo: `${SITE_URL}/brand/lymiar-logotipo.png`,
+    logo: `${SITE_URL}/brand/lymiar-logo-primary.png`,
   };
   return (
     <>

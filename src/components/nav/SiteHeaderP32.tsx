@@ -27,7 +27,7 @@ export function SiteHeaderP32() {
           className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold tracking-tight text-slate-900"
           aria-label="Lymiar — início"
         >
-          <LymiarLogo size={36} alt="Lymiar" priority />
+          <LymiarLogo size={36} variant="horizontal" alt="Lymiar" priority />
         </Link>
 
         <nav

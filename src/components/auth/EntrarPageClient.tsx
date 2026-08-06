@@ -109,7 +109,7 @@ function EntrarInner() {
         <section className="entrar-login" aria-labelledby="entrar-title">
           <div className="entrar-login-card catalog-panel">
             <div className="flex items-center gap-3">
-              <LymiarLogo size={48} alt="Lymiar" priority />
+              <LymiarLogo size={72} variant="primary" alt="Lymiar" priority />
               <p className="catalog-kicker">Área pessoal</p>
             </div>
 
