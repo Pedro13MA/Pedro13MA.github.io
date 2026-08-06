@@ -1,7 +1,7 @@
 "use client";
 
 import { BreadcrumbNav } from "@/components/nav/BreadcrumbNav";
-import { PriceHistoryChart } from "@/components/PriceHistoryChart";
+import { PriceHistoryChartLazy as PriceHistoryChart } from "@/components/PriceHistoryChartLazy";
 import { ProductHero } from "@/components/product/ProductHero";
 import { ProductJsonLd } from "@/components/product/ProductJsonLd";
 import { StoreCompareTable } from "@/components/product/StoreCompareTable";

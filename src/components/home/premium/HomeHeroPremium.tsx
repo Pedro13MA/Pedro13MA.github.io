@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { HomeSearchBar } from "@/components/home/premium/HomeSearchBar";
-import { getDealsNow, summaryToProduct } from "@/lib/api";
+import { useHomeDeals } from "@/components/home/premium/HomeDealsProvider";
 import type { Product } from "@/lib/types";
 
 const PILLS = [
@@ -36,23 +36,11 @@ function ProductShot({ product }: { product: Product }) {
 }
 
 export function HomeHeroPremium() {
-  const [shots, setShots] = useState<Product[]>([]);
-
-  useEffect(() => {
-    let c = false;
-    getDealsNow(12)
-      .then((res) => {
-        if (c) return;
-        const products = res.results.map(summaryToProduct).filter((p) => p.imageUrl);
-        setShots(products.slice(0, 6));
-      })
-      .catch(() => {
-        if (!c) setShots([]);
-      });
-    return () => {
-      c = true;
-    };
-  }, []);
+  const { dealsNow, loading } = useHomeDeals();
+  const shots = useMemo(
+    () => dealsNow.filter((p) => p.imageUrl).slice(0, 6),
+    [dealsNow],
+  );
 
   return (
     <section className="border-b border-slate-200 bg-white">
@@ -91,11 +79,13 @@ export function HomeHeroPremium() {
           <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
             {(shots.length
               ? shots
-              : Array.from({ length: 6 }).map((_, i) => ({
-                  ean: `ph-${i}`,
-                  name: "Produto",
-                  imageUrl: null,
-                }))
+              : loading
+                ? Array.from({ length: 6 }).map((_, i) => ({
+                    ean: `ph-${i}`,
+                    name: "Produto",
+                    imageUrl: null,
+                  }))
+                : []
             ).map((p, i) => (
               <div
                 key={"ean" in p ? p.ean : i}

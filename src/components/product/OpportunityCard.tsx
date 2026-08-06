@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
@@ -18,7 +19,29 @@ type Props = {
   detectedAt?: string | null;
 };
 
-export function OpportunityCard({ product, showDropToday, compact }: Props) {
+function opportunityCardPropsAreEqual(prev: Props, next: Props): boolean {
+  if (prev.compact !== next.compact) return false;
+  if (prev.showDropToday !== next.showDropToday) return false;
+  if (prev.detectedAt !== next.detectedAt) return false;
+  const a = prev.product;
+  const b = next.product;
+  return (
+    a.ean === b.ean &&
+    a.slug === b.slug &&
+    a.currentPrice === b.currentPrice &&
+    a.name === b.name &&
+    a.imageUrl === b.imageUrl &&
+    a.decision.semaphore === b.decision.semaphore &&
+    a.decision.reason === b.decision.reason &&
+    a.decision.lymiarIndex?.summary === b.decision.lymiarIndex?.summary
+  );
+}
+
+export const OpportunityCard = memo(function OpportunityCard({
+  product,
+  showDropToday,
+  compact,
+}: Props) {
   const currentPrice = product.currentPrice;
   const sem = SEMAPHORE_LABEL[product.decision.semaphore];
   const specParts = [product.chipsetModel, product.vramSpec].filter(Boolean);
@@ -193,4 +216,4 @@ export function OpportunityCard({ product, showDropToday, compact }: Props) {
       </div>
     </div>
   );
-}
+}, opportunityCardPropsAreEqual);

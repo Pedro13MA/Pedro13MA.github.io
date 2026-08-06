@@ -19,7 +19,7 @@ import { recommendationsFromApi } from "@/lib/product-discovery";
 import { pickSimilarAlternatives } from "@/lib/product-similar-alternatives";
 import { buildPremiumProductBreadcrumbs } from "@/lib/product-breadcrumb-premium";
 import { isP34ProductPageEnabled } from "@/lib/product/flags";
-import { PriceHistoryChart } from "@/components/PriceHistoryChart";
+import { PriceHistoryChartLazy as PriceHistoryChart } from "@/components/PriceHistoryChartLazy";
 import { ProductBreadcrumb } from "@/components/product/ProductBreadcrumb";
 import { ProductHero } from "@/components/product/ProductHero";
 import { ProductJsonLd } from "@/components/product/ProductJsonLd";

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { getDealsNow, getDealsWait, summaryToProduct } from "@/lib/api";
+import { useHomeDeals } from "@/components/home/premium/HomeDealsProvider";
 import { formatEUR } from "@/lib/utils";
 import type { Product } from "@/lib/types";
 import { MiniSparkline } from "@/components/home/premium/illustrations";
@@ -137,36 +137,15 @@ function BigCard({
 
 /** “O que diz o histórico?” — 3 cartões grandes. */
 export function HomeDecisionsPremium() {
-  const [buy, setBuy] = useState<Product[]>([]);
-  const [wait, setWait] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let c = false;
-    (async () => {
-      try {
-        const [a, b] = await Promise.all([getDealsNow(12), getDealsWait(12)]);
-        if (c) return;
-        setBuy(a.results.map(summaryToProduct));
-        setWait(b.results.map(summaryToProduct));
-      } catch {
-        /* keep empty */
-      } finally {
-        if (!c) setLoading(false);
-      }
-    })();
-    return () => {
-      c = true;
-    };
-  }, []);
+  const { dealsNow, dealsWait, loading } = useHomeDeals();
 
   const { buyOne, waitOne } = useMemo(() => {
     const used = new Set<string>();
     return {
-      buyOne: takeUnique(buy, used, 1)[0] ?? null,
-      waitOne: takeUnique(wait, used, 1)[0] ?? null,
+      buyOne: takeUnique(dealsNow, used, 1)[0] ?? null,
+      waitOne: takeUnique(dealsWait, used, 1)[0] ?? null,
     };
-  }, [buy, wait]);
+  }, [dealsNow, dealsWait]);
 
   return (
     <section id="decisoes" className="scroll-mt-20 bg-slate-50">
