@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "@/components/auth/SessionProvider";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { isAdminRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 
 /** Conta no header light da homepage. */
@@ -72,6 +73,18 @@ export function HomeAccountMenu() {
             >
               Perfil
             </Link>
+            {isAdminRole(user.role) ? (
+              <>
+                <div className="my-1 border-t border-slate-100" />
+                <Link
+                  href="/control-center/"
+                  role="menuitem"
+                  className="block px-3 py-2.5 text-sm font-medium text-slate-900 hover:bg-slate-50"
+                >
+                  🛠 Control Center
+                </Link>
+              </>
+            ) : null}
             <button
               type="button"
               role="menuitem"

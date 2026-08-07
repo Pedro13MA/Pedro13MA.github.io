@@ -23,6 +23,7 @@ import { formatEUR } from "@/lib/utils";
 import { useSession } from "@/components/auth/SessionProvider";
 import { LoadingAuth } from "@/components/auth/LoadingAuth";
 import { SyncStatusCard } from "@/components/sync/SyncUI";
+import { isAdminRole } from "@/lib/auth/roles";
 
 type Counts = {
   favorites: number;
@@ -83,6 +84,8 @@ function GuestMinhaArea() {
 }
 
 function AuthenticatedMinhaArea() {
+  const { user } = useSession();
+  const showControlCenter = isAdminRole(user?.role);
   const [counts, setCounts] = useState<Counts>({
     favorites: 0,
     alerts: 0,
@@ -157,6 +160,9 @@ function AuthenticatedMinhaArea() {
           label="Timeline"
           value={stats?.eventsThisWeek ?? 0}
         />
+        {showControlCenter ? (
+          <StatLink href="/control-center/" label="🛠 Control Center" value="→" />
+        ) : null}
       </section>
 
       <section className="space-y-3">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "@/components/auth/SessionProvider";
+import { isAdminRole } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 
 export function UserMenu() {
@@ -30,6 +31,7 @@ export function UserMenu() {
   }
 
   const initial = (user.name || user.email || "?").slice(0, 1).toUpperCase();
+  const showControlCenter = isAdminRole(user.role);
 
   return (
     <div className="relative shrink-0">
@@ -126,6 +128,18 @@ export function UserMenu() {
           >
             Perfil
           </Link>
+          {showControlCenter ? (
+            <>
+              <div className="my-1 border-t border-slate-100" />
+              <Link
+                href="/control-center/"
+                role="menuitem"
+                className="block min-h-11 px-3 py-2.5 font-medium text-slate-900 hover:bg-slate-50"
+              >
+                🛠 Control Center
+              </Link>
+            </>
+          ) : null}
           <button
             type="button"
             role="menuitem"

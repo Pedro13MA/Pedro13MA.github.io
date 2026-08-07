@@ -1,4 +1,6 @@
-/** Tipos de identidade Lymiar — espelham o User do Hub (FASE 8.0). */
+/** Tipos de identidade Lymiar — espelham o User do Hub (FASE 8.0 + role). */
+
+import type { UserRole } from "@/lib/auth/roles";
 
 export type LymiarUser = {
   id: string;
@@ -9,6 +11,8 @@ export type LymiarUser = {
   image: string | null;
   createdAt: string;
   lastLogin: string;
+  /** Fonte: backend IdentityStore — nunca derivar no cliente. */
+  role?: UserRole;
 };
 
 export type LymiarSession = {

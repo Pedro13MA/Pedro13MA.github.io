@@ -1,6 +1,7 @@
 /** Cliente de sessão — JWT em sessionStorage + cookie cross-origin no Hub. */
 
 import { apiClient } from "@/lib/api-client";
+import { normalizeRole } from "@/lib/auth/roles";
 import type { LymiarSession, LymiarUser } from "@/lib/auth/types";
 import type { AuthProviderId } from "@/auth.config";
 import { getApiBaseUrl } from "@/lib/api-base-url";
@@ -31,13 +32,26 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function normalizeUser(user: LymiarUser | null | undefined): LymiarUser | null {
+  if (!user) return null;
+  return { ...user, role: normalizeRole(user.role) };
+}
+
+function normalizeSession(session: LymiarSession): LymiarSession {
+  if (!session.authenticated || !session.user) {
+    return { authenticated: false, user: null };
+  }
+  return { authenticated: true, user: normalizeUser(session.user) };
+}
+
 export async function fetchSession(): Promise<LymiarSession> {
   try {
-    return await apiClient.get<LymiarSession>("/api/v1/session", {
+    const session = await apiClient.get<LymiarSession>("/api/v1/session", {
       headers: authHeaders(),
       credentials: "include",
       label: "SESSION",
     });
+    return normalizeSession(session);
   } catch {
     return { authenticated: false, user: null };
   }
@@ -45,11 +59,12 @@ export async function fetchSession(): Promise<LymiarSession> {
 
 export async function fetchMe(): Promise<LymiarUser | null> {
   try {
-    return await apiClient.get<LymiarUser>("/api/v1/me", {
+    const user = await apiClient.get<LymiarUser>("/api/v1/me", {
       headers: authHeaders(),
       credentials: "include",
       label: "ME",
     });
+    return normalizeUser(user);
   } catch {
     return null;
   }
